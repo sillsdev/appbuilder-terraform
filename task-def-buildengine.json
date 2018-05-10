@@ -1,0 +1,274 @@
+[
+  {
+    "volumesFrom": [],
+    "memory": ${api_memory},
+    "extraHosts": null,
+    "dnsServers": null,
+    "disableNetworking": null,
+    "dnsSearchDomains": null,
+    "portMappings": [
+      {
+        "hostPort": 0,
+        "containerPort": 80,
+        "protocol": "tcp"
+      }
+    ],
+    "hostname": null,
+    "essential": true,
+    "entryPoint": [],
+    "mountPoints": [],
+    "name": "web",
+    "ulimits": null,
+    "dockerSecurityOptions": null,
+    "environment": [
+      {
+        "name": "ADMIN_EMAIL",
+        "value": "${ADMIN_EMAIL}"
+      },
+      {
+        "name": "API_ACCESS_TOKEN",
+        "value": "${API_ACCESS_TOKEN}"
+      },
+      {
+        "name": "APPBUILDER_GIT_SSH_USER",
+        "value": "${APPBUILDER_GIT_SSH_USER}"
+      },
+      {
+        "name": "APP_ENV",
+        "value": "${APP_ENV}"
+      },
+      {
+        "name": "AWS_ACCESS_KEY_ID",
+        "value": "${AWS_ACCESS_KEY_ID}"
+      },
+      {
+        "name": "AWS_SECRET_ACCESS_KEY",
+        "value": "${AWS_SECRET_ACCESS_KEY}"
+      },
+      {
+        "name": "BUILD_ENGINE_ARTIFACTS_BUCKET",
+        "value": "${BUILD_ENGINE_ARTIFACTS_BUCKET}"
+      },
+      {
+        "name": "BUILD_ENGINE_GIT_SSH_USER",
+        "value": "${BUILD_ENGINE_GIT_SSH_USER}"
+      },
+      {
+        "name": "BUILD_ENGINE_GIT_USER_EMAIL",
+        "value": "${BUILD_ENGINE_GIT_USER_EMAIL}"
+      },
+      {
+        "name": "BUILD_ENGINE_GIT_USER_NAME",
+        "value": "${BUILD_ENGINE_GIT_USER_NAME}"
+      },
+      {
+        "name": "BUILD_ENGINE_JENKINS_MASTER_URL",
+        "value": "${BUILD_ENGINE_JENKINS_MASTER_URL}"
+      },
+      {
+        "name": "BUILD_ENGINE_REPO_BRANCH",
+        "value": "${BUILD_ENGINE_REPO_BRANCH}"
+      },
+      {
+        "name": "BUILD_ENGINE_REPO_URL",
+        "value": "${BUILD_ENGINE_REPO_URL}"
+      },
+      {
+        "name": "EXPAND_S3_FILES",
+        "value": "${EXPAND_S3_FILES}"
+      },
+      {
+        "name": "EXPAND_S3_KEY",
+        "value": "${EXPAND_S3_KEY}"
+      },
+      {
+        "name": "EXPAND_S3_SECRET",
+        "value": "${EXPAND_S3_SECRET}"
+      },
+      {
+        "name": "FRONT_COOKIE_KEY",
+        "value": "${FRONT_COOKIE_KEY}"
+      },
+      {
+        "name": "LOGENTRIES_KEY",
+        "value": "${LOGENTRIES_KEY}"
+      },
+      {
+        "name": "MAILER_PASSWORD",
+        "value": "${MAILER_PASSWORD}"
+      },
+      {
+        "name": "MAILER_USEFILES",
+        "value": "${MAILER_USEFILES}"
+      },
+      {
+        "name": "MAILER_USERNAME",
+        "value": "${MAILER_USERNAME}"
+      },
+      {
+        "name": "MYSQL_DATABASE",
+        "value": "${MYSQL_DATABASE}"
+      },
+      {
+        "name": "MYSQL_HOST",
+        "value": "${MYSQL_HOST}"
+      },
+      {
+        "name": "MYSQL_PASSWORD",
+        "value": "${MYSQL_PASSWORD}"
+      },
+      {
+        "name": "MYSQL_USER",
+        "value": "${MYSQL_USER}"
+      },
+      {
+        "name": "PUBLISH_JENKINS_MASTER_URL",
+        "value": "${PUBLISH_JENKINS_MASTER_URL}"
+      }
+    ],
+    "links": [],
+    "workingDirectory": null,
+    "readonlyRootFilesystem": null,
+    "image": "${buildengine_docker_image}:${buildengine_docker_tag}",
+    "command": [],
+    "user": null,
+    "dockerLabels": null,
+    "logConfiguration": null,
+    "cpu": ${api_cpu},
+    "privileged": null,
+    "memoryReservation": null
+  },
+  {
+    "volumesFrom": [],
+    "memory": ${cron_memory},
+    "extraHosts": null,
+    "dnsServers": null,
+    "disableNetworking": null,
+    "dnsSearchDomains": null,
+    "portMappings": [],
+    "hostname": null,
+    "essential": true,
+    "entryPoint": [],
+    "mountPoints": [],
+    "name": "cron",
+    "ulimits": null,
+    "dockerSecurityOptions": null,
+    "environment": [
+      {
+        "name": "ADMIN_EMAIL",
+        "value": "${ADMIN_EMAIL}"
+      },
+      {
+        "name": "API_ACCESS_TOKEN",
+        "value": "${API_ACCESS_TOKEN}"
+      },
+      {
+        "name": "APPBUILDER_GIT_SSH_USER",
+        "value": "${APPBUILDER_GIT_SSH_USER}"
+      },
+      {
+        "name": "APP_ENV",
+        "value": "${APP_ENV}"
+      },
+      {
+        "name": "AWS_ACCESS_KEY_ID",
+        "value": "${AWS_ACCESS_KEY_ID}"
+      },
+      {
+        "name": "AWS_SECRET_ACCESS_KEY",
+        "value": "${AWS_SECRET_ACCESS_KEY}"
+      },
+      {
+        "name": "BUILD_ENGINE_ARTIFACTS_BUCKET",
+        "value": "${BUILD_ENGINE_ARTIFACTS_BUCKET}"
+      },
+      {
+        "name": "BUILD_ENGINE_GIT_SSH_USER",
+        "value": "${BUILD_ENGINE_GIT_SSH_USER}"
+      },
+      {
+        "name": "BUILD_ENGINE_GIT_USER_EMAIL",
+        "value": "${BUILD_ENGINE_GIT_USER_EMAIL}"
+      },
+      {
+        "name": "BUILD_ENGINE_GIT_USER_NAME",
+        "value": "${BUILD_ENGINE_GIT_USER_NAME}"
+      },
+      {
+        "name": "BUILD_ENGINE_JENKINS_MASTER_URL",
+        "value": "${BUILD_ENGINE_JENKINS_MASTER_URL}"
+      },
+      {
+        "name": "BUILD_ENGINE_REPO_BRANCH",
+        "value": "${BUILD_ENGINE_REPO_BRANCH}"
+      },
+      {
+        "name": "BUILD_ENGINE_REPO_URL",
+        "value": "${BUILD_ENGINE_REPO_URL}"
+      },
+      {
+        "name": "EXPAND_S3_FILES",
+        "value": "${EXPAND_S3_FILES}"
+      },
+      {
+        "name": "EXPAND_S3_KEY",
+        "value": "${EXPAND_S3_KEY}"
+      },
+      {
+        "name": "EXPAND_S3_SECRET",
+        "value": "${EXPAND_S3_SECRET}"
+      },
+      {
+        "name": "FRONT_COOKIE_KEY",
+        "value": "${FRONT_COOKIE_KEY}"
+      },
+      {
+        "name": "LOGENTRIES_KEY",
+        "value": "${LOGENTRIES_KEY}"
+      },
+      {
+        "name": "MAILER_PASSWORD",
+        "value": "${MAILER_PASSWORD}"
+      },
+      {
+        "name": "MAILER_USEFILES",
+        "value": "${MAILER_USEFILES}"
+      },
+      {
+        "name": "MAILER_USERNAME",
+        "value": "${MAILER_USERNAME}"
+      },
+      {
+        "name": "MYSQL_DATABASE",
+        "value": "${MYSQL_DATABASE}"
+      },
+      {
+        "name": "MYSQL_HOST",
+        "value": "${MYSQL_HOST}"
+      },
+      {
+        "name": "MYSQL_PASSWORD",
+        "value": "${MYSQL_PASSWORD}"
+      },
+      {
+        "name": "MYSQL_USER",
+        "value": "${MYSQL_USER}"
+      },
+      {
+        "name": "PUBLISH_JENKINS_MASTER_URL",
+        "value": "${PUBLISH_JENKINS_MASTER_URL}"
+      }
+    ],
+    "links": [],
+    "workingDirectory": null,
+    "readonlyRootFilesystem": null,
+    "image": "${buildengine_docker_image}:${buildengine_docker_tag}",
+    "command": ["/data/run-cron.sh"],
+    "user": null,
+    "dockerLabels": null,
+    "logConfiguration": null,
+    "cpu": ${cron_cpu},
+    "privileged": null,
+    "memoryReservation": null
+  }
+]
