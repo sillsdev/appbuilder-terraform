@@ -144,6 +144,7 @@ resource "aws_instance" "ecshost" {
   vpc_security_group_ids = ["${module.vpc.vpc_default_sg_id}", "${aws_security_group.ec2_ssh_limited_ips.id}"]
   iam_instance_profile   = "${module.ecscluster.ecs_instance_profile_id}"
   user_data              = "${data.template_file.user_data.rendered}"
+  subnet_id              = "${module.vpc.public_subnet_ids[0]}"
 
   root_block_device {
     volume_size = "${var.aws_instance["volume_size"]}"
