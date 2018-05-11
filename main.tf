@@ -370,13 +370,13 @@ resource "aws_iam_user_ssh_key" "appbuilder" {
 }
 
 resource "aws_s3_bucket_object" "appbuilder_build_ssh_private_key" {
-  bucket  = "${aws_s3_bucket.secrets}"
+  bucket  = "${aws_s3_bucket.secrets.bucket}"
   key     = "jenkins/build/appbuilder_ssh/id_rsa"
   content = "${tls_private_key.appbuilder.private_key_pem}"
 }
 
 resource "aws_s3_bucket_object" "appbuilder_publish_ssh_private_key" {
-  bucket  = "${aws_s3_bucket.secrets}"
+  bucket  = "${aws_s3_bucket.secrets.bucket}"
   key     = "jenkins/publish/appbuilder_ssh/id_rsa"
   content = "${tls_private_key.appbuilder.private_key_pem}"
 }
@@ -416,7 +416,7 @@ resource "aws_iam_user_ssh_key" "buildengine" {
 }
 
 resource "aws_s3_bucket_object" "buildengine_ssh_private_key" {
-  bucket  = "${aws_s3_bucket.secrets}"
+  bucket  = "${aws_s3_bucket.secrets.bucket}"
   key     = "buildengine_api/ssh/id_rsa"
   content = "${tls_private_key.buildengine.private_key_pem}"
 }
