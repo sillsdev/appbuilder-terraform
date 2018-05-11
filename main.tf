@@ -229,6 +229,11 @@ resource "aws_s3_bucket" "artifacts" {
     index_document = "index.html"
     error_document = "error.html"
   }
+
+  tags {
+    app_name = "${var.app_name}"
+    app_env  = "${var.app_env}"
+  }
 }
 
 resource "aws_iam_policy" "artifacts" {
@@ -279,6 +284,11 @@ resource "aws_s3_bucket" "secrets" {
     noncurrent_version_expiration {
       days = 30
     }
+  }
+
+  tags {
+    app_name = "${var.app_name}"
+    app_env  = "${var.app_env}"
   }
 }
 
