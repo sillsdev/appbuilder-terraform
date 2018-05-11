@@ -87,7 +87,7 @@
     "workingDirectory": null,
     "readonlyRootFilesystem": null,
     "image": "${appbuilder_agent_docker_image}:${appbuilder_agent_docker_tag}",
-    "command": ["-master http://appbuilder:8080"],
+    "command": ["-master", "http://appbuilder:8080"],
     "user": null,
     "dockerLabels": null,
     "logConfiguration": null,
