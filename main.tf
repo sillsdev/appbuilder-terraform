@@ -128,20 +128,42 @@ resource "aws_security_group_rule" "ssh" {
   cidr_blocks       = ["${var.ssh_ips}"]
 }
 
-// Create auto-scaling group
-module "asg" {
-  source                      = "github.com/silinternational/terraform-modules//aws/asg?ref=develop"
-  app_name                    = "${var.app_name}"
-  app_env                     = "${var.app_env}"
-  aws_instance                = "${var.aws_instance}"
-  private_subnet_ids          = ["${module.vpc.public_subnet_ids}"]
-  default_sg_id               = "${module.vpc.vpc_default_sg_id}"
-  additional_security_groups  = ["${aws_security_group.ec2_ssh_limited_ips.id}"]
-  ecs_instance_profile_id     = "${module.ecscluster.ecs_instance_profile_id}"
-  ecs_cluster_name            = "${module.ecscluster.ecs_cluster_name}"
-  ami_id                      = "${data.aws_ami.ecs_ami.id}"
-  associate_public_ip_address = "true"
-  key_name                    = "${var.ec2_ssh_key_name}"
+// Create EC2 host for ECS cluster
+data "template_file" "user_data" {
+  template = "${file("${path.module}/user-data.sh")}"
+
+  vars {
+    ecs_cluster_name = "${module.ecscluster.ecs_cluster_name}"
+  }
+}
+
+resource "aws_instance" "ecshost" {
+  ami                    = "${data.aws_ami.ecs_ami.id}"
+  instance_type          = "${var.aws_instance.instance_type}"
+  key_name               = "${var.ec2_ssh_key_name}"
+  vpc_security_group_ids = ["${module.vpc.vpc_default_sg_id}", "${aws_security_group.ec2_ssh_limited_ips.id}"]
+  iam_instance_profile   = "${module.ecscluster.ecs_instance_profile_id}"
+  user_data              = "${data.template_file.user_data.rendered}"
+
+  root_block_device {
+    volume_size = "${var.aws_instance.volume_size}"
+  }
+
+  tags {
+    Name     = "${var.app_name}-${var.app_env}"
+    app_name = "${var.app_name}"
+    app_env  = "${var.app_env}"
+  }
+}
+
+resource "aws_eip" "public" {
+  vpc      = true
+  instance = "${aws_instance.ecshost.id}"
+
+  tags {
+    app_name = "${var.app_name}"
+    app_env  = "${var.app_env}"
+  }
 }
 
 // Get ssl cert for use with listener
@@ -162,7 +184,7 @@ resource "aws_security_group_rule" "https" {
   to_port           = 443
   protocol          = "tcp"
   security_group_id = "${aws_security_group.alb_https_limited_ips.id}"
-  cidr_blocks       = ["${var.https_ips}"]
+  cidr_blocks       = ["${var.https_ips}", "${aws_eip.public.public_ip}/32"]
 }
 
 resource "aws_security_group_rule" "http" {
@@ -171,7 +193,7 @@ resource "aws_security_group_rule" "http" {
   to_port           = 8080
   protocol          = "tcp"
   security_group_id = "${aws_security_group.alb_https_limited_ips.id}"
-  cidr_blocks       = ["${var.https_ips}"]
+  cidr_blocks       = ["${var.https_ips}", "${aws_eip.public.public_ip}/32"]
 }
 
 // Create application load balancer for public access
