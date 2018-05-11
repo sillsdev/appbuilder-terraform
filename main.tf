@@ -164,6 +164,15 @@ resource "aws_security_group_rule" "https" {
   cidr_blocks       = ["${var.https_ips}"]
 }
 
+resource "aws_security_group_rule" "http" {
+  type              = "ingress"
+  from_port         = 8080
+  to_port           = 8080
+  protocol          = "tcp"
+  security_group_id = "${aws_security_group.alb_https_limited_ips.id}"
+  cidr_blocks       = ["${var.https_ips}"]
+}
+
 // Create application load balancer for public access
 module "alb" {
   source          = "github.com/silinternational/terraform-modules//aws/alb?ref=develop"
