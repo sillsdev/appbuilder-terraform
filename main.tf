@@ -139,14 +139,14 @@ data "template_file" "user_data" {
 
 resource "aws_instance" "ecshost" {
   ami                    = "${data.aws_ami.ecs_ami.id}"
-  instance_type          = "${var.aws_instance.instance_type}"
+  instance_type          = "${var.aws_instance["instance_type"]}"
   key_name               = "${var.ec2_ssh_key_name}"
   vpc_security_group_ids = ["${module.vpc.vpc_default_sg_id}", "${aws_security_group.ec2_ssh_limited_ips.id}"]
   iam_instance_profile   = "${module.ecscluster.ecs_instance_profile_id}"
   user_data              = "${data.template_file.user_data.rendered}"
 
   root_block_device {
-    volume_size = "${var.aws_instance.volume_size}"
+    volume_size = "${var.aws_instance["volume_size"]}"
   }
 
   tags {
