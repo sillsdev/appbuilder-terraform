@@ -93,9 +93,9 @@ variable "aws_instance" {
   description = "A map of configuration information for EC2 instances. Expected keys are 'instance_type' (e.g. \"t2.micro\"), 'volume_size' (e.g. \"8\"), and 'instance_count' (e.g. \"3\")."
 
   default = {
-    instance_type  = "t2.small"
+    instance_type  = "t2.medium"
     volume_size    = "30"
-    instance_count = "2"
+    instance_count = "1"
   }
 }
 
@@ -172,6 +172,11 @@ variable "db_root_user" {
 variable "domain" {
   type        = "string"
   description = "Top level domain for URLs, ex: sil.org"
+}
+
+variable "ec2_ssh_key_name" {
+  type    = "string"
+  default = ""
 }
 
 variable "https_ips" {

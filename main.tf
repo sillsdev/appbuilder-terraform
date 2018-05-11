@@ -141,6 +141,7 @@ module "asg" {
   ecs_cluster_name            = "${module.ecscluster.ecs_cluster_name}"
   ami_id                      = "${data.aws_ami.ecs_ami.id}"
   associate_public_ip_address = "true"
+  key_name                    = "${var.ec2_ssh_key_name}"
 }
 
 // Get ssl cert for use with listener
