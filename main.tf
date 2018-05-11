@@ -133,7 +133,7 @@ module "asg" {
   app_name                   = "${var.app_name}"
   app_env                    = "${var.app_env}"
   aws_instance               = "${var.aws_instance}"
-  private_subnet_ids         = ["${module.vpc.private_subnet_ids}"]
+  private_subnet_ids         = ["${module.vpc.public_subnet_ids}"]
   default_sg_id              = "${module.vpc.vpc_default_sg_id}"
   additional_security_groups = ["${aws_security_group.ec2_ssh_limited_ips.id}"]
   ecs_instance_profile_id    = "${module.ecscluster.ecs_instance_profile_id}"
