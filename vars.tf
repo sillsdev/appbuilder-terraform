@@ -56,12 +56,12 @@ variable "appbuilder_jenkins_memory" {
 
 variable "api_cpu" {
   type    = "string"
-  default = "64"
+  default = "128"
 }
 
 variable "api_memory" {
   type    = "string"
-  default = "64"
+  default = "128"
 }
 
 variable "aws_access_key_id" {
@@ -136,12 +136,12 @@ variable "cert_domain_name" {
 
 variable "cron_cpu" {
   type    = "string"
-  default = "64"
+  default = "128"
 }
 
 variable "cron_memory" {
   type    = "string"
-  default = "64"
+  default = "128"
 }
 
 variable "db_storage" {
