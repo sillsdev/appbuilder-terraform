@@ -93,7 +93,7 @@ module "rds" {
   db_root_pass            = "${random_id.db_root_pass.hex}"
   subnet_group_name       = "${module.vpc.db_subnet_group_name}"
   availability_zone       = "${var.aws_zones[0]}"
-  security_groups         = ["${module.vpc.vpc_default_sg_id}"]
+  security_groups         = ["${module.vpc.vpc_default_sg_id}", "${aws_security_group.db_access_limited_ips.id}"]
   allocated_storage       = "${var.db_storage}"
   backup_retention_period = "${var.db_backup_retention_period}"
   multi_az                = "${var.db_multi_az}"
