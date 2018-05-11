@@ -16,7 +16,7 @@
         "hostPort": 0,
         "containerPort": 50000,
         "protocol": "tcp"
-      },
+      }
     ],
     "hostname": null,
     "essential": true,
@@ -53,8 +53,7 @@
       {
         "name": "EXPAND_S3_SECRET",
         "value": "${EXPAND_S3_SECRET}"
-      },
-
+      }
     ],
     "links": [],
     "workingDirectory": null,
