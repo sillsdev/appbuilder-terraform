@@ -129,16 +129,17 @@ resource "aws_security_group_rule" "ssh" {
 
 // Create auto-scaling group
 module "asg" {
-  source                     = "github.com/silinternational/terraform-modules//aws/asg?ref=develop"
-  app_name                   = "${var.app_name}"
-  app_env                    = "${var.app_env}"
-  aws_instance               = "${var.aws_instance}"
-  private_subnet_ids         = ["${module.vpc.public_subnet_ids}"]
-  default_sg_id              = "${module.vpc.vpc_default_sg_id}"
-  additional_security_groups = ["${aws_security_group.ec2_ssh_limited_ips.id}"]
-  ecs_instance_profile_id    = "${module.ecscluster.ecs_instance_profile_id}"
-  ecs_cluster_name           = "${module.ecscluster.ecs_cluster_name}"
-  ami_id                     = "${data.aws_ami.ecs_ami.id}"
+  source                      = "github.com/silinternational/terraform-modules//aws/asg?ref=develop"
+  app_name                    = "${var.app_name}"
+  app_env                     = "${var.app_env}"
+  aws_instance                = "${var.aws_instance}"
+  private_subnet_ids          = ["${module.vpc.public_subnet_ids}"]
+  default_sg_id               = "${module.vpc.vpc_default_sg_id}"
+  additional_security_groups  = ["${aws_security_group.ec2_ssh_limited_ips.id}"]
+  ecs_instance_profile_id     = "${module.ecscluster.ecs_instance_profile_id}"
+  ecs_cluster_name            = "${module.ecscluster.ecs_cluster_name}"
+  ami_id                      = "${data.aws_ami.ecs_ami.id}"
+  associate_public_ip_address = "true"
 }
 
 // Get ssl cert for use with listener
