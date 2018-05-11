@@ -27,7 +27,7 @@
     "dockerSecurityOptions": null,
     "environment": [
       {
-        "name": "'APPBUILDER_JENKINS_URL",
+        "name": "APPBUILDER_JENKINS_URL",
         "value": "${APPBUILDER_JENKINS_URL}"
       },
       {

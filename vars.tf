@@ -186,7 +186,7 @@ variable "https_ips" {
 
 variable "jenkins_subdomain" {
   type    = "string"
-  default = "jenkins"
+  default = "appbuilder"
 }
 
 variable "logentries_key" {
