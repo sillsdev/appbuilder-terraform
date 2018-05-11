@@ -179,7 +179,7 @@ data "template_file" "artifacts_bucket_policy" {
   template = "${file("${path.module}/s3-artifact-bucket-policy.json")}"
 
   vars {
-    bucket_name = "${var.app_env}-${var.org_prefix}-${var.app_name}-artifacts"
+    bucket_name = "${var.org_prefix}-${var.app_env}-${var.app_name}-artifacts"
   }
 }
 
