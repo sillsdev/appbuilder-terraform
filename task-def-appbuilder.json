@@ -1,7 +1,7 @@
 [
   {
     "volumesFrom": [],
-    "memory": "${appbuilder_jenkins_memory}",
+    "memory": ${appbuilder_jenkins_memory},
     "extraHosts": null,
     "dnsServers": null,
     "disableNetworking": null,
@@ -64,13 +64,13 @@
     "user": null,
     "dockerLabels": null,
     "logConfiguration": null,
-    "cpu": "${appbuilder_jenkins_cpu}",
+    "cpu": ${appbuilder_jenkins_cpu},
     "privileged": null,
     "memoryReservation": null
   },
   {
     "volumesFrom": [],
-    "memory": "${appbuilder_agent_memory}",
+    "memory": ${appbuilder_agent_memory},
     "extraHosts": null,
     "dnsServers": null,
     "disableNetworking": null,
@@ -92,7 +92,7 @@
     "user": null,
     "dockerLabels": null,
     "logConfiguration": null,
-    "cpu": "${appbuilder_agent_cpu}",
+    "cpu": ${appbuilder_agent_cpu},
     "privileged": null,
     "memoryReservation": null
   }
