@@ -372,7 +372,7 @@ resource "aws_iam_policy" "codecommit_projects" {
                 "codecommit:ListBranches"
             ],
             "Resource": [
-                "arn:aws:codecommit:${var.aws_region}:${var.aws_account_id}:projects-${var.app_env}-*"
+                "arn:aws:codecommit:${var.aws_region}:${var.aws_account_id}:*"
             ]
         }
     ]
