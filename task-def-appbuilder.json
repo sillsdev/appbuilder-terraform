@@ -83,7 +83,7 @@
     "ulimits": null,
     "dockerSecurityOptions": null,
     "environment": [],
-    "links": [],
+    "links": ["appbuilder"],
     "workingDirectory": null,
     "readonlyRootFilesystem": null,
     "image": "${appbuilder_agent_docker_image}:${appbuilder_agent_docker_tag}",
