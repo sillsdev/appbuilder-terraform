@@ -62,14 +62,6 @@
         "value": "${BUILD_ENGINE_GIT_USER_NAME}"
       },
       {
-        "name": "BUILD_ENGINE_REPO_BRANCH",
-        "value": "${BUILD_ENGINE_REPO_BRANCH}"
-      },
-      {
-        "name": "BUILD_ENGINE_REPO_URL",
-        "value": "${BUILD_ENGINE_REPO_URL}"
-      },
-      {
         "name": "BUILD_ENGINE_SECRETS_BUCKET",
         "value": "${BUILD_ENGINE_SECRETS_BUCKET}"
       },
@@ -193,14 +185,6 @@
       {
         "name": "BUILD_ENGINE_GIT_USER_NAME",
         "value": "${BUILD_ENGINE_GIT_USER_NAME}"
-      },
-      {
-        "name": "BUILD_ENGINE_REPO_BRANCH",
-        "value": "${BUILD_ENGINE_REPO_BRANCH}"
-      },
-      {
-        "name": "BUILD_ENGINE_REPO_URL",
-        "value": "${BUILD_ENGINE_REPO_URL}"
       },
       {
         "name": "BUILD_ENGINE_SECRETS_BUCKET",
