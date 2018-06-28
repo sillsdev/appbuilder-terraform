@@ -62,16 +62,16 @@
         "value": "${BUILD_ENGINE_GIT_USER_NAME}"
       },
       {
-        "name": "BUILD_ENGINE_JENKINS_MASTER_URL",
-        "value": "${BUILD_ENGINE_JENKINS_MASTER_URL}"
-      },
-      {
         "name": "BUILD_ENGINE_REPO_BRANCH",
         "value": "${BUILD_ENGINE_REPO_BRANCH}"
       },
       {
         "name": "BUILD_ENGINE_REPO_URL",
         "value": "${BUILD_ENGINE_REPO_URL}"
+      },
+      {
+        "name": "BUILD_ENGINE_SECRETS_BUCKET",
+        "value": "${BUILD_ENGINE_SECRETS_BUCKET}"
       },
       {
         "name": "EXPAND_S3_FILES",
@@ -120,10 +120,6 @@
       {
         "name": "MYSQL_USER",
         "value": "${MYSQL_USER}"
-      },
-      {
-        "name": "PUBLISH_JENKINS_MASTER_URL",
-        "value": "${PUBLISH_JENKINS_MASTER_URL}"
       }
     ],
     "links": [],
@@ -199,16 +195,16 @@
         "value": "${BUILD_ENGINE_GIT_USER_NAME}"
       },
       {
-        "name": "BUILD_ENGINE_JENKINS_MASTER_URL",
-        "value": "${BUILD_ENGINE_JENKINS_MASTER_URL}"
-      },
-      {
         "name": "BUILD_ENGINE_REPO_BRANCH",
         "value": "${BUILD_ENGINE_REPO_BRANCH}"
       },
       {
         "name": "BUILD_ENGINE_REPO_URL",
         "value": "${BUILD_ENGINE_REPO_URL}"
+      },
+      {
+        "name": "BUILD_ENGINE_SECRETS_BUCKET",
+        "value": "${BUILD_ENGINE_SECRETS_BUCKET}"
       },
       {
         "name": "EXPAND_S3_FILES",
@@ -257,10 +253,6 @@
       {
         "name": "MYSQL_USER",
         "value": "${MYSQL_USER}"
-      },
-      {
-        "name": "PUBLISH_JENKINS_MASTER_URL",
-        "value": "${PUBLISH_JENKINS_MASTER_URL}"
       }
     ],
     "links": [],

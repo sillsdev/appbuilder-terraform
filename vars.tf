@@ -14,46 +14,6 @@ variable "app_name" {
   description = "Used in naming ECS cluster. Recommend something like 'idp-acme'"
 }
 
-variable "appbuilder_agent_cpu" {
-  type    = "string"
-  default = "256"
-}
-
-variable "appbuilder_agent_docker_image" {
-  type    = "string"
-  default = "sillsdev/appbuilder-agent"
-}
-
-variable "appbuilder_agent_docker_tag" {
-  type    = "string"
-  default = "production"
-}
-
-variable "appbuilder_agent_memory" {
-  type    = "string"
-  default = "1536"
-}
-
-variable "appbuilder_jenkins_cpu" {
-  type    = "string"
-  default = "256"
-}
-
-variable "appbuilder_jenkins_docker_image" {
-  type    = "string"
-  default = "sillsdev/appbuilder-jenkins"
-}
-
-variable "appbuilder_jenkins_docker_tag" {
-  type    = "string"
-  default = "production"
-}
-
-variable "appbuilder_jenkins_memory" {
-  type    = "string"
-  default = "1536"
-}
-
 variable "api_cpu" {
   type    = "string"
   default = "128"
@@ -182,11 +142,6 @@ variable "ec2_ssh_key_name" {
 variable "https_ips" {
   type        = "list"
   description = "A list of IP address CIDR blocks for allowing https access"
-}
-
-variable "jenkins_subdomain" {
-  type    = "string"
-  default = "appbuilder"
 }
 
 variable "logentries_key" {

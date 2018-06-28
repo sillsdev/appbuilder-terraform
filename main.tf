@@ -324,37 +324,6 @@ resource "aws_iam_policy" "secrets" {
 EOF
 }
 
-// CodeCommit repository and IAM policy
-resource "aws_codecommit_repository" "ciscripts" {
-  repository_name = "ci-scripts-${var.app_env}"
-  description     = "CodeCommit Repository for Job DSL configuration"
-}
-
-resource "aws_iam_policy" "ciscripts" {
-  name        = "codecommit-ci-scripts-${var.app_env}"
-  description = "CodeCommit Repository for Job DSL configuration"
-
-  policy = <<EOF
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-           "Effect": "Allow",
-            "Action": [
-                "codecommit:GetBranch",
-                "codecommit:GitPull",
-                "codecommit:GitPush",
-                "codecommit:ListBranches"
-            ],
-            "Resource": [
-                "${aws_codecommit_repository.ciscripts.arn}"
-            ]
-        }
-    ]
-}
-EOF
-}
-
 resource "aws_iam_policy" "codecommit_projects" {
   name        = "codecommit-projects-${var.app_env}"
   description = "CodeCommit Repository for project data"
@@ -378,6 +347,151 @@ resource "aws_iam_policy" "codecommit_projects" {
     ]
 }
 EOF
+}
+
+resource "aws_iam_policy" "codebuild-basepolicy-publish" {
+  name        = "codebuild-basepolicy-publish_app-${var.app_env}"
+  description = "CodeBuild base policy for publishing"
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Resource": [
+        "arn:aws:logs:us-east-1:${var.aws_account_id}:log-group:/aws/codebuild/publish_app",
+        "arn:aws:logs:us-east-1:${var.aws_account_id}:log-group:/aws/codebuild/publish_app:*"
+      ],
+      "Action": [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Resource": [
+        "arn:aws:s3:::codepipeline-us-east-1-*"
+      ],
+      "Action": [
+        "s3:PutObject",
+        "s3:GetObject",
+        "s3:GetObjectVersion"
+      ]
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_policy" "codebuild-basepolicy-build" {
+  name        = "codebuild-basepolicy-build_app-${var.app_env}"
+  description = "CodeBuild base policy for building"
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Resource": [
+        "arn:aws:logs:us-east-1:${var.aws_account_id}:log-group:/aws/codebuild/build_app",
+        "arn:aws:logs:us-east-1:${var.aws_account_id}:log-group:/aws/codebuild/build_app:*"
+      ],
+      "Action": [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Resource": [
+        "arn:aws:s3:::codepipeline-us-east-1-*"
+      ],
+      "Action": [
+        "s3:PutObject",
+        "s3:GetObject",
+        "s3:GetObjectVersion"
+      ]
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role" "codebuild-build_app-service-role" {
+  name = "codebuild-build_app-service-role-${var.app_env}"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "codebuild.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy_attachment" "build-s3-secrets" {
+  policy_arn = "${aws_iam_policy.secrets.arn}"
+  role       = "${aws_iam_role.codebuild-build_app-service-role.arn}"
+}
+
+resource "aws_iam_role_policy_attachment" "build-s3-artifacts" {
+  policy_arn = "${aws_iam_policy.artifacts.arn}"
+  role       = "${aws_iam_role.codebuild-build_app-service-role.arn}"
+}
+
+resource "aws_iam_role_policy_attachment" "build-codecommit-projects" {
+  policy_arn = "${aws_iam_policy.codecommit_projects.arn}"
+  role       = "${aws_iam_role.codebuild-build_app-service-role.arn}"
+}
+
+resource "aws_iam_role_policy_attachment" "build-codebuild-basepolicy" {
+  policy_arn = "${aws_iam_policy.codebuild-basepolicy-build.arn}"
+  role       = "${aws_iam_role.codebuild-build_app-service-role.arn}"
+}
+
+resource "aws_iam_role" "codebuild-publish_app-service-role" {
+  name = "codebuild-publish_app-service-role-${var.app_env}"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "codebuild.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy_attachment" "publish-s3-secrets" {
+  policy_arn = "${aws_iam_policy.secrets.arn}"
+  role       = "${aws_iam_role.codebuild-publish_app-service-role.arn}"
+}
+
+resource "aws_iam_role_policy_attachment" "publish-s3-artifacts" {
+  policy_arn = "${aws_iam_policy.artifacts.arn}"
+  role       = "${aws_iam_role.codebuild-publish_app-service-role.arn}"
+}
+
+resource "aws_iam_role_policy_attachment" "publish-codebuild-basepolicy" {
+  policy_arn = "${aws_iam_policy.codebuild-basepolicy-build.arn}"
+  role       = "${aws_iam_role.codebuild-publish_app-service-role.arn}"
 }
 
 // Create appbuilder IAM user, policy attachments, SSH key, and put private key in S3
@@ -434,11 +548,6 @@ resource "aws_iam_user_policy_attachment" "buildengine-artifacts" {
   policy_arn = "${aws_iam_policy.artifacts.arn}"
 }
 
-resource "aws_iam_user_policy_attachment" "buildengine-ciscripts" {
-  user       = "${aws_iam_user.buildengine.name}"
-  policy_arn = "${aws_iam_policy.ciscripts.arn}"
-}
-
 resource "aws_iam_user_policy_attachment" "buildengine-secrets" {
   user       = "${aws_iam_user.buildengine.name}"
   policy_arn = "${aws_iam_policy.secrets.arn}"
@@ -488,11 +597,9 @@ data "template_file" "task_def_buildengine" {
     BUILD_ENGINE_ARTIFACTS_BUCKET        = "${aws_s3_bucket.artifacts.bucket}"
     BUILD_ENGINE_ARTIFACTS_BUCKET_REGION = "${var.aws_region}"
     BUILD_ENGINE_GIT_SSH_USER            = "${aws_iam_user_ssh_key.buildengine.ssh_public_key_id}"
+    BUILD_ENGINE_SECRETS_BUCKET          = "${aws_s3_bucket.secrets.bucket}"
     BUILD_ENGINE_GIT_USER_EMAIL          = "${var.buildengine_git_user_email}"
     BUILD_ENGINE_GIT_USER_NAME           = "${var.buildengine_git_user_name}"
-    BUILD_ENGINE_JENKINS_MASTER_URL      = "http://${var.jenkins_subdomain}.${var.domain}:8080"
-    BUILD_ENGINE_REPO_BRANCH             = "${var.buildengine_repo_branch}"
-    BUILD_ENGINE_REPO_URL                = "${aws_codecommit_repository.ciscripts.clone_url_ssh}"
     EXPAND_S3_FILES                      = "${aws_s3_bucket.secrets.bucket}/buildengine_api/ssh/id_rsa|/root/.ssh/id_rsa[600,]"
     EXPAND_S3_KEY                        = "${aws_iam_access_key.buildengine.id}"
     EXPAND_S3_SECRET                     = "${aws_iam_access_key.buildengine.secret}"
@@ -505,7 +612,6 @@ data "template_file" "task_def_buildengine" {
     MYSQL_HOST                           = "${module.rds.address}"
     MYSQL_PASSWORD                       = "${random_id.db_root_pass.hex}"
     MYSQL_USER                           = "${var.db_root_user}"
-    PUBLISH_JENKINS_MASTER_URL           = "http://${var.jenkins_subdomain}.${var.domain}:8080"
   }
 }
 
@@ -520,63 +626,5 @@ module "ecsservice_buildengine" {
   tg_arn             = "${module.alb.default_tg_arn}"
   lb_container_name  = "web"
   lb_container_port  = 80
-  ecsServiceRole_arn = "${module.ecscluster.ecsServiceRole_arn}"
-}
-
-// Create ECS service for appbuilder
-data "template_file" "task_def_appbuilder" {
-  template = "${file("${path.module}/task-def-appbuilder.json")}"
-
-  vars {
-    appbuilder_agent_cpu            = "${var.appbuilder_agent_cpu}"
-    appbuilder_agent_docker_image   = "${var.appbuilder_agent_docker_image}"
-    appbuilder_agent_docker_tag     = "${var.appbuilder_agent_docker_tag}"
-    appbuilder_agent_memory         = "${var.appbuilder_agent_memory}"
-    appbuilder_jenkins_cpu          = "${var.appbuilder_jenkins_cpu}"
-    appbuilder_jenkins_docker_image = "${var.appbuilder_jenkins_docker_image}"
-    appbuilder_jenkins_docker_tag   = "${var.appbuilder_jenkins_docker_tag}"
-    appbuilder_jenkins_memory       = "${var.appbuilder_jenkins_memory}"
-    APPBUILDER_JENKINS_URL          = "http://${var.jenkins_subdomain}.${var.domain}:8080"
-    BUILD_ENGINE_GIT_SSH_USER       = "${aws_iam_user_ssh_key.buildengine.ssh_public_key_id}"
-    BUILD_ENGINE_REPO_BRANCH        = "${var.buildengine_repo_branch}"
-    BUILD_ENGINE_REPO_URL           = "${aws_codecommit_repository.ciscripts.clone_url_ssh}"
-    EXPAND_S3_FOLDERS               = "${aws_s3_bucket.secrets.bucket}/|/usr/share/jenkins/secrets"
-    EXPAND_S3_KEY                   = "${aws_iam_access_key.buildengine.id}"
-    EXPAND_S3_SECRET                = "${aws_iam_access_key.buildengine.secret}"
-  }
-}
-
-resource "aws_alb_target_group" "appbuilder" {
-  name     = "appbuilder-${var.app_env}"
-  port     = "8080"
-  protocol = "HTTP"
-  vpc_id   = "${module.vpc.id}"
-
-  health_check {
-    matcher = "200"
-  }
-}
-
-resource "aws_alb_listener" "appbuilder" {
-  load_balancer_arn = "${module.alb.arn}"
-  port              = "8080"
-  protocol          = "HTTP"
-
-  default_action {
-    target_group_arn = "${aws_alb_target_group.appbuilder.arn}"
-    type             = "forward"
-  }
-}
-
-module "ecsservice_appbuilder" {
-  source             = "github.com/silinternational/terraform-modules//aws/ecs/service-only?ref=develop"
-  cluster_id         = "${module.ecscluster.ecs_cluster_id}"
-  service_name       = "appbuilder"
-  service_env        = "${var.app_env}"
-  container_def_json = "${data.template_file.task_def_appbuilder.rendered}"
-  desired_count      = 1
-  tg_arn             = "${aws_alb_target_group.appbuilder.arn}"
-  lb_container_name  = "appbuilder"
-  lb_container_port  = 8080
   ecsServiceRole_arn = "${module.ecscluster.ecsServiceRole_arn}"
 }
