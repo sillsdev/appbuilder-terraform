@@ -442,22 +442,22 @@ EOF
 
 resource "aws_iam_role_policy_attachment" "build-s3-secrets" {
   policy_arn = "${aws_iam_policy.secrets.arn}"
-  role       = "${aws_iam_role.codebuild-build_app-service-role.arn}"
+  role       = "${aws_iam_role.codebuild-build_app-service-role.name}"
 }
 
 resource "aws_iam_role_policy_attachment" "build-s3-artifacts" {
   policy_arn = "${aws_iam_policy.artifacts.arn}"
-  role       = "${aws_iam_role.codebuild-build_app-service-role.arn}"
+  role       = "${aws_iam_role.codebuild-build_app-service-role.name}"
 }
 
 resource "aws_iam_role_policy_attachment" "build-codecommit-projects" {
   policy_arn = "${aws_iam_policy.codecommit_projects.arn}"
-  role       = "${aws_iam_role.codebuild-build_app-service-role.arn}"
+  role       = "${aws_iam_role.codebuild-build_app-service-role.name}"
 }
 
 resource "aws_iam_role_policy_attachment" "build-codebuild-basepolicy" {
   policy_arn = "${aws_iam_policy.codebuild-basepolicy-build.arn}"
-  role       = "${aws_iam_role.codebuild-build_app-service-role.arn}"
+  role       = "${aws_iam_role.codebuild-build_app-service-role.name}"
 }
 
 resource "aws_iam_role" "codebuild-publish_app-service-role" {
@@ -481,17 +481,17 @@ EOF
 
 resource "aws_iam_role_policy_attachment" "publish-s3-secrets" {
   policy_arn = "${aws_iam_policy.secrets.arn}"
-  role       = "${aws_iam_role.codebuild-publish_app-service-role.arn}"
+  role       = "${aws_iam_role.codebuild-publish_app-service-role.name}"
 }
 
 resource "aws_iam_role_policy_attachment" "publish-s3-artifacts" {
   policy_arn = "${aws_iam_policy.artifacts.arn}"
-  role       = "${aws_iam_role.codebuild-publish_app-service-role.arn}"
+  role       = "${aws_iam_role.codebuild-publish_app-service-role.name}"
 }
 
 resource "aws_iam_role_policy_attachment" "publish-codebuild-basepolicy" {
   policy_arn = "${aws_iam_policy.codebuild-basepolicy-build.arn}"
-  role       = "${aws_iam_role.codebuild-publish_app-service-role.arn}"
+  role       = "${aws_iam_role.codebuild-publish_app-service-role.name}"
 }
 
 // Create appbuilder IAM user, policy attachments, SSH key, and put private key in S3
