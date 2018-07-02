@@ -349,38 +349,49 @@ resource "aws_iam_policy" "codecommit_projects" {
 EOF
 }
 
-resource "aws_iam_policy" "codebuild-basepolicy-publish" {
-  name        = "codebuild-basepolicy-publish_app-${var.app_env}"
-  description = "CodeBuild base policy for publishing"
+resource "aws_iam_policy" "project_creation_and_building" {
+  name        = "project-creation-and-building-${var.app_env}"
+  description = "Create Projects and Roles needed for building"
 
   policy = <<EOF
 {
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Resource": [
-        "arn:aws:logs:us-east-1:${var.aws_account_id}:log-group:/aws/codebuild/publish_app",
-        "arn:aws:logs:us-east-1:${var.aws_account_id}:log-group:/aws/codebuild/publish_app:*"
-      ],
-      "Action": [
-        "logs:CreateLogGroup",
-        "logs:CreateLogStream",
-        "logs:PutLogEvents"
-      ]
-    },
-    {
-      "Effect": "Allow",
-      "Resource": [
-        "arn:aws:s3:::codepipeline-us-east-1-*"
-      ],
-      "Action": [
-        "s3:PutObject",
-        "s3:GetObject",
-        "s3:GetObjectVersion"
-      ]
-    }
-  ]
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "VisualEditor0",
+            "Effect": "Allow",
+            "Action": [
+                "iam:CreateGroup",
+                "iam:AddUserToGroup",
+                "iam:ListSSHPublicKeys",
+                "iam:GetSSHPublicKey",
+                "iam:UploadSSHPublicKey",
+                "iam:GetUser",
+                "iam:CreateUser",
+                "iam:GetGroup",
+                "iam:PutGroupPolicy",
+		        "iam:GetRole",
+                "iam:CreateRole",
+                "iam:AttachRolePolicy",
+                "iam:PassRole",
+                "codebuild:CreateProject",
+                "codebuild:BatchGetProjects",
+                "codebuild:BatchGetBuilds",
+                "codebuild:StartBuild"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Sid": "VisualEditor1",
+            "Effect": "Allow",
+            "Action": [
+                "codecommit:GetRepository",
+                "codecommit:CreateRepository",
+                "codecommit:DeleteRepository"
+            ],
+            "Resource": "arn:aws:codecommit::*:*"
+        }
+    ]
 }
 EOF
 }
@@ -421,77 +432,40 @@ resource "aws_iam_policy" "codebuild-basepolicy-build" {
 EOF
 }
 
-resource "aws_iam_role" "codebuild-build_app-service-role" {
-  name = "codebuild-build_app-service-role-${var.app_env}"
+resource "aws_iam_policy" "codebuild-basepolicy-publish" {
+  name        = "codebuild-basepolicy-publish_app-${var.app_env}"
+  description = "CodeBuild base policy for publishing"
 
-  assume_role_policy = <<EOF
+  policy = <<EOF
 {
   "Version": "2012-10-17",
   "Statement": [
     {
       "Effect": "Allow",
-      "Principal": {
-        "Service": "codebuild.amazonaws.com"
-      },
-      "Action": "sts:AssumeRole"
-    }
-  ]
-}
-EOF
-}
-
-resource "aws_iam_role_policy_attachment" "build-s3-secrets" {
-  policy_arn = "${aws_iam_policy.secrets.arn}"
-  role       = "${aws_iam_role.codebuild-build_app-service-role.name}"
-}
-
-resource "aws_iam_role_policy_attachment" "build-s3-artifacts" {
-  policy_arn = "${aws_iam_policy.artifacts.arn}"
-  role       = "${aws_iam_role.codebuild-build_app-service-role.name}"
-}
-
-resource "aws_iam_role_policy_attachment" "build-codecommit-projects" {
-  policy_arn = "${aws_iam_policy.codecommit_projects.arn}"
-  role       = "${aws_iam_role.codebuild-build_app-service-role.name}"
-}
-
-resource "aws_iam_role_policy_attachment" "build-codebuild-basepolicy" {
-  policy_arn = "${aws_iam_policy.codebuild-basepolicy-build.arn}"
-  role       = "${aws_iam_role.codebuild-build_app-service-role.name}"
-}
-
-resource "aws_iam_role" "codebuild-publish_app-service-role" {
-  name = "codebuild-publish_app-service-role-${var.app_env}"
-
-  assume_role_policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
+      "Resource": [
+        "arn:aws:logs:us-east-1:${var.aws_account_id}:log-group:/aws/codebuild/publish_app",
+        "arn:aws:logs:us-east-1:${var.aws_account_id}:log-group:/aws/codebuild/publish_app:*"
+      ],
+      "Action": [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+      ]
+    },
     {
       "Effect": "Allow",
-      "Principal": {
-        "Service": "codebuild.amazonaws.com"
-      },
-      "Action": "sts:AssumeRole"
+      "Resource": [
+        "arn:aws:s3:::codepipeline-us-east-1-*"
+      ],
+      "Action": [
+        "s3:PutObject",
+        "s3:GetObject",
+        "s3:GetObjectVersion"
+      ]
     }
   ]
 }
 EOF
-}
-
-resource "aws_iam_role_policy_attachment" "publish-s3-secrets" {
-  policy_arn = "${aws_iam_policy.secrets.arn}"
-  role       = "${aws_iam_role.codebuild-publish_app-service-role.name}"
-}
-
-resource "aws_iam_role_policy_attachment" "publish-s3-artifacts" {
-  policy_arn = "${aws_iam_policy.artifacts.arn}"
-  role       = "${aws_iam_role.codebuild-publish_app-service-role.name}"
-}
-
-resource "aws_iam_role_policy_attachment" "publish-codebuild-basepolicy" {
-  policy_arn = "${aws_iam_policy.codebuild-basepolicy-build.arn}"
-  role       = "${aws_iam_role.codebuild-publish_app-service-role.name}"
 }
 
 // Create appbuilder IAM user, policy attachments, SSH key, and put private key in S3
@@ -553,6 +527,11 @@ resource "aws_iam_user_policy_attachment" "buildengine-secrets" {
   policy_arn = "${aws_iam_policy.secrets.arn}"
 }
 
+resource "aws_iam_user_policy_attachment" "buildengine-project-creation" {
+  user       = "${aws_iam_user.buildengine.name}"
+  policy_arn = "${aws_iam_policy.project_creation_and_building.arn}"
+}
+
 resource "tls_private_key" "buildengine" {
   algorithm = "RSA"
 }
@@ -594,6 +573,7 @@ data "template_file" "task_def_buildengine" {
     APP_ENV                              = "${var.app_env}"
     AWS_ACCESS_KEY_ID                    = "${aws_iam_access_key.buildengine.id}"
     AWS_SECRET_ACCESS_KEY                = "${aws_iam_access_key.buildengine.secret}"
+    AWS_USER_ID                          = "${var.aws_account_id}"
     BUILD_ENGINE_ARTIFACTS_BUCKET        = "${aws_s3_bucket.artifacts.bucket}"
     BUILD_ENGINE_ARTIFACTS_BUCKET_REGION = "${var.aws_region}"
     BUILD_ENGINE_GIT_SSH_USER            = "${aws_iam_user_ssh_key.buildengine.ssh_public_key_id}"
