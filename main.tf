@@ -468,6 +468,79 @@ resource "aws_iam_policy" "codebuild-basepolicy-publish" {
 EOF
 }
 
+resource "aws_iam_role" "codebuild-build_app-service-role" {
+  name = "codebuild-build_app-service-role-${var.app_env}"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "codebuild.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy_attachment" "build-s3-secrets" {
+  policy_arn = "${aws_iam_policy.secrets.arn}"
+  role       = "${aws_iam_role.codebuild-build_app-service-role.name}"
+}
+
+resource "aws_iam_role_policy_attachment" "build-s3-artifacts" {
+  policy_arn = "${aws_iam_policy.artifacts.arn}"
+  role       = "${aws_iam_role.codebuild-build_app-service-role.name}"
+}
+
+resource "aws_iam_role_policy_attachment" "build-codecommit-projects" {
+  policy_arn = "${aws_iam_policy.codecommit_projects.arn}"
+  role       = "${aws_iam_role.codebuild-build_app-service-role.name}"
+}
+
+resource "aws_iam_role_policy_attachment" "build-codebuild-basepolicy" {
+  policy_arn = "${aws_iam_policy.codebuild-basepolicy-build.arn}"
+  role       = "${aws_iam_role.codebuild-build_app-service-role.name}"
+}
+
+resource "aws_iam_role" "codebuild-publish_app-service-role" {
+  name = "codebuild-publish_app-service-role-${var.app_env}"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "codebuild.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy_attachment" "publish-s3-secrets" {
+  policy_arn = "${aws_iam_policy.secrets.arn}"
+  role       = "${aws_iam_role.codebuild-publish_app-service-role.name}"
+}
+
+resource "aws_iam_role_policy_attachment" "publish-s3-artifacts" {
+  policy_arn = "${aws_iam_policy.artifacts.arn}"
+  role       = "${aws_iam_role.codebuild-publish_app-service-role.name}"
+}
+
+resource "aws_iam_role_policy_attachment" "publish-codebuild-basepolicy" {
+  policy_arn = "${aws_iam_policy.codebuild-basepolicy-build.arn}"
+  role       = "${aws_iam_role.codebuild-publish_app-service-role.name}"
+}
+
 // Create appbuilder IAM user, policy attachments, SSH key, and put private key in S3
 resource "aws_iam_user" "appbuilder" {
   name = "appbuilder-${var.app_env}"
