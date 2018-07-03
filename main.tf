@@ -387,9 +387,11 @@ resource "aws_iam_policy" "project_creation_and_building" {
             "Action": [
                 "codecommit:GetRepository",
                 "codecommit:CreateRepository",
-                "codecommit:DeleteRepository"
+                "codecommit:DeleteRepository",
+                "codecommit:GetBranch",
+                "codecommit:ListBranches"
             ],
-            "Resource": "arn:aws:codecommit::*:*"
+            "Resource": "arn:aws:codecommit:${var.aws_region}:${var.aws_account_id}:*"
         }
     ]
 }
