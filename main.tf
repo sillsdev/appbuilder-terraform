@@ -539,7 +539,7 @@ resource "aws_iam_role_policy_attachment" "publish-s3-artifacts" {
 }
 
 resource "aws_iam_role_policy_attachment" "publish-codebuild-basepolicy" {
-  policy_arn = "${aws_iam_policy.codebuild-basepolicy-build.arn}"
+  policy_arn = "${aws_iam_policy.codebuild-basepolicy-publish.arn}"
   role       = "${aws_iam_role.codebuild-publish_app-service-role.name}"
 }
 
