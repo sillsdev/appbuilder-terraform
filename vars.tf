@@ -69,21 +69,6 @@ variable "buildengine_docker_tag" {
   default = "production"
 }
 
-variable "buildengine_git_user_email" {
-  type    = "string"
-  default = "appbuilder@buildagent.com"
-}
-
-variable "buildengine_git_user_name" {
-  type    = "string"
-  default = "AppBuilder Build Agent"
-}
-
-variable "buildengine_repo_branch" {
-  type    = "string"
-  default = "master"
-}
-
 variable "buildengine_subdomain" {
   type    = "string"
   default = "buildengine"

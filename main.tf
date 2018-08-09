@@ -294,7 +294,7 @@ resource "aws_s3_bucket" "secrets" {
 
 resource "aws_iam_policy" "secrets" {
   name        = "s3-appbuilder-secrets-${var.app_env}"
-  description = "S3 App Builder Secrets - extract ssh keys to access Git repository for Job DSL configuration"
+  description = "S3 App Builder Secrets"
 
   policy = <<EOF
 {
@@ -543,7 +543,7 @@ resource "aws_iam_role_policy_attachment" "publish-codebuild-basepolicy" {
   role       = "${aws_iam_role.codebuild-publish_app-service-role.name}"
 }
 
-// Create appbuilder IAM user, policy attachments, SSH key, and put private key in S3
+// Create appbuilder IAM user, policy attachments
 resource "aws_iam_user" "appbuilder" {
   name = "appbuilder-${var.app_env}"
 }
@@ -567,23 +567,7 @@ resource "aws_iam_user_policy_attachment" "appbuilder-secrets" {
   policy_arn = "${aws_iam_policy.secrets.arn}"
 }
 
-resource "tls_private_key" "appbuilder" {
-  algorithm = "RSA"
-}
-
-resource "aws_iam_user_ssh_key" "appbuilder" {
-  username   = "${aws_iam_user.appbuilder.name}"
-  encoding   = "SSH"
-  public_key = "${tls_private_key.appbuilder.public_key_pem}"
-}
-
-resource "aws_s3_bucket_object" "appbuilder_build_ssh_private_key" {
-  bucket  = "${aws_s3_bucket.secrets.bucket}"
-  key     = "jenkins/build/appbuilder_ssh/id_rsa"
-  content = "${tls_private_key.appbuilder.private_key_pem}"
-}
-
-// Create buildengine IAM user, policy attachments, SSH key, and put private key in S3
+// Create buildengine IAM user, policy attachments
 resource "aws_iam_user" "buildengine" {
   name = "buildengine-${var.app_env}"
 }
@@ -607,22 +591,6 @@ resource "aws_iam_user_policy_attachment" "buildengine-project-creation" {
   policy_arn = "${aws_iam_policy.project_creation_and_building.arn}"
 }
 
-resource "tls_private_key" "buildengine" {
-  algorithm = "RSA"
-}
-
-resource "aws_iam_user_ssh_key" "buildengine" {
-  username   = "${aws_iam_user.buildengine.name}"
-  encoding   = "SSH"
-  public_key = "${tls_private_key.buildengine.public_key_pem}"
-}
-
-resource "aws_s3_bucket_object" "buildengine_ssh_private_key" {
-  bucket  = "${aws_s3_bucket.secrets.bucket}"
-  key     = "buildengine_api/ssh/id_rsa"
-  content = "${tls_private_key.buildengine.private_key_pem}"
-}
-
 // Create ECS service for buildengine
 resource "random_id" "api_access_token" {
   byte_length = 16
@@ -644,18 +612,13 @@ data "template_file" "task_def_buildengine" {
     buildengine_docker_tag               = "${var.buildengine_docker_tag}"
     ADMIN_EMAIL                          = "${var.admin_email}"
     API_ACCESS_TOKEN                     = "${random_id.api_access_token.hex}"
-    APPBUILDER_GIT_SSH_USER              = "${aws_iam_user_ssh_key.appbuilder.ssh_public_key_id}"
     APP_ENV                              = "${var.app_env}"
     AWS_ACCESS_KEY_ID                    = "${aws_iam_access_key.buildengine.id}"
     AWS_SECRET_ACCESS_KEY                = "${aws_iam_access_key.buildengine.secret}"
     AWS_USER_ID                          = "${var.aws_account_id}"
     BUILD_ENGINE_ARTIFACTS_BUCKET        = "${aws_s3_bucket.artifacts.bucket}"
     BUILD_ENGINE_ARTIFACTS_BUCKET_REGION = "${var.aws_region}"
-    BUILD_ENGINE_GIT_SSH_USER            = "${aws_iam_user_ssh_key.buildengine.ssh_public_key_id}"
     BUILD_ENGINE_SECRETS_BUCKET          = "${aws_s3_bucket.secrets.bucket}"
-    BUILD_ENGINE_GIT_USER_EMAIL          = "${var.buildengine_git_user_email}"
-    BUILD_ENGINE_GIT_USER_NAME           = "${var.buildengine_git_user_name}"
-    EXPAND_S3_FILES                      = "${aws_s3_bucket.secrets.bucket}/buildengine_api/ssh/id_rsa|/root/.ssh/id_rsa[600,]"
     EXPAND_S3_KEY                        = "${aws_iam_access_key.buildengine.id}"
     EXPAND_S3_SECRET                     = "${aws_iam_access_key.buildengine.secret}"
     FRONT_COOKIE_KEY                     = "${random_id.front_cookie_key.hex}"
