@@ -8,6 +8,10 @@ variable "admin_name" {
   description = "Email name for admin"
 }
 
+variable "api_url" {
+  type = "string"
+}
+
 variable "app_env" {
   type        = "string"
   description = "Environment name, ex: 'stg' or 'prod'"
@@ -20,9 +24,21 @@ variable "app_name" {
 }
 
 variable "auth0_audience" {
-  type        = "string"
-  default     = "aps"
-  description = "Used in naming ECS cluster. Recommend something like 'idp-acme'"
+  type    = "string"
+  default = "n8IAE2O17FBrlQ667x5mydhpqelCBUWG"
+}
+
+variable "auth0_domain" {
+  type    = "string"
+  default = "sil-appbuilder.auth0.com"
+}
+
+variable "auth0_token_access_client_id" {
+  type = "string"
+}
+
+variable "auth0_token_access_client_secret" {
+  type = "string"
 }
 
 variable "aws_access_key_id" {
@@ -60,6 +76,10 @@ variable "aws_instance" {
   }
 }
 
+variable "bugsnag_apikey" {
+  type = "string"
+}
+
 variable "buildengine_api_cpu" {
   type    = "string"
   default = "128"
@@ -79,6 +99,7 @@ variable "buildengine_cron_memory" {
   type    = "string"
   default = "128"
 }
+
 variable "buildengine_db_root_user" {
   type    = "string"
   default = "appbuilder"
@@ -148,6 +169,15 @@ variable "mailer_password" {
   type = "string"
 }
 
+variable "mail_sender" {
+  type    = "string"
+  default = "SparkPost"
+}
+
+variable "mail_sparkpost_apikey" {
+  type = "string"
+}
+
 variable "mailer_usefiles" {
   type = "string"
 }
@@ -201,6 +231,10 @@ variable "portal_ui_memory" {
   default = "128"
 }
 
+variable "superadmin_email" {
+  type = "string"
+}
+
 variable "ssh_ips" {
   type        = "list"
   description = "A list of IP address CIDR blocks for allowing ssh access"
@@ -226,4 +260,8 @@ variable "db_access_enabled" {
 variable "org_prefix" {
   type        = "string"
   description = "Short prefix for Organization name, letters and hyphens only. Ex: sil"
+}
+
+variable "ui_url" {
+  type = "string"
 }
