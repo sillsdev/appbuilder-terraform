@@ -79,18 +79,18 @@ resource "aws_security_group_rule" "mysql" {
 }
 
 // Create database and root password
-resource "random_id" "db_root_pass" {
+resource "random_id" "buildengine_db_root_pass" {
   byte_length = 16
 }
 
 // Create DB
-module "rds" {
+module "buildengine_db" {
   source                  = "github.com/silinternational/terraform-modules//aws/rds/mariadb?ref=develop"
   app_name                = "${var.app_name}"
   app_env                 = "${var.app_env}"
   db_name                 = "${var.db_name}"
-  db_root_user            = "${var.db_root_user}"
-  db_root_pass            = "${random_id.db_root_pass.hex}"
+  db_root_user            = "${var.buildengine_db_root_user}"
+  db_root_pass            = "${random_id.buildengine_db_root_pass.hex}"
   subnet_group_name       = "${module.vpc.db_subnet_group_name}"
   availability_zone       = "${var.aws_zones[0]}"
   security_groups         = ["${module.vpc.vpc_default_sg_id}", "${aws_security_group.db_access_limited_ips.id}"]
@@ -604,10 +604,10 @@ data "template_file" "task_def_buildengine" {
   template = "${file("${path.module}/task-def-buildengine.json")}"
 
   vars {
-    api_cpu                              = "${var.api_cpu}"
-    api_memory                           = "${var.api_memory}"
-    cron_cpu                             = "${var.cron_cpu}"
-    cron_memory                          = "${var.cron_memory}"
+    api_cpu                              = "${var.buildengine_api_cpu}"
+    api_memory                           = "${var.buildengine_api_memory}"
+    cron_cpu                             = "${var.buildengine_cron_cpu}"
+    cron_memory                          = "${var.buildengine_cron_memory}"
     buildengine_docker_image             = "${var.buildengine_docker_image}"
     buildengine_docker_tag               = "${var.buildengine_docker_tag}"
     ADMIN_EMAIL                          = "${var.admin_email}"
@@ -627,9 +627,9 @@ data "template_file" "task_def_buildengine" {
     MAILER_USEFILES                      = "${var.mailer_usefiles}"
     MAILER_USERNAME                      = "${var.mailer_username}"
     MYSQL_DATABASE                       = "${var.db_name}"
-    MYSQL_HOST                           = "${module.rds.address}"
-    MYSQL_PASSWORD                       = "${random_id.db_root_pass.hex}"
-    MYSQL_USER                           = "${var.db_root_user}"
+    MYSQL_HOST                           = "${module.buildengine_db.address}"
+    MYSQL_PASSWORD                       = "${random_id.buildengine_db_root_pass.hex}"
+    MYSQL_USER                           = "${var.buildengine_db_root_user}"
   }
 }
 
@@ -645,4 +645,56 @@ module "ecsservice_buildengine" {
   lb_container_name  = "web"
   lb_container_port  = 80
   ecsServiceRole_arn = "${module.ecscluster.ecsServiceRole_arn}"
+}
+
+// portal components
+
+resource "random_id" "portal_db_root_pass" {
+  byte_length = 16
+}
+
+module "portal_db" {
+  source                  = "github.com/silinternational/terraform-modules//aws/rds/mariadb?ref=develop"
+  engine                  = "postgresql"
+  engine_version          = "10.4"
+  app_name                = "${var.app_name}"
+  app_env                 = "${var.app_env}"
+  db_name                 = "${var.db_name}-portal"
+  db_root_user            = "${var.portal_db_root_user}"
+  db_root_pass            = "${random_id.portal_db_root_pass.hex}"
+  subnet_group_name       = "${module.vpc.db_subnet_group_name}"
+  availability_zone       = "${var.aws_zones[0]}"
+  security_groups         = ["${module.vpc.vpc_default_sg_id}", "${aws_security_group.db_access_limited_ips.id}"]
+  allocated_storage       = "${var.db_storage}"
+  backup_retention_period = "${var.db_backup_retention_period}"
+  multi_az                = "${var.db_multi_az}"
+  publicly_accessible     = "true"
+}
+
+data "template_file" "task_def_portal" {
+  template = "${file("${path.module}/task-def-portal.json")}"
+
+  vars {
+    api_cpu                              = "${var.portal_api_cpu}"
+    api_memory                           = "${var.portal_api_memory}"
+    api_docker_image                     = "${var.portal_api_docker_image}"
+    api_docker_tag                       = "${var.portal_api_docker_tag}"
+    ui_cpu                               = "${var.portal_ui_cpu}"
+    ui_memory                            = "${var.portal_ui_memory}"
+    ui_docker_image                      = "${var.portal_ui_docker_image}"
+    ui_docker_tag                        = "${var.portal_ui_docker_tag}"
+    ADMIN_EMAIL                          = "${var.admin_email}"
+    ADMIN_NAME                           = "${var.admin_name}"
+    API_HOST                             = ""
+    APP_ENV                              = "${var.app_env}"
+    AUTH0_AUDIENCE                       =""
+    AUTH0_CLIENT_ID=""
+    AUTH0_CONNECTION=""
+    AUTH0_DOMAIN=""
+    POSTGRES_DATABASE                    = "${module.portal_db.db_name}"
+    POSTGRES_HOST                        = "${module.buildengine_db.address}"
+    POSTGRES_PASSWORD                    = "${random_id.portal_db_root_pass.hex}"
+    POSTGRES_USER                        = "${var.portal_db_root_user}"
+    UI_HOST                              = ""
+  }
 }

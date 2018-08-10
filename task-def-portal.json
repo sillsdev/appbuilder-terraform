@@ -1,0 +1,194 @@
+[
+  {
+    "volumesFrom": [],
+    //"memory": ${portal_ui_memory},
+    "extraHosts": null,
+    "dnsServers": null,
+    "disableNetworking": null,
+    "dnsSearchDomains": null,
+    "portMappings": [
+      {
+        "hostPort": 0,
+        "containerPort": 80,
+        "protocol": "tcp"
+      }
+    ],
+    "hostname": null,
+    "essential": true,
+    "entryPoint": [],
+    "mountPoints": [],
+    "name": "ui",
+    "ulimits": null,
+    "dockerSecurityOptions": null,
+    "environment": [
+      {
+        "name": "API_HOST",
+        "value": "${API_HOST}"
+      },
+      {
+        "name": "API_PROTOCOL",
+        "value": "${API_PROTOCOL}"
+      },
+      {
+        "name": "AUTH0_CLIENT_ID",
+        "value": "${AUTH0_CLIENT_ID}"
+      },
+      {
+        "name": "AUTH0_DOMAIN",
+        "value": "${AUTH0_DOMAIN}"
+      },
+      {
+        "name": "AUTH0_CONNECTION",
+        "value": "${AUTH0_CONNECTION}"
+      },
+      {
+        "name": "HMR_PORT",
+        "value": "${HMR_PORT}"
+      },
+      {
+        "name": "PORT",
+        "value": "${PORT}"
+      },
+      {
+        "name": "AUTH0_CLIENT_ID",
+        "value": "${AUTH0_CLIENT_ID}"
+      }
+    ],
+    "links": [],
+    "workingDirectory": null,
+    "readonlyRootFilesystem": null,
+    "image": "${portal_ui_docker_image}:${portal_ui_docker_tag}",
+    "command": [],
+    "user": null,
+    "dockerLabels": null,
+    "logConfiguration": null,
+    //"cpu": ${portal_ui_cpu},
+    "privileged": null,
+    "memoryReservation": null
+  },
+  {
+    "volumesFrom": [],
+    //"memory": ${portal_api_memory},
+    "extraHosts": null,
+    "dnsServers": null,
+    "disableNetworking": null,
+    "dnsSearchDomains": null,
+    "portMappings": [],
+    "hostname": null,
+    "essential": true,
+    "entryPoint": [],
+    "mountPoints": [],
+    "name": "api",
+    "ulimits": null,
+    "dockerSecurityOptions": null,
+    "environment": [
+      {
+        "name": "ADMIN_EMAIL",
+        "value": "${ADMIN_EMAIL}"
+      },
+      {
+        "name": "API_ACCESS_TOKEN",
+        "value": "${API_ACCESS_TOKEN}"
+      },
+      {
+        "name": "APPBUILDER_GIT_SSH_USER",
+        "value": "${APPBUILDER_GIT_SSH_USER}"
+      },
+      {
+        "name": "APP_ENV",
+        "value": "${APP_ENV}"
+      },
+      {
+        "name": "AWS_ACCESS_KEY_ID",
+        "value": "${AWS_ACCESS_KEY_ID}"
+      },
+      {
+        "name": "AWS_SECRET_ACCESS_KEY",
+        "value": "${AWS_SECRET_ACCESS_KEY}"
+      },
+      {
+        "name": "BUILD_ENGINE_ARTIFACTS_BUCKET",
+        "value": "${BUILD_ENGINE_ARTIFACTS_BUCKET}"
+      },
+      {
+        "name": "BUILD_ENGINE_ARTIFACTS_BUCKET_REGION",
+        "value": "${BUILD_ENGINE_ARTIFACTS_BUCKET_REGION}"
+      },
+      {
+        "name": "BUILD_ENGINE_GIT_SSH_USER",
+        "value": "${BUILD_ENGINE_GIT_SSH_USER}"
+      },
+      {
+        "name": "BUILD_ENGINE_GIT_USER_EMAIL",
+        "value": "${BUILD_ENGINE_GIT_USER_EMAIL}"
+      },
+      {
+        "name": "BUILD_ENGINE_GIT_USER_NAME",
+        "value": "${BUILD_ENGINE_GIT_USER_NAME}"
+      },
+      {
+        "name": "BUILD_ENGINE_SECRETS_BUCKET",
+        "value": "${BUILD_ENGINE_SECRETS_BUCKET}"
+      },
+      {
+        "name": "EXPAND_S3_FILES",
+        "value": "${EXPAND_S3_FILES}"
+      },
+      {
+        "name": "EXPAND_S3_KEY",
+        "value": "${EXPAND_S3_KEY}"
+      },
+      {
+        "name": "EXPAND_S3_SECRET",
+        "value": "${EXPAND_S3_SECRET}"
+      },
+      {
+        "name": "FRONT_COOKIE_KEY",
+        "value": "${FRONT_COOKIE_KEY}"
+      },
+      {
+        "name": "LOGENTRIES_KEY",
+        "value": "${LOGENTRIES_KEY}"
+      },
+      {
+        "name": "MAILER_PASSWORD",
+        "value": "${MAILER_PASSWORD}"
+      },
+      {
+        "name": "MAILER_USEFILES",
+        "value": "${MAILER_USEFILES}"
+      },
+      {
+        "name": "MAILER_USERNAME",
+        "value": "${MAILER_USERNAME}"
+      },
+      {
+        "name": "MYSQL_DATABASE",
+        "value": "${MYSQL_DATABASE}"
+      },
+      {
+        "name": "MYSQL_HOST",
+        "value": "${MYSQL_HOST}"
+      },
+      {
+        "name": "MYSQL_PASSWORD",
+        "value": "${MYSQL_PASSWORD}"
+      },
+      {
+        "name": "MYSQL_USER",
+        "value": "${MYSQL_USER}"
+      }
+    ],
+    "links": [],
+    "workingDirectory": null,
+    "readonlyRootFilesystem": null,
+    "image": "${portal_ui_docker_image}:${portal_ui_docker_tag}",
+    "command": ["/data/run-cron.sh"],
+    "user": null,
+    "dockerLabels": null,
+    "logConfiguration": null,
+    //"cpu": ${portal_ui_cpu},
+    "privileged": null,
+    "memoryReservation": null
+  }
+]

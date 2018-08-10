@@ -3,6 +3,11 @@ variable "admin_email" {
   description = "Email address for admin"
 }
 
+variable "admin_name" {
+  type        = "string"
+  description = "Email name for admin"
+}
+
 variable "app_env" {
   type        = "string"
   description = "Environment name, ex: 'stg' or 'prod'"
@@ -14,14 +19,10 @@ variable "app_name" {
   description = "Used in naming ECS cluster. Recommend something like 'idp-acme'"
 }
 
-variable "api_cpu" {
-  type    = "string"
-  default = "128"
-}
-
-variable "api_memory" {
-  type    = "string"
-  default = "128"
+variable "auth0_audience" {
+  type        = "string"
+  default     = "aps"
+  description = "Used in naming ECS cluster. Recommend something like 'idp-acme'"
 }
 
 variable "aws_access_key_id" {
@@ -59,6 +60,30 @@ variable "aws_instance" {
   }
 }
 
+variable "buildengine_api_cpu" {
+  type    = "string"
+  default = "128"
+}
+
+variable "buildengine_api_memory" {
+  type    = "string"
+  default = "128"
+}
+
+variable "buildengine_cron_cpu" {
+  type    = "string"
+  default = "128"
+}
+
+variable "buildengine_cron_memory" {
+  type    = "string"
+  default = "128"
+}
+variable "buildengine_db_root_user" {
+  type    = "string"
+  default = "appbuilder"
+}
+
 variable "buildengine_docker_image" {
   type    = "string"
   default = "sillsdev/appbuilder-buildengine-api"
@@ -79,16 +104,6 @@ variable "cert_domain_name" {
   description = "Full domain name on ACM certificate"
 }
 
-variable "cron_cpu" {
-  type    = "string"
-  default = "128"
-}
-
-variable "cron_memory" {
-  type    = "string"
-  default = "128"
-}
-
 variable "db_storage" {
   type    = "string"
   default = "8"
@@ -105,11 +120,6 @@ variable "db_multi_az" {
 }
 
 variable "db_name" {
-  type    = "string"
-  default = "appbuilder"
-}
-
-variable "db_root_user" {
   type    = "string"
   default = "appbuilder"
 }
@@ -144,6 +154,51 @@ variable "mailer_usefiles" {
 
 variable "mailer_username" {
   type = "string"
+}
+
+variable "portal_db_root_user" {
+  type    = "string"
+  default = "appbuilder"
+}
+
+variable "portal_api_cpu" {
+  type    = "string"
+  default = "128"
+}
+
+variable "portal_api_docker_image" {
+  type    = "string"
+  default = "sillsdev/appbuilder-portal-api"
+}
+
+variable "portal_api_docker_tag" {
+  type    = "string"
+  default = "production"
+}
+
+variable "portal_api_memory" {
+  type    = "string"
+  default = "128"
+}
+
+variable "portal_ui_cpu" {
+  type    = "string"
+  default = "128"
+}
+
+variable "portal_ui_docker_image" {
+  type    = "string"
+  default = "sillsdev/appbuilder-portal-ui"
+}
+
+variable "portal_ui_docker_tag" {
+  type    = "string"
+  default = "production"
+}
+
+variable "portal_ui_memory" {
+  type    = "string"
+  default = "128"
 }
 
 variable "ssh_ips" {

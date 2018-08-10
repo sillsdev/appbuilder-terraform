@@ -23,14 +23,26 @@ output "buildengine_secret_access_key" {
   value = "${aws_iam_access_key.buildengine.secret}"
 }
 
-output "db_address" {
-  value = "${module.rds.address}"
+output "buildengine_db_address" {
+  value = "${module.buildengine_db.address}"
 }
 
-output "db_root_pass" {
-  value = "${random_id.db_root_pass.hex}"
+output "buildengine_db_root_pass" {
+  value = "${random_id.buildengine_db_root_pass.hex}"
 }
 
-output "db_username" {
-  value = "${var.db_root_user}"
+output "buildengine_db_username" {
+  value = "${var.buildengine_db_root_user}"
+}
+
+output "portal_db_address" {
+  value = "${module.portal_db.address}"
+}
+
+output "portal_db_root_pass" {
+  value = "${random_id.portal_db_root_pass.hex}"
+}
+
+output "portal_db_username" {
+  value = "${var.portal_db_root_user}"
 }
