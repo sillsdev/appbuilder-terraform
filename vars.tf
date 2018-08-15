@@ -100,6 +100,11 @@ variable "buildengine_cron_memory" {
   default = "128"
 }
 
+variable "buildengine_db_name" {
+  type    = "string"
+  default = "appbuilder"
+}
+
 variable "buildengine_db_root_user" {
   type    = "string"
   default = "appbuilder"
@@ -138,11 +143,6 @@ variable "db_backup_retention_period" {
 variable "db_multi_az" {
   type    = "string"
   default = false
-}
-
-variable "db_name" {
-  type    = "string"
-  default = "appbuilder"
 }
 
 variable "domain" {
@@ -184,6 +184,11 @@ variable "mailer_usefiles" {
 
 variable "mailer_username" {
   type = "string"
+}
+
+variable "portal_db_name" {
+  type    = "string"
+  default = "appbuilder-portal"
 }
 
 variable "portal_db_root_user" {
