@@ -8,8 +8,15 @@ variable "admin_name" {
   description = "Email name for admin"
 }
 
+variable "api_port" {
+  type    = "string"
+  default = "7081"
+}
+
 variable "api_url" {
-  type = "string"
+  type        = "string"
+  default     = "http://api:7081"
+  description = "URL used by UI to proxy api calls from frontend JS; port must match api_port"
 }
 
 variable "app_env" {
@@ -203,7 +210,7 @@ variable "portal_api_cpu" {
 
 variable "portal_api_docker_image" {
   type    = "string"
-  default = "sillsdev/appbuilder-portal-api"
+  default = "appbuilder-portal-api"
 }
 
 variable "portal_api_docker_tag" {
@@ -223,7 +230,7 @@ variable "portal_ui_cpu" {
 
 variable "portal_ui_docker_image" {
   type    = "string"
-  default = "sillsdev/appbuilder-portal-ui"
+  default = "appbuilder-portal-nginx"
 }
 
 variable "portal_ui_docker_tag" {
