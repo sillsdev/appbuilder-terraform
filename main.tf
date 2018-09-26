@@ -656,7 +656,7 @@ resource "random_id" "portal_db_root_pass" {
 
 module "portal_db" {
   source                  = "github.com/silinternational/terraform-modules//aws/rds/mariadb?ref=develop"
-  engine                  = "postgresql"
+  engine                  = "postgres"
   engine_version          = "10.4"
   app_name                = "${var.app_name}"
   app_env                 = "${var.app_env}"
