@@ -50,18 +50,6 @@
         "value": "${BUILD_ENGINE_ARTIFACTS_BUCKET}"
       },
       {
-        "name": "BUILD_ENGINE_GIT_SSH_USER",
-        "value": "${BUILD_ENGINE_GIT_SSH_USER}"
-      },
-      {
-        "name": "BUILD_ENGINE_GIT_USER_EMAIL",
-        "value": "${BUILD_ENGINE_GIT_USER_EMAIL}"
-      },
-      {
-        "name": "BUILD_ENGINE_GIT_USER_NAME",
-        "value": "${BUILD_ENGINE_GIT_USER_NAME}"
-      },
-      {
         "name": "BUILD_ENGINE_SECRETS_BUCKET",
         "value": "${BUILD_ENGINE_SECRETS_BUCKET}"
       },
@@ -173,18 +161,6 @@
       {
         "name": "BUILD_ENGINE_ARTIFACTS_BUCKET_REGION",
         "value": "${BUILD_ENGINE_ARTIFACTS_BUCKET_REGION}"
-      },
-      {
-        "name": "BUILD_ENGINE_GIT_SSH_USER",
-        "value": "${BUILD_ENGINE_GIT_SSH_USER}"
-      },
-      {
-        "name": "BUILD_ENGINE_GIT_USER_EMAIL",
-        "value": "${BUILD_ENGINE_GIT_USER_EMAIL}"
-      },
-      {
-        "name": "BUILD_ENGINE_GIT_USER_NAME",
-        "value": "${BUILD_ENGINE_GIT_USER_NAME}"
       },
       {
         "name": "BUILD_ENGINE_SECRETS_BUCKET",
