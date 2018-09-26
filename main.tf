@@ -84,7 +84,7 @@ resource "random_id" "buildengine_db_root_pass" {
 }
 
 // Create DB
-module "buildengine_db" {
+module "rds" {
   source                  = "github.com/silinternational/terraform-modules//aws/rds/mariadb?ref=develop"
   app_name                = "${var.app_name}"
   app_env                 = "${var.app_env}"
@@ -628,7 +628,7 @@ data "template_file" "task_def_buildengine" {
     MAILER_USEFILES                      = "${var.mailer_usefiles}"
     MAILER_USERNAME                      = "${var.mailer_username}"
     MYSQL_DATABASE                       = "${var.buildengine_db_name}"
-    MYSQL_HOST                           = "${module.buildengine_db.address}"
+    MYSQL_HOST                           = "${module.rds.address}"
     MYSQL_PASSWORD                       = "${random_id.buildengine_db_root_pass.hex}"
     MYSQL_USER                           = "${var.buildengine_db_root_user}"
   }

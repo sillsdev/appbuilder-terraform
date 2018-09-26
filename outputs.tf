@@ -28,7 +28,7 @@ output "buildengine_secret_access_key" {
 }
 
 output "buildengine_db_address" {
-  value = "${module.buildengine_db.address}"
+  value = "${module.rds.address}"
 }
 
 output "buildengine_db_root_pass" {
