@@ -620,8 +620,6 @@ data "template_file" "task_def_buildengine" {
     BUILD_ENGINE_ARTIFACTS_BUCKET_REGION = "${var.aws_region}"
     BUILD_ENGINE_SECRETS_BUCKET          = "${aws_s3_bucket.secrets.bucket}"
     CODE_BUILD_IMAGE_TAG                 = "${var.buildagent_code_build_image_tag}"
-    EXPAND_S3_KEY                        = "${aws_iam_access_key.buildengine.id}"
-    EXPAND_S3_SECRET                     = "${aws_iam_access_key.buildengine.secret}"
     FRONT_COOKIE_KEY                     = "${random_id.front_cookie_key.hex}"
     LOGENTRIES_KEY                       = "${var.logentries_key}"
     MAILER_PASSWORD                      = "${var.mailer_password}"
