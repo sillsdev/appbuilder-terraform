@@ -3,6 +3,10 @@ output "alb_dns_name" {
   value = "${module.alb.dns_name}"
 }
 
+output "app_ui_url" {
+  value = "https://${cloudflare_record.app_ui.hostname}"
+}
+
 output "appbuilder_access_key_id" {
   value = "${aws_iam_access_key.appbuilder.id}"
 }

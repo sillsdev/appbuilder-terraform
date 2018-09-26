@@ -30,6 +30,11 @@ variable "app_name" {
   description = "Used in naming ECS cluster. Recommend something like 'idp-acme'"
 }
 
+variable "app_sub_domain" {
+  type    = "string"
+  default = "app"
+}
+
 variable "auth0_audience" {
   type    = "string"
   default = "n8IAE2O17FBrlQ667x5mydhpqelCBUWG"
@@ -141,6 +146,19 @@ variable "buildengine_subdomain" {
 variable "cert_domain_name" {
   type        = "string"
   description = "Full domain name on ACM certificate"
+}
+
+variable "cloudflare_domain" {
+  type    = "string"
+  default = "scriptoria.io"
+}
+
+variable "cloudflare_email" {
+  type = "string"
+}
+
+variable "cloudflare_token" {
+  type = "string"
 }
 
 variable "db_storage" {
@@ -278,8 +296,4 @@ variable "db_access_enabled" {
 variable "org_prefix" {
   type        = "string"
   description = "Short prefix for Organization name, letters and hyphens only. Ex: sil"
-}
-
-variable "ui_url" {
-  type = "string"
 }

@@ -701,6 +701,15 @@ data "template_file" "task_def_portal" {
     POSTGRES_PASSWORD                = "${random_id.portal_db_root_pass.hex}"
     POSTGRES_USER                    = "${var.portal_db_root_user}"
     SUPERADMIN_EMAIL                 = "${var.superadmin_email}"
-    UI_URL                           = "${var.ui_url}"
+    UI_URL                           = "https://${var.app_sub_domain}.${var.cloudflare_domain}"
   }
+}
+
+// Create DNS CNAME record on Cloudflare for Agent API
+resource "cloudflare_record" "app_ui" {
+  domain  = "${var.cloudflare_domain}"
+  name    = "${var.app_sub_domain}"
+  type    = "CNAME"
+  value   = "${module.alb.dns_name}"
+  proxied = true
 }
