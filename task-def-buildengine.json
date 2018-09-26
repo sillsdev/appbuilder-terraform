@@ -30,10 +30,6 @@
         "value": "${API_ACCESS_TOKEN}"
       },
       {
-        "name": "APPBUILDER_GIT_SSH_USER",
-        "value": "${APPBUILDER_GIT_SSH_USER}"
-      },
-      {
         "name": "APP_ENV",
         "value": "${APP_ENV}"
       },
@@ -157,10 +153,6 @@
       {
         "name": "API_ACCESS_TOKEN",
         "value": "${API_ACCESS_TOKEN}"
-      },
-      {
-        "name": "APPBUILDER_GIT_SSH_USER",
-        "value": "${APPBUILDER_GIT_SSH_USER}"
       },
       {
         "name": "APP_ENV",
