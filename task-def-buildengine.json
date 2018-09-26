@@ -70,6 +70,10 @@
         "value": "${BUILD_ENGINE_SECRETS_BUCKET}"
       },
       {
+        "name": "CODE_BUILD_IMAGE_TAG",
+        "value": "${CODE_BUILD_IMAGE_TAG}"
+      },
+      {
         "name": "EXPAND_S3_FILES",
         "value": "${EXPAND_S3_FILES}"
       },
@@ -193,6 +197,10 @@
       {
         "name": "BUILD_ENGINE_SECRETS_BUCKET",
         "value": "${BUILD_ENGINE_SECRETS_BUCKET}"
+      },
+      {
+        "name": "CODE_BUILD_IMAGE_TAG",
+        "value": "${CODE_BUILD_IMAGE_TAG}"
       },
       {
         "name": "EXPAND_S3_FILES",
