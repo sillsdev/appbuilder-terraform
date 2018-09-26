@@ -294,7 +294,7 @@ resource "aws_s3_bucket" "secrets" {
 
 resource "aws_iam_policy" "secrets" {
   name        = "s3-appbuilder-secrets-${var.app_env}"
-  description = "S3 App Builder Secrets"
+  description = "S3 App Builder Secrets - extract ssh keys to access Git repository for Job DSL configuration"
 
   policy = <<EOF
 {
