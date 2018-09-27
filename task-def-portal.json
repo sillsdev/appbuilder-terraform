@@ -1,7 +1,7 @@
 [
   {
     "volumesFrom": [],
-    "memory": ${portal_ui_memory},
+    "memory": ${ui_memory},
     "extraHosts": null,
     "dnsServers": null,
     "disableNetworking": null,
@@ -29,18 +29,18 @@
     "links": [],
     "workingDirectory": null,
     "readonlyRootFilesystem": null,
-    "image": "${portal_ui_docker_image}:${portal_ui_docker_tag}",
+    "image": "${ui_docker_image}:${ui_docker_tag}",
     "command": ["/src/run-nginx.sh"],
     "user": null,
     "dockerLabels": null,
     "logConfiguration": null,
-    "cpu": ${portal_ui_cpu},
+    "cpu": ${ui_cpu},
     "privileged": null,
     "memoryReservation": null
   },
   {
     "volumesFrom": [],
-    "memory": ${portal_api_memory},
+    "memory": ${api_memory},
     "extraHosts": null,
     "dnsServers": null,
     "disableNetworking": null,
@@ -126,12 +126,12 @@
     "links": [],
     "workingDirectory": null,
     "readonlyRootFilesystem": null,
-    "image": "${portal_ui_docker_image}:${portal_ui_docker_tag}",
+    "image": "${api_docker_image}:${api_docker_tag}",
     //"command": ["/data/run-cron.sh"],
     "user": null,
     "dockerLabels": null,
     "logConfiguration": null,
-    "cpu": ${portal_ui_cpu},
+    "cpu": ${api_cpu},
     "privileged": null,
     "memoryReservation": null
   }
