@@ -703,6 +703,20 @@ data "template_file" "task_def_portal" {
   }
 }
 
+// Uses default target group to route all https/443 traffic to buildengine
+module "ecsservice_portal" {
+  source             = "github.com/silinternational/terraform-modules//aws/ecs/service-only?ref=develop"
+  cluster_id         = "${module.ecscluster.ecs_cluster_id}"
+  service_name       = "portal"
+  service_env        = "${var.app_env}"
+  container_def_json = "${data.template_file.task_def_portal.rendered}"
+  desired_count      = 1
+  tg_arn             = "${module.alb.default_tg_arn}"
+  lb_container_name  = "ui"
+  lb_container_port  = 9091
+  ecsServiceRole_arn = "${module.ecscluster.ecsServiceRole_arn}"
+}
+
 // Create DNS CNAME record on Cloudflare for Agent API
 resource "cloudflare_record" "app_ui" {
   domain  = "${var.cloudflare_domain}"
