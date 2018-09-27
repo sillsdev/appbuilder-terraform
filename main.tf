@@ -676,11 +676,11 @@ data "template_file" "task_def_portal" {
   vars {
     api_cpu                          = "${var.portal_api_cpu}"
     api_memory                       = "${var.portal_api_memory}"
-    api_docker_image                 = "${var.portal_api_docker_image}"
+    api_docker_image                 = "${var.aws_account_id}.dkr.ecr.us-east-1.amazonaws.com/${var.portal_api_docker_image}"
     api_docker_tag                   = "${var.portal_api_docker_tag}"
     ui_cpu                           = "${var.portal_ui_cpu}"
     ui_memory                        = "${var.portal_ui_memory}"
-    ui_docker_image                  = "${var.portal_ui_docker_image}"
+    ui_docker_image                  = "${var.aws_account_id}.dkr.ecr.us-east-1.amazonaws.com/${var.portal_ui_docker_image}"
     ui_docker_tag                    = "${var.portal_ui_docker_tag}"
     ADMIN_EMAIL                      = "${var.admin_email}"
     ADMIN_NAME                       = "${var.admin_name}"
