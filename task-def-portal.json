@@ -133,7 +133,6 @@
     "workingDirectory": null,
     "readonlyRootFilesystem": null,
     "image": "${api_docker_image}:${api_docker_tag}",
-    //"command": ["/data/run-cron.sh"],
     "user": null,
     "dockerLabels": null,
     "logConfiguration": null,
