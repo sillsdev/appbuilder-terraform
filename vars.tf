@@ -218,8 +218,9 @@ variable "mailer_username" {
 }
 
 variable "portal_db_name" {
-  type    = "string"
-  default = "appbuilder-portal"
+  type        = "string"
+  default     = "portal"
+  description = "Must begin with letter and contain only alphanumeric characters"
 }
 
 variable "portal_db_root_user" {
