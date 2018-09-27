@@ -30,7 +30,7 @@
     "workingDirectory": null,
     "readonlyRootFilesystem": null,
     "image": "${ui_docker_image}:${ui_docker_tag}",
-    "command": ["/src/run-nginx.sh"],
+    "command": ["/usr/local/bin/run-nginx.sh"],
     "user": null,
     "dockerLabels": null,
     "logConfiguration": null,
