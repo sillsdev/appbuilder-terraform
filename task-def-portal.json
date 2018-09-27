@@ -9,7 +9,7 @@
     "portMappings": [
       {
         "hostPort": 0,
-        "containerPort": 80,
+        "containerPort": 9091,
         "protocol": "tcp"
       }
     ],
@@ -45,7 +45,13 @@
     "dnsServers": null,
     "disableNetworking": null,
     "dnsSearchDomains": null,
-    "portMappings": [],
+    "portMappings": [
+      {
+        "hostPort": 0,
+        "containerPort": 7081,
+        "protocol": "tcp"
+      }
+    ],
     "hostname": null,
     "essential": true,
     "entryPoint": [],
