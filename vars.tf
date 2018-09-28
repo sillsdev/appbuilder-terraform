@@ -176,6 +176,16 @@ variable "db_multi_az" {
   default = false
 }
 
+variable "db_bootstrap" {
+  type    = "string"
+  default = "0"
+}
+
+variable "db_sampledata" {
+  type    = "string"
+  default = "0"
+}
+
 variable "domain" {
   type        = "string"
   description = "Top level domain for URLs, ex: sil.org"

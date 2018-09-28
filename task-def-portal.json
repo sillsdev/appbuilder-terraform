@@ -93,8 +93,12 @@
         "value": "${AUTH0_TOKEN_ACCESS_CLIENT_SECRET}"
       },
       {
-        "name": "BUGSNAG_APIKEY",
-        "value": "${BUGSNAG_APIKEY}"
+        "name": "DB_BOOTSTRAP",
+        "value": "${DB_BOOTSTRAP}"
+      },
+      {
+        "name": "DB_SAMPLEDATA",
+        "value": "${DB_SAMPLEDATA}"
       },
       {
         "name": "MAIL_SENDER",

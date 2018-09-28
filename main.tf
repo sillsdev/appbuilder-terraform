@@ -691,6 +691,8 @@ data "template_file" "task_def_portal" {
     AUTH0_DOMAIN                     = "${var.auth0_domain}"
     AUTH0_TOKEN_ACCESS_CLIENT_ID     = "${var.auth0_token_access_client_id}"
     AUTH0_TOKEN_ACCESS_CLIENT_SECRET = "${var.auth0_token_access_client_secret}"
+    DB_BOOTSTRAP                     = "${var.db_bootstrap}"
+    DB_SAMPLEDATA                    = "${var.db_sampledata}"
     BUGSNAG_APIKEY                   = "${var.bugsnag_apikey}"
     MAIL_SENDER                      = "${var.mail_sender}"
     MAIL_SPARKPOST_APIKEY            = "${var.mail_sparkpost_apikey}"
