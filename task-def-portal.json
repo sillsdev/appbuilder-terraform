@@ -26,7 +26,9 @@
         "value": "${API_URL}"
       }
     ],
-    "links": [],
+    "links": [
+        "api"
+    ],
     "workingDirectory": null,
     "readonlyRootFilesystem": null,
     "image": "${ui_docker_image}:${ui_docker_tag}",
