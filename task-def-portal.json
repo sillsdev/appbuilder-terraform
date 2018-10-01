@@ -71,6 +71,10 @@
         "value": "${ADMIN_NAME}"
       },
       {
+        "name": "API_PORT",
+        "value": "${API_PORT}"
+      },
+      {
         "name": "API_URL",
         "value": "${API_URL}"
       },
