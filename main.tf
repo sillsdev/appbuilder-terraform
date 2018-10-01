@@ -777,7 +777,7 @@ module "ecsservice_portal" {
   desired_count      = 1
   tg_arn             = "${aws_alb_target_group.portal.arn}"
   lb_container_name  = "ui"
-  lb_container_port  = 9091
+  lb_container_port  = 80
   ecsServiceRole_arn = "${module.ecscluster.ecsServiceRole_arn}"
 }
 
