@@ -179,22 +179,22 @@ resource "aws_security_group" "alb_https_limited_ips" {
   vpc_id      = "${module.vpc.id}"
 }
 
-resource "aws_security_group_rule" "https" {
+resource "aws_security_group_rule" "limited" {
   type              = "ingress"
-  from_port         = 443
-  to_port           = 443
+  from_port         = 8443
+  to_port           = 8443
   protocol          = "tcp"
   security_group_id = "${aws_security_group.alb_https_limited_ips.id}"
   cidr_blocks       = ["${var.https_ips}", "${aws_eip.public.public_ip}/32"]
 }
 
-resource "aws_security_group_rule" "http" {
+resource "aws_security_group_rule" "public" {
   type              = "ingress"
-  from_port         = 8080
-  to_port           = 8080
+  from_port         = 443
+  to_port           = 443
   protocol          = "tcp"
   security_group_id = "${aws_security_group.alb_https_limited_ips.id}"
-  cidr_blocks       = ["${var.https_ips}", "${aws_eip.public.public_ip}/32"]
+  cidr_blocks       = ["0.0.0.0/0"]
 }
 
 // Create application load balancer for public access
@@ -209,6 +209,19 @@ module "alb" {
   certificate_arn = "${data.aws_acm_certificate.appbuilder.arn}"
 }
 
+resource "aws_alb_listener" "buildengine" {
+  "default_action" {
+    target_group_arn = "${aws_alb_target_group.buildengine.arn}"
+    type             = "forward"
+  }
+
+  load_balancer_arn = "${module.alb.arn}"
+  port              = 8443
+  protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-2016-08"
+  certificate_arn   = "${data.aws_acm_certificate.appbuilder.arn}"
+}
+
 // Create BuildEngine Target Group
 resource "aws_alb_target_group" "buildengine" {
   name                 = "${replace("tg-buildengine-${var.app_env}", "/(.{0,32})(.*)/", "$1")}"
@@ -219,24 +232,6 @@ resource "aws_alb_target_group" "buildengine" {
 
   stickiness {
     type = "lb_cookie"
-  }
-}
-
-/*
- * Create listener rule for hostname routing to new target group
- */
-resource "aws_alb_listener_rule" "buildengine" {
-  listener_arn = "${module.alb.https_listener_arn}"
-  priority     = "30"
-
-  action {
-    type             = "forward"
-    target_group_arn = "${aws_alb_target_group.buildengine.arn}"
-  }
-
-  condition {
-    field  = "host-header"
-    values = ["${var.cert_domain_name}"]
   }
 }
 
@@ -701,37 +696,6 @@ module "portal_db" {
   publicly_accessible     = "true"
 }
 
-// Create Portal Target Group
-resource "aws_alb_target_group" "portal" {
-  name                 = "${replace("tg-portal-${var.app_env}", "/(.{0,32})(.*)/", "$1")}"
-  port                 = "80"
-  protocol             = "HTTP"
-  vpc_id               = "${module.vpc.id}"
-  deregistration_delay = "30"
-
-  stickiness {
-    type = "lb_cookie"
-  }
-}
-
-/*
- * Create listener rule for hostname routing to new target group
- */
-resource "aws_alb_listener_rule" "portal" {
-  listener_arn = "${module.alb.https_listener_arn}"
-  priority     = "40"
-
-  action {
-    type             = "forward"
-    target_group_arn = "${aws_alb_target_group.portal.arn}"
-  }
-
-  condition {
-    field  = "host-header"
-    values = ["${var.app_sub_domain}.${var.cloudflare_domain}"]
-  }
-}
-
 data "template_file" "task_def_portal" {
   template = "${file("${path.module}/task-def-portal.json")}"
 
@@ -775,7 +739,7 @@ module "ecsservice_portal" {
   service_env        = "${var.app_env}"
   container_def_json = "${data.template_file.task_def_portal.rendered}"
   desired_count      = 1
-  tg_arn             = "${aws_alb_target_group.portal.arn}"
+  tg_arn             = "${module.alb.default_tg_arn}"
   lb_container_name  = "ui"
   lb_container_port  = 80
   ecsServiceRole_arn = "${module.ecscluster.ecsServiceRole_arn}"
