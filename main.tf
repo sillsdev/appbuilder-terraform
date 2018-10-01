@@ -188,15 +188,6 @@ resource "aws_security_group_rule" "limited" {
   cidr_blocks       = ["${var.https_ips}", "${aws_eip.public.public_ip}/32"]
 }
 
-resource "aws_security_group_rule" "public" {
-  type              = "ingress"
-  from_port         = 443
-  to_port           = 443
-  protocol          = "tcp"
-  security_group_id = "${aws_security_group.alb_https_limited_ips.id}"
-  cidr_blocks       = ["0.0.0.0/0"]
-}
-
 // Create application load balancer for public access
 module "alb" {
   source          = "github.com/silinternational/terraform-modules//aws/alb?ref=develop"
@@ -204,7 +195,7 @@ module "alb" {
   app_env         = "${var.app_env}"
   internal        = "false"
   vpc_id          = "${module.vpc.id}"
-  security_groups = ["${module.vpc.vpc_default_sg_id}", "${aws_security_group.alb_https_limited_ips.id}"]
+  security_groups = ["${module.vpc.vpc_default_sg_id}", "${aws_security_group.alb_https_limited_ips.id}", "${module.cloudflare-sg.id}"]
   subnets         = ["${module.vpc.public_subnet_ids}"]
   certificate_arn = "${data.aws_acm_certificate.appbuilder.arn}"
 }
@@ -752,4 +743,10 @@ resource "cloudflare_record" "app_ui" {
   type    = "CNAME"
   value   = "${module.alb.dns_name}"
   proxied = true
+}
+
+// Security group to limit traffic to Cloudflare IPs
+module "cloudflare-sg" {
+  source = "github.com/silinternational/terraform-modules//aws/cloudflare-sg?ref=2.2.0"
+  vpc_id = "${module.vpc.id}"
 }
