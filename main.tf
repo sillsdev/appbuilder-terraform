@@ -696,7 +696,7 @@ data "template_file" "task_def_portal" {
     BUGSNAG_APIKEY                   = "${var.bugsnag_apikey}"
     MAIL_SENDER                      = "${var.mail_sender}"
     MAIL_SPARKPOST_APIKEY            = "${var.mail_sparkpost_apikey}"
-    POSTGRES_DATABASE                = "${var.portal_db_name}"
+    POSTGRES_DB                      = "${var.portal_db_name}"
     POSTGRES_HOST                    = "${module.portal_db.address}"
     POSTGRES_PASSWORD                = "${random_id.portal_db_root_pass.hex}"
     POSTGRES_USER                    = "${var.portal_db_root_user}"

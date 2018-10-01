@@ -111,8 +111,8 @@
         "value": "${MAIL_SPARKPOST_APIKEY}"
       },
       {
-        "name": "POSTGRES_DATABASE",
-        "value": "${POSTGRES_DATABASE}"
+        "name": "POSTGRES_DB",
+        "value": "${POSTGRES_DB}"
       },
       {
         "name": "POSTGRES_HOST",
