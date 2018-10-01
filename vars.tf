@@ -42,7 +42,7 @@ variable "auth0_audience" {
 
 variable "auth0_domain" {
   type    = "string"
-  default = "sil-appbuilder.auth0.com"
+  default = "https://sil-appbuilder.auth0.com"
 }
 
 variable "auth0_token_access_client_id" {
