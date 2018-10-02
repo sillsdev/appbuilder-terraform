@@ -82,7 +82,7 @@ variable "aws_instance" {
   description = "A map of configuration information for EC2 instances. Expected keys are 'instance_type' (e.g. \"t2.micro\"), 'volume_size' (e.g. \"8\"), and 'instance_count' (e.g. \"3\")."
 
   default = {
-    instance_type  = "t2.nano"
+    instance_type  = "t3.small"
     volume_size    = "8"
     instance_count = "1"
   }
