@@ -143,6 +143,10 @@
         "value": "${AWS_SECRET_ACCESS_KEY}"
       },
       {
+        "name": "AWS_USER_ID",
+        "value": "${AWS_USER_ID}"
+      },
+      {
         "name": "BUILD_ENGINE_ARTIFACTS_BUCKET",
         "value": "${BUILD_ENGINE_ARTIFACTS_BUCKET}"
       },
