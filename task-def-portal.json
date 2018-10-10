@@ -107,6 +107,18 @@
         "value": "${DB_SAMPLEDATA}"
       },
       {
+        "name": "EXPAND_S3_FILES",
+        "value": "${EXPAND_S3_FILES}"
+      },
+      {
+        "name": "EXPAND_S3_KEY",
+        "value": "${EXPAND_S3_KEY}"
+      },
+      {
+        "name": "EXPAND_S3_SECRET",
+        "value": "${EXPAND_S3_SECRET}"
+      },
+      {
         "name": "MAIL_SENDER",
         "value": "${MAIL_SENDER}"
       },
