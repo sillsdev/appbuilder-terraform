@@ -380,6 +380,7 @@ resource "aws_iam_policy" "project_creation_and_building" {
             "Action": [
                 "iam:CreateGroup",
                 "iam:AddUserToGroup",
+                "iam:RemoveUserFromGroup",
                 "iam:ListSSHPublicKeys",
                 "iam:GetSSHPublicKey",
                 "iam:UploadSSHPublicKey",
