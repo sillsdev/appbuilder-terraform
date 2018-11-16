@@ -186,6 +186,11 @@ variable "db_sampledata" {
   default = "0"
 }
 
+variable "db_sampledata_buildengine_api_access_token" {
+  type    = "string"
+  default = ""
+}
+
 variable "domain" {
   type        = "string"
   description = "Top level domain for URLs, ex: sil.org"

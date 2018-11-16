@@ -107,6 +107,10 @@
         "value": "${DB_SAMPLEDATA}"
       },
       {
+        "name": "SAMPLEDATA_BUILDENGINE_API_ACCESS_TOKEN",
+        "value": "${DB_SAMPLEDATA_BUILDENGINE_API_ACCESS_TOKEN}"
+      },
+      {
         "name": "EXPAND_S3_FILES",
         "value": "${EXPAND_S3_FILES}"
       },
