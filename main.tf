@@ -78,6 +78,16 @@ resource "aws_security_group_rule" "mysql" {
   cidr_blocks       = ["${var.db_access_ips}"]
 }
 
+resource "aws_security_group_rule" "postgres" {
+  count             = "${var.db_access_enabled == "true" ? 1 : 0}"
+  type              = "ingress"
+  from_port         = 5432
+  to_port           = 5432
+  protocol          = "tcp"
+  security_group_id = "${aws_security_group.db_access_limited_ips.id}"
+  cidr_blocks       = ["${var.db_access_ips}"]
+}
+
 // Create database and root password
 resource "random_id" "buildengine_db_root_pass" {
   byte_length = 16
