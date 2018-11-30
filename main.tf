@@ -640,6 +640,7 @@ data "template_file" "task_def_buildengine" {
     buildengine_docker_tag               = "${var.buildengine_docker_tag}"
     ADMIN_EMAIL                          = "${var.admin_email}"
     API_ACCESS_TOKEN                     = "${random_id.api_access_token.hex}"
+    API_BASE_URL                         = "${var.buildengine_api_base_url}"
     APP_ENV                              = "${var.app_env}"
     AWS_ACCESS_KEY_ID                    = "${aws_iam_access_key.buildengine.id}"
     AWS_SECRET_ACCESS_KEY                = "${aws_iam_access_key.buildengine.secret}"

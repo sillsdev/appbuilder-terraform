@@ -98,6 +98,10 @@ variable "buildagent_code_build_image_tag" {
   default     = "production"
 }
 
+variable "buildengine_api_base_url" {
+  type = "string"
+}
+
 variable "buildengine_api_cpu" {
   type    = "string"
   default = "128"

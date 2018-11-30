@@ -30,6 +30,10 @@
         "value": "${API_ACCESS_TOKEN}"
       },
       {
+        "name": "API_BASE_URL",
+        "value": "${API_BASE_URL}"
+      },
+      {
         "name": "APP_ENV",
         "value": "${APP_ENV}"
       },
