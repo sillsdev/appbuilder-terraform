@@ -147,10 +147,6 @@
         "value": "${POSTGRES_USER}"
       },
       {
-        "name": "SUPERADMIN_EMAIL",
-        "value": "${SUPERADMIN_EMAIL}"
-      },
-      {
         "name": "UI_URL",
         "value": "${UI_URL}"
       }

@@ -195,11 +195,6 @@ variable "db_sampledata_buildengine_api_access_token" {
   default = ""
 }
 
-variable "domain" {
-  type        = "string"
-  description = "Top level domain for URLs, ex: sil.org"
-}
-
 variable "ec2_ssh_key_name" {
   type    = "string"
   default = ""
@@ -285,10 +280,6 @@ variable "portal_ui_docker_tag" {
 variable "portal_ui_memory" {
   type    = "string"
   default = "128"
-}
-
-variable "superadmin_email" {
-  type = "string"
 }
 
 variable "ssh_ips" {
