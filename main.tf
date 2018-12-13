@@ -189,10 +189,19 @@ resource "aws_security_group" "alb_https_limited_ips" {
   vpc_id      = "${module.vpc.id}"
 }
 
-resource "aws_security_group_rule" "limited" {
+resource "aws_security_group_rule" "limited_buildengine" {
   type              = "ingress"
   from_port         = 8443
   to_port           = 8443
+  protocol          = "tcp"
+  security_group_id = "${aws_security_group.alb_https_limited_ips.id}"
+  cidr_blocks       = ["${var.https_ips}", "${aws_eip.public.public_ip}/32"]
+}
+
+resource "aws_security_group_rule" "limited_dwkit" {
+  type              = "ingress"
+  from_port         = 7081
+  to_port           = 7081
   protocol          = "tcp"
   security_group_id = "${aws_security_group.alb_https_limited_ips.id}"
   cidr_blocks       = ["${var.https_ips}", "${aws_eip.public.public_ip}/32"]
