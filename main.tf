@@ -245,6 +245,19 @@ resource "aws_alb_target_group" "buildengine" {
   }
 }
 
+resource "aws_alb_listener" "dwkit" {
+  "default_action" {
+    target_group_arn = "${module.alb.default_tg_arn}"
+    type             = "forward"
+  }
+
+  load_balancer_arn = "${module.alb.arn}"
+  port              = 7081
+  protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-2016-08"
+  certificate_arn   = "${data.aws_acm_certificate.appbuilder.arn}"
+}
+
 // Create S3 bucket for storing artifacts
 data "template_file" "artifacts_bucket_policy" {
   template = "${file("${path.module}/s3-artifact-bucket-policy.json")}"
