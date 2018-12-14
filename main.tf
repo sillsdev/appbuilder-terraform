@@ -746,6 +746,9 @@ data "template_file" "task_def_portal" {
     DB_BOOTSTRAP                               = "${var.db_bootstrap}"
     DB_SAMPLEDATA                              = "${var.db_sampledata}"
     DB_SAMPLEDATA_BUILDENGINE_API_ACCESS_TOKEN = "${var.db_sampledata_buildengine_api_access_token}"
+    DEFAULT_BUILDENGINE_URL                    = "https://${cloudflare_record.buildengine.hostname}:8443"
+    DEFAULT_BUILDENGINE_API_ACCESS_TOKEN       = "${random_id.api_access_token.hex}"
+    DWKIT_UI_HOST                              = "${cloudflare_record.dwkit_ui.hostname}"
     EXPAND_S3_FILES                            = "${aws_s3_bucket.secrets.bucket}/portal/license.key|/app/"
     EXPAND_S3_KEY                              = "${aws_iam_access_key.appbuilder.id}"
     EXPAND_S3_SECRET                           = "${aws_iam_access_key.appbuilder.secret}"
@@ -780,6 +783,22 @@ resource "cloudflare_record" "app_ui" {
   type    = "CNAME"
   value   = "${module.alb.dns_name}"
   proxied = true
+}
+
+resource "cloudflare_record" "dwkit_ui" {
+  domain  = "${var.cloudflare_domain}"
+  name    = "${var.app_sub_domain}-admin"
+  type    = "CNAME"
+  value   = "${module.alb.dns_name}"
+  proxied = false
+}
+
+resource "cloudflare_record" "buildengine" {
+  domain  = "${var.cloudflare_domain}"
+  name    = "${var.app_sub_domain}-buildengine"
+  type    = "CNAME"
+  value   = "${module.alb.dns_name}"
+  proxied = false
 }
 
 // Security group to limit traffic to Cloudflare IPs

@@ -24,6 +24,10 @@
       {
         "name": "API_URL",
         "value": "${API_URL}"
+      },
+      {
+        "name": "DWKIT_UI_HOST",
+        "value": "${DWKIT_UI_HOST}"
       }
     ],
     "links": [
@@ -105,6 +109,14 @@
       {
         "name": "DB_SAMPLEDATA",
         "value": "${DB_SAMPLEDATA}"
+      },
+      {
+        "name": "DEFAULT_BUILDENGINE_URL",
+        "value": "${DEFAULT_BUILDENGINE_URL}"
+      },
+      {
+        "name": "DEFAULT_BUILDENGINE_API_ACCESS_TOKEN",
+        "value": "${DEFAULT_BUILDENGINE_API_ACCESS_TOKEN}"
       },
       {
         "name": "SAMPLEDATA_BUILDENGINE_API_ACCESS_TOKEN",
