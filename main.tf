@@ -744,6 +744,7 @@ data "template_file" "task_def_portal" {
     AUTH0_TOKEN_ACCESS_CLIENT_SECRET           = "${var.auth0_token_access_client_secret}"
     BUGSNAG_APIKEY                             = "${var.bugsnag_apikey}"
     DB_BOOTSTRAP                               = "${var.db_bootstrap}"
+    DB_BOOTSTRAP_FILE                          = "${var.db_bootstrap_file}"
     DB_SAMPLEDATA                              = "${var.db_sampledata}"
     DB_SAMPLEDATA_BUILDENGINE_API_ACCESS_TOKEN = "${var.db_sampledata_buildengine_api_access_token}"
     DEFAULT_BUILDENGINE_URL                    = "https://${cloudflare_record.buildengine.hostname}:8443"

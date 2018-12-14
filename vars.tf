@@ -185,6 +185,11 @@ variable "db_bootstrap" {
   default = "0"
 }
 
+variable "db_bootstrap_file" {
+  type    = "string"
+  default = ""
+}
+
 variable "db_sampledata" {
   type    = "string"
   default = "0"

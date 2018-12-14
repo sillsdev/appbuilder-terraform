@@ -107,6 +107,10 @@
         "value": "${DB_BOOTSTRAP}"
       },
       {
+        "name": "DB_BOOTSTRAP_FILE",
+        "value": "${DB_BOOTSTRAP_FILE }"
+      },
+      {
         "name": "DB_SAMPLEDATA",
         "value": "${DB_SAMPLEDATA}"
       },
