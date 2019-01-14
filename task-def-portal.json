@@ -115,6 +115,10 @@
         "value": "${DB_SAMPLEDATA}"
       },
       {
+        "name": "BUGSNAG_APIKEY",
+        "value": "${BUGSNAG_APIKEY}"
+      },
+      {
         "name": "DEFAULT_BUILDENGINE_URL",
         "value": "${DEFAULT_BUILDENGINE_URL}"
       },
