@@ -373,6 +373,62 @@ resource "aws_iam_policy" "secrets" {
 EOF
 }
 
+// Projects stuff - S3, IAM
+resource "aws_s3_bucket" "projects" {
+  bucket        = "${var.org_prefix}-${var.app_env}-${var.app_name}-projects"
+  acl           = "private"
+  force_destroy = true
+
+  versioning {
+    enabled = true
+  }
+
+  lifecycle_rule {
+    id      = "delete-really-old-versions"
+    enabled = true
+
+    noncurrent_version_expiration {
+      days = 365
+    }
+  }
+
+  tags {
+    app_name = "${var.app_name}"
+    app_env  = "${var.app_env}"
+  }
+}
+
+resource "aws_iam_policy" "projects" {
+  name        = "s3-appbuilder-projects-${var.app_env}"
+  description = "S3 App Builder Projects"
+
+  policy = <<EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "*"
+            ],
+            "Resource": [
+                "${aws_s3_bucket.projects.arn}"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "*"
+            ],
+            "Resource": [
+                "${aws_s3_bucket.projects.arn}/*"
+            ]
+        }
+    ]
+}
+EOF
+}
+
 resource "aws_iam_policy" "codecommit_projects" {
   name        = "codecommit-projects-${var.app_env}"
   description = "CodeCommit Repository for project data"
@@ -585,6 +641,11 @@ resource "aws_iam_role_policy_attachment" "publish-s3-secrets" {
 
 resource "aws_iam_role_policy_attachment" "publish-s3-artifacts" {
   policy_arn = "${aws_iam_policy.artifacts.arn}"
+  role       = "${aws_iam_role.codebuild-publish_app-service-role.name}"
+}
+
+resource "aws_iam_role_policy_attachment" "publish-s3-projects" {
+  policy_arn = "${aws_iam_policy.projects.arn}"
   role       = "${aws_iam_role.codebuild-publish_app-service-role.name}"
 }
 
