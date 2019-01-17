@@ -730,6 +730,7 @@ data "template_file" "task_def_buildengine" {
     AWS_USER_ID                          = "${var.aws_account_id}"
     BUILD_ENGINE_ARTIFACTS_BUCKET        = "${aws_s3_bucket.artifacts.bucket}"
     BUILD_ENGINE_ARTIFACTS_BUCKET_REGION = "${var.aws_region}"
+    BUILD_ENGINE_PROJECTS_BUCKET         = "${aws_s3_bucket.projects.bucket}"
     BUILD_ENGINE_SECRETS_BUCKET          = "${aws_s3_bucket.secrets.bucket}"
     CODE_BUILD_IMAGE_TAG                 = "${var.buildagent_code_build_image_tag}"
     FRONT_COOKIE_KEY                     = "${random_id.front_cookie_key.hex}"

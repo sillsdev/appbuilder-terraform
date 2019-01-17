@@ -54,6 +54,10 @@
         "value": "${BUILD_ENGINE_ARTIFACTS_BUCKET}"
       },
       {
+        "name": "BUILD_ENGINE_PROJECTS_BUCKET",
+        "value": "${BUILD_ENGINE_PROJECTS_BUCKET}"
+      },
+      {
         "name": "BUILD_ENGINE_SECRETS_BUCKET",
         "value": "${BUILD_ENGINE_SECRETS_BUCKET}"
       },
