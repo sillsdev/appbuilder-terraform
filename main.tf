@@ -605,6 +605,11 @@ resource "aws_iam_role_policy_attachment" "build-s3-artifacts" {
   role       = "${aws_iam_role.codebuild-build_app-service-role.name}"
 }
 
+resource "aws_iam_role_policy_attachment" "build-s3-projects" {
+  policy_arn = "${aws_iam_policy.projects.arn}"
+  role       = "${aws_iam_role.codebuild-build_app-service-role.name}"
+}
+
 resource "aws_iam_role_policy_attachment" "build-codecommit-projects" {
   policy_arn = "${aws_iam_policy.codecommit_projects.arn}"
   role       = "${aws_iam_role.codebuild-build_app-service-role.name}"
