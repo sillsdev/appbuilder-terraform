@@ -576,6 +576,30 @@ resource "aws_iam_policy" "codebuild-basepolicy-publish" {
 EOF
 }
 
+resource "aws_iam_role" "user-project-access-role" {
+  name = "${var.app_name}-user-project-role-${var.app_env}"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "s3.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy_attachment" "user-s3-projects" {
+  policy_arn = "${aws_iam_policy.projects.arn}"
+  role       = "${aws_iam_role.user-project-access-role.name}"
+}
+
 resource "aws_iam_role" "codebuild-build_app-service-role" {
   name = "codebuild-build_app-service-role-${var.app_env}"
 
@@ -747,6 +771,7 @@ data "template_file" "task_def_buildengine" {
     MYSQL_HOST                           = "${module.rds.address}"
     MYSQL_PASSWORD                       = "${random_id.buildengine_db_root_pass.hex}"
     MYSQL_USER                           = "${var.buildengine_db_root_user}"
+    USER_PROJECT_ACCESS_ROLE_ARN         = "${aws_iam_role.user-project-access-role.arn}"
   }
 }
 
