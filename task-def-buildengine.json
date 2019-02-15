@@ -54,6 +54,10 @@
         "value": "${BUILD_ENGINE_ARTIFACTS_BUCKET}"
       },
       {
+        "name": "BUILD_ENGINE_ARTIFACTS_BUCKET_REGION",
+        "value": "${BUILD_ENGINE_ARTIFACTS_BUCKET_REGION}"
+      },
+      {
         "name": "BUILD_ENGINE_PROJECTS_BUCKET",
         "value": "${BUILD_ENGINE_PROJECTS_BUCKET}"
       },
@@ -100,12 +104,8 @@
       {
         "name": "MYSQL_USER",
         "value": "${MYSQL_USER}"
-      },
-      {
-        "name": "USER_PROJECT_ACCESS_ROLE_ARN",
-        "value": "${USER_PROJECT_ACCESS_ROLE_ARN}"
       }
-    ],
+  ],
     "links": [],
     "workingDirectory": null,
     "readonlyRootFilesystem": null,
