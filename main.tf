@@ -703,6 +703,11 @@ resource "aws_iam_user_policy_attachment" "buildengine-secrets" {
   policy_arn = "${aws_iam_policy.secrets.arn}"
 }
 
+resource "aws_iam_user_policy_attachment" "buildengine-projects" {
+  user       = "${aws_iam_user.buildengine.name}"
+  policy_arn = "${aws_iam_policy.projects.arn}"
+}
+
 resource "aws_iam_user_policy_attachment" "buildengine-project-creation" {
   user       = "${aws_iam_user.buildengine.name}"
   policy_arn = "${aws_iam_policy.project_creation_and_building.arn}"
