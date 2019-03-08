@@ -263,13 +263,14 @@ data "template_file" "artifacts_bucket_policy" {
   template = "${file("${path.module}/s3-artifact-bucket-policy.json")}"
 
   vars {
-    bucket_name = "${var.org_prefix}-${var.app_env}-${var.app_name}-artifacts"
+    bucket_name = "${var.org_prefix}-${var.app_env}-${var.app_name}-files"
   }
 }
 
 // Artifacts stuff - S3, IAM
+// Use "files" insteads of "artifacts" for user facing bucket name
 resource "aws_s3_bucket" "artifacts" {
-  bucket        = "${var.org_prefix}-${var.app_env}-${var.app_name}-artifacts"
+  bucket        = "${var.org_prefix}-${var.app_env}-${var.app_name}-files"
   acl           = "public-read"
   policy        = "${data.template_file.artifacts_bucket_policy.rendered}"
   force_destroy = true
