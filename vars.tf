@@ -40,6 +40,10 @@ variable "auth0_audience" {
   default = "n8IAE2O17FBrlQ667x5mydhpqelCBUWG"
 }
 
+variable "auth0_client_id" {
+  type = "string"
+}
+
 variable "auth0_domain" {
   type    = "string"
   default = "https://sil-appbuilder.auth0.com"

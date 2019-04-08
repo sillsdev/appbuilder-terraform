@@ -26,8 +26,8 @@
         "value": "${API_URL}"
       },
       {
-        "name": "AUTH0_AUDIENCE",
-        "value": "${AUTH0_AUDIENCE}"
+        "name": "AUTH0_CLIENT_ID",
+        "value": "${AUTH0_CLIENT_ID}"
       },
       {
         "name": "AUTH0_DOMAIN",
