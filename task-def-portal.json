@@ -26,6 +26,14 @@
         "value": "${API_URL}"
       },
       {
+        "name": "AUTH0_AUDIENCE",
+        "value": "${AUTH0_AUDIENCE}"
+      },
+      {
+        "name": "AUTH0_DOMAIN",
+        "value": "${AUTH0_DOMAIN}"
+      },
+      {
         "name": "DWKIT_UI_HOST",
         "value": "${DWKIT_UI_HOST}"
       }
