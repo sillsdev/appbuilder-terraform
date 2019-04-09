@@ -3,11 +3,6 @@ variable "admin_email" {
   description = "Email address for admin"
 }
 
-variable "admin_name" {
-  type        = "string"
-  description = "Email name for admin"
-}
-
 variable "api_port" {
   type    = "string"
   default = "7081"
@@ -33,19 +28,6 @@ variable "app_name" {
 variable "app_sub_domain" {
   type    = "string"
   default = "app"
-}
-
-variable "auth0_audience" {
-  type    = "string"
-  default = "n8IAE2O17FBrlQ667x5mydhpqelCBUWG"
-}
-
-variable "auth0_client_id" {
-  type = "string"
-}
-
-variable "auth0_domain" {
-  type = "string"
 }
 
 variable "aws_access_key_id" {
@@ -81,10 +63,6 @@ variable "aws_instance" {
     volume_size    = "8"
     instance_count = "1"
   }
-}
-
-variable "bugsnag_apikey" {
-  type = "string"
 }
 
 variable "buildagent_code_build_image_tag" {
@@ -211,15 +189,6 @@ variable "logentries_key" {
 }
 
 variable "mailer_password" {
-  type = "string"
-}
-
-variable "mail_sender" {
-  type    = "string"
-  default = "SparkPost"
-}
-
-variable "mail_sparkpost_apikey" {
   type = "string"
 }
 

@@ -214,7 +214,7 @@ module "alb" {
   app_env         = "${var.app_env}"
   internal        = "false"
   vpc_id          = "${module.vpc.id}"
-  security_groups = ["${module.vpc.vpc_default_sg_id}", "${aws_security_group.alb_https_limited_ips.id}", "${module.cloudflare-sg.id}"]
+  security_groups = ["${module.vpc.vpc_default_sg_id}", "${aws_security_group.alb_https_limited_ips.id}"]
   subnets         = ["${module.vpc.public_subnet_ids}"]
   certificate_arn = "${data.aws_acm_certificate.appbuilder.arn}"
 }
@@ -771,101 +771,7 @@ module "ecsservice_buildengine" {
   ecsServiceRole_arn = "${module.ecscluster.ecsServiceRole_arn}"
 }
 
-// portal components
-
-resource "random_id" "portal_db_root_pass" {
-  byte_length = 16
-}
-
-module "portal_db" {
-  source                  = "github.com/silinternational/terraform-modules//aws/rds/mariadb?ref=develop"
-  engine                  = "postgres"
-  engine_version          = "10.6"
-  app_name                = "${var.app_name}-portal"
-  app_env                 = "${var.app_env}"
-  db_name                 = "${var.portal_db_name}"
-  db_root_user            = "${var.portal_db_root_user}"
-  db_root_pass            = "${random_id.portal_db_root_pass.hex}"
-  subnet_group_name       = "${module.vpc.db_subnet_group_name}"
-  availability_zone       = "${var.aws_zones[0]}"
-  security_groups         = ["${module.vpc.vpc_default_sg_id}", "${aws_security_group.db_access_limited_ips.id}"]
-  allocated_storage       = "${var.db_storage}"
-  backup_retention_period = "${var.db_backup_retention_period}"
-  multi_az                = "${var.db_multi_az}"
-  publicly_accessible     = "true"
-}
-
-data "template_file" "task_def_portal" {
-  template = "${file("${path.module}/task-def-portal.json")}"
-
-  vars {
-    api_cpu                                    = "${var.portal_api_cpu}"
-    api_memory                                 = "${var.portal_api_memory}"
-    api_docker_image                           = "${var.aws_account_id}.dkr.ecr.us-east-1.amazonaws.com/${var.portal_api_docker_image}"
-    api_docker_tag                             = "${var.portal_api_docker_tag}"
-    ui_cpu                                     = "${var.portal_ui_cpu}"
-    ui_memory                                  = "${var.portal_ui_memory}"
-    ui_docker_image                            = "${var.aws_account_id}.dkr.ecr.us-east-1.amazonaws.com/${var.portal_ui_docker_image}"
-    ui_docker_tag                              = "${var.portal_ui_docker_tag}"
-    ADMIN_EMAIL                                = "${var.admin_email}"
-    ADMIN_NAME                                 = "${var.admin_name}"
-    API_PORT                                   = "${var.api_port}"
-    API_URL                                    = "${var.api_url}"
-    APP_ENV                                    = "${var.app_env}"
-    AUTH0_AUDIENCE                             = "${var.auth0_audience}"
-    AUTH0_DOMAIN                               = "${var.auth0_domain}"
-    AUTH0_CLIENT_ID                            = "${var.auth0_client_id}"
-    BUGSNAG_APIKEY                             = "${var.bugsnag_apikey}"
-    DB_BOOTSTRAP                               = "${var.db_bootstrap}"
-    DB_BOOTSTRAP_FILE                          = "${var.db_bootstrap_file}"
-    DB_SAMPLEDATA                              = "${var.db_sampledata}"
-    DB_SAMPLEDATA_BUILDENGINE_API_ACCESS_TOKEN = "${var.db_sampledata_buildengine_api_access_token}"
-    DEFAULT_BUILDENGINE_URL                    = "https://${cloudflare_record.buildengine.hostname}:8443"
-    DEFAULT_BUILDENGINE_API_ACCESS_TOKEN       = "${random_id.api_access_token.hex}"
-    DWKIT_UI_HOST                              = "${cloudflare_record.dwkit_ui.hostname}"
-    EXPAND_S3_FILES                            = "${aws_s3_bucket.secrets.bucket}/portal/license.key|/app/"
-    EXPAND_S3_KEY                              = "${aws_iam_access_key.appbuilder.id}"
-    EXPAND_S3_SECRET                           = "${aws_iam_access_key.appbuilder.secret}"
-    MAIL_SENDER                                = "${var.mail_sender}"
-    MAIL_SPARKPOST_APIKEY                      = "${var.mail_sparkpost_apikey}"
-    POSTGRES_DB                                = "${var.portal_db_name}"
-    POSTGRES_HOST                              = "${module.portal_db.address}"
-    POSTGRES_PASSWORD                          = "${random_id.portal_db_root_pass.hex}"
-    POSTGRES_USER                              = "${var.portal_db_root_user}"
-    UI_URL                                     = "https://${var.app_sub_domain}.${var.cloudflare_domain}"
-  }
-}
-
-// Uses default target group to route all https/443 traffic to buildengine
-module "ecsservice_portal" {
-  source             = "github.com/silinternational/terraform-modules//aws/ecs/service-only?ref=develop"
-  cluster_id         = "${module.ecscluster.ecs_cluster_id}"
-  service_name       = "portal"
-  service_env        = "${var.app_env}"
-  container_def_json = "${data.template_file.task_def_portal.rendered}"
-  desired_count      = 1
-  tg_arn             = "${module.alb.default_tg_arn}"
-  lb_container_name  = "ui"
-  lb_container_port  = 80
-  ecsServiceRole_arn = "${module.ecscluster.ecsServiceRole_arn}"
-}
-
 // Create DNS CNAME record on Cloudflare for Agent API
-resource "cloudflare_record" "app_ui" {
-  domain  = "${var.cloudflare_domain}"
-  name    = "${var.app_sub_domain}"
-  type    = "CNAME"
-  value   = "${module.alb.dns_name}"
-  proxied = true
-}
-
-resource "cloudflare_record" "dwkit_ui" {
-  domain  = "${var.cloudflare_domain}"
-  name    = "${var.app_sub_domain}-admin"
-  type    = "CNAME"
-  value   = "${module.alb.dns_name}"
-  proxied = false
-}
 
 resource "cloudflare_record" "buildengine" {
   domain  = "${var.cloudflare_domain}"
@@ -873,10 +779,4 @@ resource "cloudflare_record" "buildengine" {
   type    = "CNAME"
   value   = "${module.alb.dns_name}"
   proxied = false
-}
-
-// Security group to limit traffic to Cloudflare IPs
-module "cloudflare-sg" {
-  source = "github.com/silinternational/terraform-modules//aws/cloudflare-sg?ref=2.2.0"
-  vpc_id = "${module.vpc.id}"
 }

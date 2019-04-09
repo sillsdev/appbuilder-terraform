@@ -3,10 +3,6 @@ output "alb_dns_name" {
   value = "${module.alb.dns_name}"
 }
 
-output "app_ui_url" {
-  value = "https://${cloudflare_record.app_ui.hostname}"
-}
-
 output "appbuilder_access_key_id" {
   value = "${aws_iam_access_key.appbuilder.id}"
 }
@@ -37,16 +33,4 @@ output "buildengine_db_root_pass" {
 
 output "buildengine_db_username" {
   value = "${var.buildengine_db_root_user}"
-}
-
-output "portal_db_address" {
-  value = "${module.portal_db.address}"
-}
-
-output "portal_db_root_pass" {
-  value = "${random_id.portal_db_root_pass.hex}"
-}
-
-output "portal_db_username" {
-  value = "${var.portal_db_root_user}"
 }
