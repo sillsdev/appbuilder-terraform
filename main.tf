@@ -517,8 +517,8 @@ resource "aws_iam_policy" "codebuild-basepolicy-build" {
     {
       "Effect": "Allow",
       "Resource": [
-        "arn:aws:logs:us-east-1:${var.aws_account_id}:log-group:/aws/codebuild/build_app-${var.app_env}",
-        "arn:aws:logs:us-east-1:${var.aws_account_id}:log-group:/aws/codebuild/build_app-${var.app_env}:*"
+        "arn:aws:logs:${var.aws_region}:${var.aws_account_id}:log-group:/aws/codebuild/build_app-${var.app_env}",
+        "arn:aws:logs:${var.aws_region}:${var.aws_account_id}:log-group:/aws/codebuild/build_app-${var.app_env}:*"
       ],
       "Action": [
         "logs:CreateLogGroup",
@@ -529,7 +529,7 @@ resource "aws_iam_policy" "codebuild-basepolicy-build" {
     {
       "Effect": "Allow",
       "Resource": [
-        "arn:aws:s3:::codepipeline-us-east-1-*"
+        "arn:aws:s3:::codepipeline-${var.aws_region}-*"
       ],
       "Action": [
         "s3:PutObject",
@@ -553,8 +553,8 @@ resource "aws_iam_policy" "codebuild-basepolicy-publish" {
     {
       "Effect": "Allow",
       "Resource": [
-        "arn:aws:logs:us-east-1:${var.aws_account_id}:log-group:/aws/codebuild/publish_app-${var.app_env}",
-        "arn:aws:logs:us-east-1:${var.aws_account_id}:log-group:/aws/codebuild/publish_app-${var.app_env}:*"
+        "arn:aws:logs:${var.aws_region}:${var.aws_account_id}:log-group:/aws/codebuild/publish_app-${var.app_env}",
+        "arn:aws:logs:${var.aws_region}:${var.aws_account_id}:log-group:/aws/codebuild/publish_app-${var.app_env}:*"
       ],
       "Action": [
         "logs:CreateLogGroup",
@@ -565,7 +565,7 @@ resource "aws_iam_policy" "codebuild-basepolicy-publish" {
     {
       "Effect": "Allow",
       "Resource": [
-        "arn:aws:s3:::codepipeline-us-east-1-*"
+        "arn:aws:s3:::codepipeline-${var.aws_region}-*"
       ],
       "Action": [
         "s3:PutObject",
