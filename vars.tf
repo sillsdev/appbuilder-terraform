@@ -45,15 +45,6 @@ variable "auth0_client_id" {
 }
 
 variable "auth0_domain" {
-  type    = "string"
-  default = "https://sil-appbuilder.auth0.com"
-}
-
-variable "auth0_token_access_client_id" {
-  type = "string"
-}
-
-variable "auth0_token_access_client_secret" {
   type = "string"
 }
 

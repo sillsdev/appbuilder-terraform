@@ -815,8 +815,6 @@ data "template_file" "task_def_portal" {
     AUTH0_AUDIENCE                             = "${var.auth0_audience}"
     AUTH0_DOMAIN                               = "${var.auth0_domain}"
     AUTH0_CLIENT_ID                            = "${var.auth0_client_id}"
-    AUTH0_TOKEN_ACCESS_CLIENT_ID               = "${var.auth0_token_access_client_id}"
-    AUTH0_TOKEN_ACCESS_CLIENT_SECRET           = "${var.auth0_token_access_client_secret}"
     BUGSNAG_APIKEY                             = "${var.bugsnag_apikey}"
     DB_BOOTSTRAP                               = "${var.db_bootstrap}"
     DB_BOOTSTRAP_FILE                          = "${var.db_bootstrap_file}"
