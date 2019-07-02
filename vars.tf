@@ -170,6 +170,11 @@ variable "db_backup_retention_period" {
   default = "14"
 }
 
+variable "db_instance_class" {
+  type    = "string"
+  default = "db.t3.micro"
+}
+
 variable "db_multi_az" {
   type    = "string"
   default = false

@@ -107,6 +107,7 @@ module "rds" {
   allocated_storage       = "${var.db_storage}"
   backup_retention_period = "${var.db_backup_retention_period}"
   multi_az                = "${var.db_multi_az}"
+  instance_class          = "${var.db_instance_class}"
   publicly_accessible     = "true"
 }
 
@@ -792,6 +793,7 @@ module "portal_db" {
   allocated_storage       = "${var.db_storage}"
   backup_retention_period = "${var.db_backup_retention_period}"
   multi_az                = "${var.db_multi_az}"
+  instance_class          = "${var.db_instance_class}"
   publicly_accessible     = "true"
 }
 
