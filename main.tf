@@ -162,9 +162,10 @@ resource "aws_instance" "ecshost" {
   }
 
   tags {
-    Name     = "${var.app_name}-${var.app_env}"
-    app_name = "${var.app_name}"
-    app_env  = "${var.app_env}"
+    Name        = "${var.tag_name}"
+    app         = "${var.tag_app}"
+    environment = "${var.tag_environment}"
+    project     = "${var.tag_project}"
   }
 }
 
@@ -173,8 +174,9 @@ resource "aws_eip" "public" {
   instance = "${aws_instance.ecshost.id}"
 
   tags {
-    app_name = "${var.app_name}"
-    app_env  = "${var.app_env}"
+    app         = "${var.tag_app}"
+    environment = "${var.tag_environment}"
+    project     = "${var.tag_project}"
   }
 }
 
@@ -282,8 +284,9 @@ resource "aws_s3_bucket" "artifacts" {
   }
 
   tags {
-    app_name = "${var.app_name}"
-    app_env  = "${var.app_env}"
+    app         = "${var.tag_app}"
+    environment = "${var.tag_environment}"
+    project     = "${var.tag_project}"
   }
 }
 
@@ -338,8 +341,9 @@ resource "aws_s3_bucket" "secrets" {
   }
 
   tags {
-    app_name = "${var.app_name}"
-    app_env  = "${var.app_env}"
+    app         = "${var.tag_app}"
+    environment = "${var.tag_environment}"
+    project     = "${var.tag_project}"
   }
 }
 
@@ -395,8 +399,9 @@ resource "aws_s3_bucket" "projects" {
   }
 
   tags {
-    app_name = "${var.app_name}"
-    app_env  = "${var.app_env}"
+    app         = "${var.tag_app}"
+    environment = "${var.tag_environment}"
+    project     = "${var.tag_project}"
   }
 }
 

@@ -298,6 +298,29 @@ variable "ssh_enabled" {
   default     = "false"
 }
 
+variable "tag_app" {
+  type        = "string"
+  description = "The AWS Tag \"app\" to be set on resources"
+  default     = "scriptoria"
+}
+
+variable "tag_environment" {
+  type        = "string"
+  description = "The AWS Tag \"environment\" to be set on resources"
+  default     = "production"
+}
+
+variable "tag_name" {
+  type        = "string"
+  description = "The AWS Tag \"Name\" to be set on resources"
+}
+
+variable "tag_project" {
+  type        = "string"
+  description = "The AWS Tag \"project\" to be set on resources"
+  default     = "scriptoria"
+}
+
 variable "db_access_ips" {
   type        = "list"
   description = "A list of IP address CIDR blocks for allowing db access"
