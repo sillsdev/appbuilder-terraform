@@ -95,6 +95,18 @@
         "value": "${APP_ENV}"
       },
       {
+        "name": "AWS_EMAIL_ACCESS_KEY_ID",
+        "value": "${AWS_EMAIL_ACCESS_KEY_ID}"
+      },
+      {
+        "name": "AWS_EMAIL_SECRET_ACCESS_KEY",
+        "value": "${AWS_EMAIL_SECRET_ACCESS_KEY}"
+      },
+      {
+        "name": "AWS_REGION",
+        "value": "${AWS_REGION}"
+      },
+      {
         "name": "AUTH0_AUDIENCE",
         "value": "${AUTH0_AUDIENCE}"
       },

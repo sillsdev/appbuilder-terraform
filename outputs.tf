@@ -50,3 +50,11 @@ output "portal_db_root_pass" {
 output "portal_db_username" {
   value = "${var.portal_db_root_user}"
 }
+
+output "portal_email_id" {
+  value = "${aws_iam_access_key.portal.id}"
+}
+
+output "portal_email_secret" {
+  value = "${aws_iam_access_key.portal.secret}"
+}

@@ -779,6 +779,46 @@ module "ecsservice_buildengine" {
 
 // portal components
 
+resource "aws_iam_policy" "email-notification" {
+  name        = "email-notification-${var.app_name}-${var.app_env}"
+  description = "Send email notifications for events in Scriptoria"
+
+  policy = <<EOF
+{
+    "Version":"2012-10-17",
+    "Statement":[
+        {
+            "Effect":"Allow",
+            "Action":[
+                "ses:SendEmail",
+                "ses:SendRawEmail"
+            ],
+            "Resource":"*",
+            "Condition":{
+                "StringEquals":{
+                    "ses:FromAddress":"${var.admin_email}",
+                    "ses:FromDisplayName":"${var.admin_name}"
+                }
+            }
+        }
+    ]
+}
+EOF
+}
+
+resource "aws_iam_user" "portal" {
+  name = "appbuilder-portal-${var.app_env}"
+}
+
+resource "aws_iam_access_key" "portal" {
+  user = "${aws_iam_user.portal.name}"
+}
+
+resource "aws_iam_user_policy_attachment" "appbuilder-portal-email" {
+  user       = "${aws_iam_user.portal.name}"
+  policy_arn = "${aws_iam_policy.email-notification.arn}"
+}
+
 resource "random_id" "portal_db_root_pass" {
   byte_length = 16
 }
@@ -822,6 +862,9 @@ data "template_file" "task_def_portal" {
     AUTH0_AUDIENCE                             = "${var.auth0_audience}"
     AUTH0_DOMAIN                               = "${var.auth0_domain}"
     AUTH0_CLIENT_ID                            = "${var.auth0_client_id}"
+    AWS_EMAIL_ACCESS_KEY_ID                    = "${aws_iam_access_key.portal.id}"
+    AWS_EMAIL_SECRET_ACCESS_KEY                = "${aws_iam_access_key.portal.secret}"
+    AWS_REGION                                 = "${var.aws_region}"
     BUGSNAG_APIKEY                             = "${var.bugsnag_apikey}"
     DB_BOOTSTRAP                               = "${var.db_bootstrap}"
     DB_BOOTSTRAP_FILE                          = "${var.db_bootstrap_file}"
