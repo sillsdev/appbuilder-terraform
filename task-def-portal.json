@@ -34,6 +34,10 @@
         "value": "${AUTH0_DOMAIN}"
       },
       {
+        "name": "DWKIT_ADMIN_URL",
+        "value": "${DWKIT_ADMIN_URL}"
+      },
+      {
         "name": "DWKIT_UI_HOST",
         "value": "${DWKIT_UI_HOST}"
       }

@@ -873,6 +873,7 @@ data "template_file" "task_def_portal" {
     DEFAULT_BUILDENGINE_URL                    = "https://${cloudflare_record.buildengine.hostname}:8443"
     DEFAULT_BUILDENGINE_API_ACCESS_TOKEN       = "${random_id.api_access_token.hex}"
     DWKIT_UI_HOST                              = "${cloudflare_record.dwkit_ui.hostname}"
+    DWKIT_ADMIN_URL                            = "https://${cloudflare_record.dwkit_ui.hostname}:${aws_security_group_rule.limited_dwkit.from_port}"
     EXPAND_S3_FILES                            = "${aws_s3_bucket.secrets.bucket}/portal/license.key|/app/"
     EXPAND_S3_KEY                              = "${aws_iam_access_key.appbuilder.id}"
     EXPAND_S3_SECRET                           = "${aws_iam_access_key.appbuilder.secret}"
