@@ -221,11 +221,12 @@ variable "mailer_password" {
 
 variable "mail_sender" {
   type    = "string"
-  default = "SparkPost"
+  default = "AmazonSES"
 }
 
 variable "mail_sparkpost_apikey" {
-  type = "string"
+  type    = "string"
+  default = ""
 }
 
 variable "mailer_usefiles" {
