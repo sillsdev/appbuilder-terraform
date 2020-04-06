@@ -1,6 +1,6 @@
 // Create VPC
 module "vpc" {
-  source    = "github.com/silinternational/terraform-modules//aws/vpc-public-only?ref=develop"
+  source    = "github.com/silinternational/terraform-modules//aws/vpc-public-only?ref=2.7.0"
   app_name  = "${var.app_name}"
   app_env   = "${var.app_env}"
   aws_zones = "${var.aws_zones}"
@@ -8,7 +8,7 @@ module "vpc" {
 
 // Create ecs cluster
 module "ecscluster" {
-  source   = "github.com/silinternational/terraform-modules//aws/ecs/cluster?ref=develop"
+  source   = "github.com/silinternational/terraform-modules//aws/ecs/cluster?ref=2.7.0"
   app_name = "${var.app_name}"
   app_env  = "${var.app_env}"
 }
@@ -95,7 +95,7 @@ resource "random_id" "buildengine_db_root_pass" {
 
 // Create DB
 module "rds" {
-  source                  = "github.com/silinternational/terraform-modules//aws/rds/mariadb?ref=develop"
+  source                  = "github.com/silinternational/terraform-modules//aws/rds/mariadb?ref=2.7.0"
   app_name                = "${var.app_name}"
   app_env                 = "${var.app_env}"
   db_name                 = "${var.buildengine_db_name}"
@@ -209,7 +209,7 @@ resource "aws_security_group_rule" "limited_dwkit" {
 
 // Create application load balancer for public access
 module "alb" {
-  source          = "github.com/silinternational/terraform-modules//aws/alb?ref=develop"
+  source          = "github.com/silinternational/terraform-modules//aws/alb?ref=2.7.0"
   app_name        = "${var.app_name}"
   app_env         = "${var.app_env}"
   internal        = "false"
@@ -759,7 +759,7 @@ data "template_file" "task_def_buildengine" {
 
 // Uses default target group to route all https/443 traffic to buildengine
 module "ecsservice_buildengine" {
-  source             = "github.com/silinternational/terraform-modules//aws/ecs/service-only?ref=develop"
+  source             = "github.com/silinternational/terraform-modules//aws/ecs/service-only?ref=2.7.0"
   cluster_id         = "${module.ecscluster.ecs_cluster_id}"
   service_name       = "buildengine"
   service_env        = "${var.app_env}"
