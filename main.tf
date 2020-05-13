@@ -219,7 +219,7 @@ module "alb" {
   internal        = "false"
   vpc_id          = module.vpc.id
   security_groups = [module.vpc.vpc_default_sg_id, aws_security_group.alb_https_limited_ips.id, module.cloudflare-sg.id]
-  subnets         = [module.vpc.public_subnet_ids]
+  subnets         = module.vpc.public_subnet_ids
   certificate_arn = data.aws_acm_certificate.appbuilder.arn
 }
 
