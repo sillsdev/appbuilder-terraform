@@ -175,6 +175,10 @@
         "value": "${BUILD_ENGINE_SECRETS_BUCKET}"
       },
       {
+        "name": "CODE_BUILD_IMAGE_REPO",
+        "value": "${CODE_BUILD_IMAGE_REPO}"
+      },
+      {
         "name": "CODE_BUILD_IMAGE_TAG",
         "value": "${CODE_BUILD_IMAGE_TAG}"
       },
