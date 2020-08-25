@@ -754,6 +754,7 @@ data "template_file" "task_def_buildengine" {
     BUILD_ENGINE_ARTIFACTS_BUCKET_REGION = var.aws_region
     BUILD_ENGINE_PROJECTS_BUCKET         = aws_s3_bucket.projects.bucket
     BUILD_ENGINE_SECRETS_BUCKET          = aws_s3_bucket.secrets.bucket
+    CODE_BUILD_IMAGE_REPO                = "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/${var.buildagent_code_build_image_repo}"
     CODE_BUILD_IMAGE_TAG                 = var.buildagent_code_build_image_tag
     FRONT_COOKIE_KEY                     = random_id.front_cookie_key.hex
     LOGENTRIES_KEY                       = var.logentries_key
@@ -765,6 +766,58 @@ data "template_file" "task_def_buildengine" {
     MYSQL_PASSWORD                       = random_id.buildengine_db_root_pass.hex
     MYSQL_USER                           = var.buildengine_db_root_user
   }
+}
+
+// Create ECR Repo for Build Agent
+resource "aws_ecr_repository" "agent" {
+  name = var.buildagent_code_build_image_repo
+}
+
+resource "aws_ecr_lifecycle_policy" "agent" {
+  repository = aws_ecr_repository.agent.name
+
+  policy = <<EOF
+{
+    "rules": [
+        {
+            "rulePriority": 1,
+            "description": "Keep 3 Latest",
+            "selection": {
+                "tagStatus": "any",
+                "countType": "imageCountMoreThan",
+                "countNumber": 3
+            },
+            "action": {
+                "type": "expire"
+            }
+        }
+    ]
+}
+EOF
+}
+        
+resource "aws_ecr_repository_policy" "agent" {
+  repository = aws_ecr_repository.agent.name
+
+  policy = <<EOF
+{
+  "Version": "2008-10-17",
+  "Statement": [
+    {
+      "Sid": "CodeBuildAccess",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "codebuild.amazonaws.com"
+      },
+      "Action": [
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:BatchGetImage",
+        "ecr:GetDownloadUrlForLayer"
+      ]
+    }
+  ]
+}
+EOF
 }
 
 // Uses default target group to route all https/443 traffic to buildengine

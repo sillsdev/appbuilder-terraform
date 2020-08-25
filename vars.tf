@@ -65,6 +65,12 @@ variable "aws_instance" {
   }
 }
 
+variable "buildagent_code_build_image_repo" {
+  type        = string
+  description = "Docker repo in ECR for Build Agent in Code Build"
+  default     = "appbuilder-agent"
+}
+
 variable "buildagent_code_build_image_tag" {
   type        = string
   description = "Docker tag used for Build Agent in Code Build"
