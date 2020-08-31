@@ -755,7 +755,7 @@ data "template_file" "task_def_buildengine" {
     BUILD_ENGINE_ARTIFACTS_BUCKET_REGION = var.aws_region
     BUILD_ENGINE_PROJECTS_BUCKET         = aws_s3_bucket.projects.bucket
     BUILD_ENGINE_SECRETS_BUCKET          = aws_s3_bucket.secrets.bucket
-    CODE_BUILD_IMAGE_REPO                = "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/${var.buildagent_code_build_image_repo}"
+    CODE_BUILD_IMAGE_REPO                = "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/${var.buildagent_code_build_image_repo}-${var.app_env}"
     CODE_BUILD_IMAGE_TAG                 = var.buildagent_code_build_image_tag
     FRONT_COOKIE_KEY                     = random_id.front_cookie_key.hex
     LOGENTRIES_KEY                       = var.logentries_key
@@ -771,7 +771,7 @@ data "template_file" "task_def_buildengine" {
 
 // Create ECR Repo for Build Agent
 resource "aws_ecr_repository" "agent" {
-  name = var.buildagent_code_build_image_repo
+  name = "${var.buildagent_code_build_image_repo}-${var.app_env}"
 }
 
 resource "aws_ecr_lifecycle_policy" "agent" {
@@ -854,7 +854,7 @@ resource "aws_codebuild_project" "build" {
 
   environment {
     compute_type = "BUILD_GENERAL1_SMALL"
-    image = "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/${var.buildagent_code_build_image_repo}:${var.buildagent_code_build_image_tag}"
+    image = "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/${var.buildagent_code_build_image_repo}-${var.app_env}:${var.buildagent_code_build_image_tag}"
     type = "LINUX_CONTAINER"
     privileged_mode = true // needed for LOCAL_DOCKER_LAYER_CACHE
     image_pull_credentials_type = "CODEBUILD"
@@ -893,7 +893,7 @@ resource "aws_codebuild_project" "publish" {
 
   environment {
     compute_type = "BUILD_GENERAL1_SMALL"
-    image = "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/${var.buildagent_code_build_image_repo}:${var.buildagent_code_build_image_tag}"
+    image = "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/${var.buildagent_code_build_image_repo}-${var.app_env}:${var.buildagent_code_build_image_tag}"
     type = "LINUX_CONTAINER"
     privileged_mode = true
     image_pull_credentials_type = "CODEBUILD"
