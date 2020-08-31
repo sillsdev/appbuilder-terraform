@@ -96,7 +96,7 @@ variable "buildagent_code_build_image_repo" {
 variable "buildagent_code_build_image_tag" {
   type        = string
   description = "Docker tag used for Build Agent in Code Build"
-  default     = "production"
+  default     = "latest"
 }
 
 variable "buildengine_api_base_url" {
