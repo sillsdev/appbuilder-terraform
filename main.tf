@@ -167,6 +167,8 @@ resource "aws_instance" "ecshost" {
     app         = var.tag_app
     environment = var.tag_environment
     project     = var.tag_project
+    scheduler   = var.tag_scheduler
+    running     = var.tag_scheduler_running
   }
 }
 
@@ -802,7 +804,7 @@ resource "aws_ecr_lifecycle_policy" "agent" {
 }
 EOF
 }
-        
+
 resource "aws_ecr_repository_policy" "agent" {
   repository = aws_ecr_repository.agent.name
 
@@ -828,80 +830,80 @@ EOF
 }
 
 resource "aws_codebuild_project" "build" {
-  name = "build_app-${var.app_env}"
-  service_role = aws_iam_role.codebuild-build_app-service-role.arn
-  build_timeout = 60
+  name           = "build_app-${var.app_env}"
+  service_role   = aws_iam_role.codebuild-build_app-service-role.arn
+  build_timeout  = 60
   queued_timeout = 480
   encryption_key = "arn:aws:kms:${var.aws_region}:${var.aws_account_id}:alias/aws/s3"
-  badge_enabled = false
+  badge_enabled  = false
 
   source {
-    type = "CODECOMMIT"
-    location = "https://git.codecommit.${var.aws_region}.amazonaws.com/v2/repos/sample"
+    type            = "CODECOMMIT"
+    location        = "https://git.codecommit.${var.aws_region}.amazonaws.com/v2/repos/sample"
     git_clone_depth = 1
-    buildspec = "version: 0.2"
-    insecure_ssl = false
+    buildspec       = "version: 0.2"
+    insecure_ssl    = false
   }
 
   artifacts {
-    type = "S3"
-    location = aws_s3_bucket.artifacts.bucket
-    path = "codebuild-output"
-    namespace_type = "NONE"
-    name = "/"
-    packaging = "NONE"
+    type                = "S3"
+    location            = aws_s3_bucket.artifacts.bucket
+    path                = "codebuild-output"
+    namespace_type      = "NONE"
+    name                = "/"
+    packaging           = "NONE"
     encryption_disabled = false
   }
 
   cache {
-    type = "LOCAL"
-    modes = [ "LOCAL_DOCKER_LAYER_CACHE" ]
+    type  = "LOCAL"
+    modes = ["LOCAL_DOCKER_LAYER_CACHE"]
   }
 
   environment {
-    compute_type = "BUILD_GENERAL1_SMALL"
-    image = "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/${var.buildagent_code_build_image_repo}-${var.app_env}:${var.buildagent_code_build_image_tag}"
-    type = "LINUX_CONTAINER"
-    privileged_mode = true // needed for LOCAL_DOCKER_LAYER_CACHE
+    compute_type                = "BUILD_GENERAL1_SMALL"
+    image                       = "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/${var.buildagent_code_build_image_repo}-${var.app_env}:${var.buildagent_code_build_image_tag}"
+    type                        = "LINUX_CONTAINER"
+    privileged_mode             = true // needed for LOCAL_DOCKER_LAYER_CACHE
     image_pull_credentials_type = "CODEBUILD"
   }
 }
 
 resource "aws_codebuild_project" "publish" {
-  name = "publish_app-${var.app_env}"
-  service_role = aws_iam_role.codebuild-publish_app-service-role.arn
-  build_timeout = 60
+  name           = "publish_app-${var.app_env}"
+  service_role   = aws_iam_role.codebuild-publish_app-service-role.arn
+  build_timeout  = 60
   queued_timeout = 480
   encryption_key = "arn:aws:kms:${var.aws_region}:${var.aws_account_id}:alias/aws/s3"
-  badge_enabled = false
+  badge_enabled  = false
 
   source {
-    type = "S3"
-    location = "${aws_s3_bucket.artifacts.bucket}/prd/jobs/build_scriptureappbuilder_1/1/sample.apk"
-    buildspec = "version: 0.2"
+    type         = "S3"
+    location     = "${aws_s3_bucket.artifacts.bucket}/prd/jobs/build_scriptureappbuilder_1/1/sample.apk"
+    buildspec    = "version: 0.2"
     insecure_ssl = false
   }
 
   artifacts {
-    type = "S3"
-    location = aws_s3_bucket.artifacts.bucket
-    path = "codebuild-output"
-    namespace_type = "NONE"
-    name = "/"
-    packaging = "NONE"
+    type                = "S3"
+    location            = aws_s3_bucket.artifacts.bucket
+    path                = "codebuild-output"
+    namespace_type      = "NONE"
+    name                = "/"
+    packaging           = "NONE"
     encryption_disabled = false
   }
 
   cache {
-    type = "LOCAL"
-    modes = [ "LOCAL_DOCKER_LAYER_CACHE" ]
+    type  = "LOCAL"
+    modes = ["LOCAL_DOCKER_LAYER_CACHE"]
   }
 
   environment {
-    compute_type = "BUILD_GENERAL1_SMALL"
-    image = "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/${var.buildagent_code_build_image_repo}-${var.app_env}:${var.buildagent_code_build_image_tag}"
-    type = "LINUX_CONTAINER"
-    privileged_mode = true
+    compute_type                = "BUILD_GENERAL1_SMALL"
+    image                       = "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/${var.buildagent_code_build_image_repo}-${var.app_env}:${var.buildagent_code_build_image_tag}"
+    type                        = "LINUX_CONTAINER"
+    privileged_mode             = true
     image_pull_credentials_type = "CODEBUILD"
   }
 }

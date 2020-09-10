@@ -328,6 +328,18 @@ variable "tag_project" {
   default     = "scriptoria"
 }
 
+variable "tag_scheduler" {
+  type        = string
+  description = "AWS Instance Scheduler name"
+  default     = "none"
+}
+
+variable "tag_scheduler_running" {
+  type        = string
+  description = "AWS Instance Scheduler running"
+  default     = "false"
+}
+
 variable "db_access_ips" {
   type        = list(string)
   description = "A list of IP address CIDR blocks for allowing db access"
