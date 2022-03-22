@@ -217,6 +217,10 @@
       {
         "name": "MYSQL_USER",
         "value": "${MYSQL_USER}"
+      },
+      {
+        "name": "SCRIPTURE_EARTH_KEY",
+        "value": "${SCRIPTURE_EARTH_KEY}"
       }
     ],
     "links": [],
