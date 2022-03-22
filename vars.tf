@@ -294,6 +294,10 @@ variable "portal_ui_memory" {
   default = "128"
 }
 
+variable "scripture_earth_key" {
+  type = string
+}
+
 variable "ssh_ips" {
   type        = list(string)
   description = "A list of IP address CIDR blocks for allowing ssh access"

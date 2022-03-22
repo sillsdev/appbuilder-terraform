@@ -774,6 +774,7 @@ data "template_file" "task_def_buildengine" {
     MYSQL_HOST                           = module.rds.address
     MYSQL_PASSWORD                       = random_id.buildengine_db_root_pass.hex
     MYSQL_USER                           = var.buildengine_db_root_user
+    SCRIPTURE_EARTH_KEY                  = var.scripture_earth_key
   }
 }
 
