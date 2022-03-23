@@ -113,7 +113,7 @@ variable "buildengine_db_root_user" {
 
 variable "buildengine_docker_image" {
   type    = string
-  default = "sillsdev/appbuilder-buildengine-api"
+  default = "ghcr.io/sillsdev/appbuilder-buildengine-api"
 }
 
 variable "buildengine_docker_tag" {
