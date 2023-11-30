@@ -265,25 +265,43 @@ resource "aws_alb_listener" "dwkit" {
 }
 
 // Create S3 bucket for storing artifacts
-data "template_file" "artifacts_bucket_policy" {
-  template = file("${path.module}/s3-artifact-bucket-policy.json")
+# data "template_file" "artifacts_bucket_policy" {
+#   template = file("${path.module}/s3-artifact-bucket-policy.json")
 
-  vars = {
-    bucket_name = "${var.org_prefix}-${var.app_env}-${var.app_name}-files"
-  }
-}
+#   vars = {
+#     bucket_name = "${var.org_prefix}-${var.app_env}-${var.app_name}-files"
+#   }
+# }
 
 // Artifacts stuff - S3, IAM
 // Use "files" insteads of "artifacts" for user facing bucket name
 resource "aws_s3_bucket" "artifacts" {
-  bucket        = "${var.org_prefix}-${var.app_env}-${var.app_name}-files"
-  policy        = data.template_file.artifacts_bucket_policy.rendered
+  bucket = "${var.org_prefix}-${var.app_env}-${var.app_name}-files"
+  //policy        = data.template_file.artifacts_bucket_policy.rendered
   force_destroy = true
 
   tags = {
     app         = var.tag_app
     environment = var.tag_environment
     project     = var.tag_project
+  }
+}
+
+resource "aws_s3_bucket_policy" "artifacts" {
+  bucket = aws_s3_bucket.artifacts.id
+  policy = data.aws_iam_policy_document.artifacts.json
+}
+
+data "aws_iam_policy_document" "artifacts" {
+  statement {
+    sid    = "PublicReadGetObject"
+    effect = "Allow"
+    principals {
+      type        = "*"
+      identifiers = ["*"]
+    }
+    actions   = ["s3:GetObject"]
+    resources = ["${aws_s3_bucket.artifacts.arn}/*"]
   }
 }
 
