@@ -173,7 +173,7 @@ resource "aws_instance" "ecshost" {
 }
 
 resource "aws_eip" "public" {
-  domain   = vpc
+  vpc      = true
   instance = aws_instance.ecshost.id
 
   tags = {
@@ -277,20 +277,52 @@ data "template_file" "artifacts_bucket_policy" {
 // Use "files" insteads of "artifacts" for user facing bucket name
 resource "aws_s3_bucket" "artifacts" {
   bucket        = "${var.org_prefix}-${var.app_env}-${var.app_name}-files"
-  acl           = "public-read"
   policy        = data.template_file.artifacts_bucket_policy.rendered
   force_destroy = true
-
-  website {
-    index_document = "index.html"
-    error_document = "error.html"
-  }
 
   tags = {
     app         = var.tag_app
     environment = var.tag_environment
     project     = var.tag_project
   }
+}
+
+resource "aws_s3_bucket_website_configuration" "artifacts" {
+  bucket = aws_s3_bucket.artifacts.id
+
+  index_document {
+    suffix = "index.html"
+  }
+
+  error_document {
+    key = "error.html"
+  }
+}
+
+resource "aws_s3_bucket_ownership_controls" "artifacts" {
+  bucket = aws_s3_bucket.artifacts.id
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
+resource "aws_s3_bucket_public_access_block" "artifacts" {
+  bucket = aws_s3_bucket.artifacts.id
+
+  block_public_acls       = false
+  block_public_policy     = false
+  ignore_public_acls      = false
+  restrict_public_buckets = false
+}
+
+resource "aws_s3_bucket_acl" "artifacts" {
+  depends_on = [
+    aws_s3_bucket_ownership_controls.artifacts,
+    aws_s3_bucket_public_access_block.artifacts,
+  ]
+
+  bucket = aws_s3_bucket.artifacts.id
+  acl    = "public-read"
 }
 
 resource "aws_iam_policy" "artifacts" {
@@ -328,26 +360,46 @@ EOF
 // Secrets stuff - S3, IAM
 resource "aws_s3_bucket" "secrets" {
   bucket        = "${var.org_prefix}-${var.app_env}-${var.app_name}-secrets"
-  acl           = "private"
   force_destroy = true
-
-  versioning {
-    enabled = true
-  }
-
-  lifecycle_rule {
-    id      = "delete-old-versions"
-    enabled = true
-
-    noncurrent_version_expiration {
-      days = 30
-    }
-  }
 
   tags = {
     app         = var.tag_app
     environment = var.tag_environment
     project     = var.tag_project
+  }
+}
+
+resource "aws_s3_bucket_ownership_controls" "secrets" {
+  bucket = aws_s3_bucket.secrets.id
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
+resource "aws_s3_bucket_versioning" "secrets" {
+  bucket = aws_s3_bucket.secrets.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_acl" "secrets" {
+  depends_on = [aws_s3_bucket_ownership_controls.secrets]
+
+  bucket = aws_s3_bucket.secrets.id
+  acl    = "private"
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "secrets" {
+  bucket = aws_s3_bucket.secrets.id
+
+  rule {
+    id     = "delete-old-versions"
+    status = "Enabled"
+
+    noncurrent_version_expiration {
+      noncurrent_days = 30
+    }
   }
 }
 
@@ -387,26 +439,46 @@ EOF
 // Projects stuff - S3, IAM
 resource "aws_s3_bucket" "projects" {
   bucket        = "${var.org_prefix}-${var.app_env}-${var.app_name}-projects"
-  acl           = "private"
   force_destroy = true
-
-  versioning {
-    enabled = true
-  }
-
-  lifecycle_rule {
-    id      = "delete-really-old-versions"
-    enabled = true
-
-    noncurrent_version_expiration {
-      days = 365
-    }
-  }
 
   tags = {
     app         = var.tag_app
     environment = var.tag_environment
     project     = var.tag_project
+  }
+}
+
+resource "aws_s3_bucket_ownership_controls" "projects" {
+  bucket = aws_s3_bucket.projects.id
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
+resource "aws_s3_bucket_versioning" "projects" {
+  bucket = aws_s3_bucket.projects.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_acl" "projects" {
+  depends_on = [aws_s3_bucket_ownership_controls.projects]
+
+  bucket = aws_s3_bucket.projects.id
+  acl    = "private"
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "projects" {
+  bucket = aws_s3_bucket.projects.id
+
+  rule {
+    id     = "delete-really-old-versions"
+    status = "Enabled"
+
+    noncurrent_version_expiration {
+      noncurrent_days = 365
+    }
   }
 }
 
@@ -1049,8 +1121,12 @@ module "ecsservice_portal" {
 }
 
 // Create DNS CNAME record on Cloudflare for Agent API
+resource "cloudflare_zone" "portal" {
+  zone = var.cloudflare_domain
+}
+
 resource "cloudflare_record" "app_ui" {
-  domain  = var.cloudflare_domain
+  zone_id = cloudflare_zone.portal.id
   name    = var.app_sub_domain
   type    = "CNAME"
   value   = module.alb.dns_name
@@ -1058,7 +1134,7 @@ resource "cloudflare_record" "app_ui" {
 }
 
 resource "cloudflare_record" "dwkit_ui" {
-  domain  = var.cloudflare_domain
+  zone_id = cloudflare_zone.portal.id
   name    = "${var.app_sub_domain}-admin"
   type    = "CNAME"
   value   = module.alb.dns_name
@@ -1066,7 +1142,7 @@ resource "cloudflare_record" "dwkit_ui" {
 }
 
 resource "cloudflare_record" "buildengine" {
-  domain  = var.cloudflare_domain
+  zone_id = cloudflare_zone.portal.id
   name    = "${var.app_sub_domain}-buildengine"
   type    = "CNAME"
   value   = module.alb.dns_name
