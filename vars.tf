@@ -344,6 +344,11 @@ variable "tag_scheduler_running" {
   default     = "false"
 }
 
+variable "user_management_token" {
+  type        = string
+  description = "API Token for User Management Authentication"
+}
+
 variable "db_access_ips" {
   type        = list(string)
   description = "A list of IP address CIDR blocks for allowing db access"

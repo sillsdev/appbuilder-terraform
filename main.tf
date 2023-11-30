@@ -1103,6 +1103,7 @@ data "template_file" "task_def_portal" {
     POSTGRES_PASSWORD                          = random_id.portal_db_root_pass.hex
     POSTGRES_USER                              = var.portal_db_root_user
     UI_URL                                     = "https://${var.app_sub_domain}.${var.cloudflare_domain}"
+    USER_MANAGEMENT_TOKEN                      = var.user_management_token
   }
 }
 

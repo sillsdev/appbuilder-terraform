@@ -185,6 +185,10 @@
       {
         "name": "UI_URL",
         "value": "${UI_URL}"
+      },
+      {
+        "name": "USER_MANAGEMENT_TOKEN",
+        "value": "${USER_MANAGEMENT_TOKEN}"
       }
     ],
     "links": [],
