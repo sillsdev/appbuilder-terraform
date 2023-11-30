@@ -12,7 +12,8 @@ output "appbuilder_access_key_id" {
 }
 
 output "appbuilder_secret_access_key" {
-  value = aws_iam_access_key.appbuilder.secret
+  value     = aws_iam_access_key.appbuilder.secret
+  sensitive = true
 }
 
 output "api_access_token" {
@@ -24,7 +25,8 @@ output "buildengine_access_key_id" {
 }
 
 output "buildengine_secret_access_key" {
-  value = aws_iam_access_key.buildengine.secret
+  value     = aws_iam_access_key.buildengine.secret
+  sensitive = true
 }
 
 output "buildengine_db_address" {
@@ -56,6 +58,7 @@ output "portal_email_id" {
 }
 
 output "portal_email_secret" {
-  value = aws_iam_access_key.portal.secret
+  value     = aws_iam_access_key.portal.secret
+  sensitive = true
 }
 
