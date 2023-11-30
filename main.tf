@@ -8,7 +8,7 @@ module "vpc" {
 
 // Create ecs cluster
 module "ecscluster" {
-  source   = "github.com/silinternational/terraform-modules//aws/ecs/cluster?ref=3.5.0"
+  source   = "github.com/silinternational/terraform-modules//aws/ecs/cluster"
   app_name = var.app_name
   app_env  = var.app_env
 }
@@ -96,7 +96,7 @@ resource "random_id" "buildengine_db_root_pass" {
 
 // Create DB
 module "rds" {
-  source                  = "github.com/silinternational/terraform-modules//aws/rds/mariadb?ref=3.5.0"
+  source                  = "github.com/silinternational/terraform-modules//aws/rds/mariadb"
   app_name                = var.app_name
   app_env                 = var.app_env
   db_name                 = var.buildengine_db_name
@@ -173,7 +173,7 @@ resource "aws_instance" "ecshost" {
 }
 
 resource "aws_eip" "public" {
-  vpc      = true
+  domain   = vpc
   instance = aws_instance.ecshost.id
 
   tags = {
@@ -215,7 +215,7 @@ resource "aws_security_group_rule" "limited_dwkit" {
 
 // Create application load balancer for public access
 module "alb" {
-  source          = "github.com/silinternational/terraform-modules//aws/alb?ref=3.5.0"
+  source          = "github.com/silinternational/terraform-modules//aws/alb"
   app_name        = var.app_name
   app_env         = var.app_env
   internal        = "false"
@@ -911,7 +911,7 @@ resource "aws_codebuild_project" "publish" {
 
 // Uses default target group to route all https/443 traffic to buildengine
 module "ecsservice_buildengine" {
-  source             = "github.com/silinternational/terraform-modules//aws/ecs/service-only?ref=3.5.0"
+  source             = "github.com/silinternational/terraform-modules//aws/ecs/service-only"
   cluster_id         = module.ecscluster.ecs_cluster_id
   service_name       = "buildengine"
   service_env        = var.app_env
@@ -971,7 +971,7 @@ resource "random_id" "portal_db_root_pass" {
 }
 
 module "portal_db" {
-  source                  = "github.com/silinternational/terraform-modules//aws/rds/mariadb?ref=3.5.0"
+  source                  = "github.com/silinternational/terraform-modules//aws/rds/mariadb"
   engine                  = "postgres"
   engine_version          = "14.7"
   app_name                = "${var.app_name}-portal"
@@ -1036,7 +1036,7 @@ data "template_file" "task_def_portal" {
 
 // Uses default target group to route all https/443 traffic to buildengine
 module "ecsservice_portal" {
-  source             = "github.com/silinternational/terraform-modules//aws/ecs/service-only?ref=3.5.0"
+  source             = "github.com/silinternational/terraform-modules//aws/ecs/service-only"
   cluster_id         = module.ecscluster.ecs_cluster_id
   service_name       = "portal"
   service_env        = var.app_env
@@ -1075,7 +1075,7 @@ resource "cloudflare_record" "buildengine" {
 
 // Security group to limit traffic to Cloudflare IPs
 module "cloudflare-sg" {
-  source = "github.com/silinternational/terraform-modules//aws/cloudflare-sg?ref=3.5.0"
+  source = "github.com/silinternational/terraform-modules//aws/cloudflare-sg"
   vpc_id = module.vpc.id
 }
 
