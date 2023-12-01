@@ -61,4 +61,3 @@ output "portal_email_secret" {
   value     = aws_iam_access_key.portal.secret
   sensitive = true
 }
-
