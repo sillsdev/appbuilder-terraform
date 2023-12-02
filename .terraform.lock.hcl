@@ -102,23 +102,3 @@ provider "registry.terraform.io/hashicorp/template" {
     "zh:c979425ddb256511137ecd093e23283234da0154b7fa8b21c2687182d9aea8b2",
   ]
 }
-
-provider "registry.terraform.io/terraform-providers/cloudflare" {
-  version     = "1.18.1"
-  constraints = "~> 1.0"
-  hashes = [
-    "h1:RB6tmB1vg0Eiibm4h26ZHjGh2PRYU+M3PnA7fNM/FYo=",
-    "zh:0bdf8adb18210a54b39d2267cd0c80b7609ff21b67e7f8412b86aa3171633910",
-    "zh:2e91bb056de44ab2a13d44154bf8751f02b93b037cc4ea182e046aef61058d3a",
-    "zh:35ca69dfe92829c81ce39db6a4c218a047da29065b6720e28e7b5d1cfbbbbbec",
-    "zh:63a5166f01f3d86bf13ea7364f45ea15b134e4e5e8f7a94b23702e3855f44565",
-    "zh:65889f3f86c7e4603fbf825cb7dc677ca41834c3f9257e936d538b3aefba5c5a",
-    "zh:6799788ea7972820c9f968aabdcfb7976c526ed9c587ee3701eb1c51e57b2454",
-    "zh:6a8bd2834a0be3716fa63ef3f0ae68484fca68749045b195047a24d04426b2c8",
-    "zh:886a6995f0a6868bac30d7fddf52340b43f0b7b94e6bd25feec7c51ca5e3bc71",
-    "zh:b56dfc841b3d711678f4be2002e762a6c04557cc86845d6614ed6482a2edcb25",
-    "zh:e6cb400e1ac4a92e72a5077637d0f1396235c54d1146bae63b9a92cec8d46293",
-    "zh:f6dd8bf1f36e989a504a2cc1328bdfa1e06e390b2639037b1b2ad093e649bf3e",
-    "zh:f9ca2526f4141322fd95772c3f16a3306c6608031eaf30833bdf08846dfe0264",
-  ]
-}
