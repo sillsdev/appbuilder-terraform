@@ -168,7 +168,7 @@ variable "cloudflare_token" {
 
 variable "db_storage" {
   type    = string
-  default = "8"
+  default = "12"
 }
 
 variable "db_backup_retention_period" {
