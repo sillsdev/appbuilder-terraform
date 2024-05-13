@@ -1146,7 +1146,7 @@ module "user_management_db" {
   source                  = "github.com/silinternational/terraform-modules//aws/rds/mariadb?ref=7.2.0"
   engine                  = "postgres"
   engine_version          = "14.10"
-  app_name                = var.app_name
+  app_name                = "${var.app_name}-user-management"
   app_env                 = var.app_env
   db_name                 = var.user_management_db_name
   db_root_user            = var.user_management_db_root_user
