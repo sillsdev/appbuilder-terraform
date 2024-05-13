@@ -349,6 +349,17 @@ variable "user_management_token" {
   description = "API Token for User Management Authentication"
 }
 
+variable "user_management_db_name" {
+  type        = string
+  default     = "usermgmt"
+  description = "Must begin with letter and contain only alphanumeric characters"
+}
+
+variable "user_management_db_root_user" {
+  type    = string
+  default = "appbuilder"
+}
+
 variable "db_access_ips" {
   type        = list(string)
   description = "A list of IP address CIDR blocks for allowing db access"
