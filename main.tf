@@ -1062,7 +1062,7 @@ resource "random_id" "portal_db_root_pass" {
 module "portal_db" {
   source                  = "github.com/silinternational/terraform-modules//aws/rds/mariadb?ref=7.2.0"
   engine                  = "postgres"
-  engine_version          = "14.10"
+  engine_version          = "14.12"
   app_name                = "${var.app_name}-portal"
   app_env                 = var.app_env
   db_name                 = var.portal_db_name
@@ -1145,7 +1145,7 @@ resource "random_id" "user_management_db_root_pass" {
 module "user_management_db" {
   source                  = "github.com/silinternational/terraform-modules//aws/rds/mariadb?ref=7.2.0"
   engine                  = "postgres"
-  engine_version          = "14.10"
+  engine_version          = "14.12"
   app_name                = "${var.app_name}-user-management"
   app_env                 = var.app_env
   db_name                 = var.user_management_db_name
