@@ -323,3 +323,33 @@ variable "org_prefix" {
   description = "Short prefix for Organization name, letters and hyphens only. Ex: sil"
 }
 
+variable "valkey_node_type" {
+  type        = string
+  description = "Node type for Valkey cluster"
+  default     = "cache.t3.micro"
+}
+
+variable "valkey_num_cache_nodes" {
+  type        = number
+  description = "Number of cache nodes for Valkey"
+  default     = 1
+}
+
+variable "valkey_parameter_group_name" {
+  type        = string
+  description = "Parameter group name for Valkey"
+  default     = "default.redis7"
+}
+
+variable "valkey_engine_version" {
+  type        = string
+  description = "Engine version for Valkey"
+  default     = "7.0"
+}
+
+variable "valkey_port" {
+  type        = number
+  description = "Port for Valkey"
+  default     = 6379
+}
+
