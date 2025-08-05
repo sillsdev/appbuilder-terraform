@@ -1,7 +1,7 @@
 [
   {
     "volumesFrom": [],
-    "memory": ${ui_memory},
+    "memory": ${portal_memory},
     "extraHosts": null,
     "dnsServers": null,
     "disableNetworking": null,
@@ -17,64 +17,7 @@
     "essential": true,
     "entryPoint": [],
     "mountPoints": [],
-    "name": "ui",
-    "ulimits": null,
-    "dockerSecurityOptions": null,
-    "environment": [
-      {
-        "name": "API_URL",
-        "value": "${API_URL}"
-      },
-      {
-        "name": "AUTH0_CLIENT_ID",
-        "value": "${AUTH0_CLIENT_ID}"
-      },
-      {
-        "name": "AUTH0_DOMAIN",
-        "value": "${AUTH0_DOMAIN}"
-      },
-      {
-        "name": "DWKIT_ADMIN_URL",
-        "value": "${DWKIT_ADMIN_URL}"
-      },
-      {
-        "name": "DWKIT_UI_HOST",
-        "value": "${DWKIT_UI_HOST}"
-      }
-    ],
-    "links": [
-        "api"
-    ],
-    "workingDirectory": null,
-    "readonlyRootFilesystem": null,
-    "image": "${ui_docker_image}:${ui_docker_tag}",
-    "command": ["/usr/local/bin/run-nginx.sh"],
-    "user": null,
-    "dockerLabels": null,
-    "logConfiguration": null,
-    "cpu": ${ui_cpu},
-    "privileged": null,
-    "memoryReservation": null
-  },
-  {
-    "volumesFrom": [],
-    "memory": ${api_memory},
-    "extraHosts": null,
-    "dnsServers": null,
-    "disableNetworking": null,
-    "dnsSearchDomains": null,
-    "portMappings": [
-      {
-        "hostPort": 0,
-        "containerPort": 7081,
-        "protocol": "tcp"
-      }
-    ],
-    "hostname": null,
-    "essential": true,
-    "entryPoint": [],
-    "mountPoints": [],
-    "name": "api",
+    "name": "origin",
     "ulimits": null,
     "dockerSecurityOptions": null,
     "environment": [
@@ -87,16 +30,28 @@
         "value": "${ADMIN_NAME}"
       },
       {
-        "name": "API_PORT",
-        "value": "${API_PORT}"
-      },
-      {
-        "name": "API_URL",
-        "value": "${API_URL}"
-      },
-      {
         "name": "APP_ENV",
         "value": "${APP_ENV}"
+      },
+      {
+        "name": "AUTH0_CLIENT_ID",
+        "value": "${AUTH0_CLIENT_ID}"
+      },
+      {
+        "name": "AUTH0_CLIENT_SECRET",
+        "value": "${AUTH0_CLIENT_SECRET}"
+      },
+      {
+        "name": "AUTH0_CONNECTION",
+        "value": "${AUTH0_CONNECTION}"
+      },
+      {
+        "name": "AUTH0_DOMAIN",
+        "value": "${AUTH0_DOMAIN}"
+      },
+      {
+        "name": "AUTH0_SECRET",
+        "value": "${AUTH0_SECRET}"
       },
       {
         "name": "AWS_EMAIL_ACCESS_KEY_ID",
@@ -111,28 +66,8 @@
         "value": "${AWS_REGION}"
       },
       {
-        "name": "AUTH0_AUDIENCE",
-        "value": "${AUTH0_AUDIENCE}"
-      },
-      {
-        "name": "AUTH0_DOMAIN",
-        "value": "${AUTH0_DOMAIN}"
-      },
-      {
-        "name": "DB_BOOTSTRAP",
-        "value": "${DB_BOOTSTRAP}"
-      },
-      {
-        "name": "DB_BOOTSTRAP_FILE",
-        "value": "${DB_BOOTSTRAP_FILE }"
-      },
-      {
-        "name": "DB_SAMPLEDATA",
-        "value": "${DB_SAMPLEDATA}"
-      },
-      {
-        "name": "BUGSNAG_APIKEY",
-        "value": "${BUGSNAG_APIKEY}"
+        "name": "DATABASE_URL",
+        "value": "${DATABASE_URL}"
       },
       {
         "name": "DEFAULT_BUILDENGINE_URL",
@@ -143,63 +78,33 @@
         "value": "${DEFAULT_BUILDENGINE_API_ACCESS_TOKEN}"
       },
       {
-        "name": "SAMPLEDATA_BUILDENGINE_API_ACCESS_TOKEN",
-        "value": "${DB_SAMPLEDATA_BUILDENGINE_API_ACCESS_TOKEN}"
-      },
-      {
-        "name": "EXPAND_S3_FILES",
-        "value": "${EXPAND_S3_FILES}"
-      },
-      {
-        "name": "EXPAND_S3_KEY",
-        "value": "${EXPAND_S3_KEY}"
-      },
-      {
-        "name": "EXPAND_S3_SECRET",
-        "value": "${EXPAND_S3_SECRET}"
-      },
-      {
         "name": "MAIL_SENDER",
         "value": "${MAIL_SENDER}"
       },
       {
-        "name": "MAIL_SPARKPOST_APIKEY",
-        "value": "${MAIL_SPARKPOST_APIKEY}"
+        "name": "ORIGIN",
+        "value": "${ORIGIN}"
       },
       {
-        "name": "POSTGRES_DB",
-        "value": "${POSTGRES_DB}"
+        "name": "SPARKPOST_API_KEY",
+        "value": "${SPARKPOST_API_KEY}"
       },
-      {
-        "name": "POSTGRES_HOST",
-        "value": "${POSTGRES_HOST}"
-      },
-      {
-        "name": "POSTGRES_PASSWORD",
-        "value": "${POSTGRES_PASSWORD}"
-      },
-      {
-        "name": "POSTGRES_USER",
-        "value": "${POSTGRES_USER}"
-      },
-      {
-        "name": "UI_URL",
-        "value": "${UI_URL}"
-      },
-      {
+            {
         "name": "USER_MANAGEMENT_TOKEN",
         "value": "${USER_MANAGEMENT_TOKEN}"
       }
+
     ],
     "links": [],
     "workingDirectory": null,
     "readonlyRootFilesystem": null,
-    "image": "${api_docker_image}:${api_docker_tag}",
+    "image": "${portal_docker_image}:${portal_docker_tag}",
     "user": null,
     "dockerLabels": null,
     "logConfiguration": null,
-    "cpu": ${api_cpu},
+    "cpu": ${portal_cpu},
     "privileged": null,
     "memoryReservation": null
   }
+
 ]

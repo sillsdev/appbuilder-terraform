@@ -8,17 +8,6 @@ variable "admin_name" {
   description = "Email name for admin"
 }
 
-variable "api_port" {
-  type    = string
-  default = "7081"
-}
-
-variable "api_url" {
-  type        = string
-  default     = "http://api:7081"
-  description = "URL used by UI to proxy api calls from frontend JS; port must match api_port"
-}
-
 variable "app_env" {
   type        = string
   description = "Environment name, ex: 'stg' or 'prod'"
@@ -35,13 +24,15 @@ variable "app_sub_domain" {
   default = "app"
 }
 
-variable "auth0_audience" {
-  type    = string
-  default = "n8IAE2O17FBrlQ667x5mydhpqelCBUWG"
-}
-
 variable "auth0_client_id" {
   type = string
+}
+variable "auth0_client_secret" {
+  type = string
+}
+variable "auth0_connection" {
+  type    = string
+  default = "Username-Password-Authentication"
 }
 
 variable "auth0_domain" {
@@ -81,10 +72,6 @@ variable "aws_instance" {
     volume_size    = "30"
     instance_count = "1"
   }
-}
-
-variable "bugsnag_apikey" {
-  type = string
 }
 
 variable "buildagent_code_build_image_repo" {
@@ -186,26 +173,6 @@ variable "db_multi_az" {
   default = false
 }
 
-variable "db_bootstrap" {
-  type    = string
-  default = "0"
-}
-
-variable "db_bootstrap_file" {
-  type    = string
-  default = ""
-}
-
-variable "db_sampledata" {
-  type    = string
-  default = "0"
-}
-
-variable "db_sampledata_buildengine_api_access_token" {
-  type    = string
-  default = ""
-}
-
 variable "ec2_ssh_key_name" {
   type    = string
   default = ""
@@ -230,11 +197,6 @@ variable "mail_sender" {
   default = "AmazonSES"
 }
 
-variable "mail_sparkpost_apikey" {
-  type    = string
-  default = ""
-}
-
 variable "mailer_usefiles" {
   type = string
 }
@@ -254,44 +216,29 @@ variable "portal_db_root_user" {
   default = "appbuilder"
 }
 
-variable "portal_api_cpu" {
+variable "portal_cpu" {
   type    = string
   default = "128"
 }
 
-variable "portal_api_docker_image" {
+variable "portal_docker_image" {
   type    = string
-  default = "appbuilder-portal-api"
+  default = "appbuilder-portal-origin"
 }
 
-variable "portal_api_docker_tag" {
+variable "portal_docker_tag" {
   type    = string
   default = "production"
 }
 
-variable "portal_api_memory" {
+variable "portal_memory" {
   type    = string
   default = "128"
 }
 
-variable "portal_ui_cpu" {
+variable "sparkpost_api_key" {
   type    = string
-  default = "128"
-}
-
-variable "portal_ui_docker_image" {
-  type    = string
-  default = "appbuilder-portal-nginx"
-}
-
-variable "portal_ui_docker_tag" {
-  type    = string
-  default = "production"
-}
-
-variable "portal_ui_memory" {
-  type    = string
-  default = "128"
+  default = ""
 }
 
 variable "scripture_earth_key" {
