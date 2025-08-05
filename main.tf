@@ -13,15 +13,6 @@ module "ecscluster" {
   app_env  = var.app_env
 }
 
-// Create user for CI/CD to perform ECS actions
-resource "aws_iam_user" "codeship" {
-  name = "codeship-${var.app_name}-${var.app_env}"
-}
-
-resource "aws_iam_access_key" "codeship" {
-  user = aws_iam_user.codeship.name
-}
-
 resource "aws_iam_user_policy" "ecs" {
   name = "ECS-ECR"
   user = aws_iam_user.codeship.name
@@ -203,15 +194,6 @@ resource "aws_security_group_rule" "limited_buildengine" {
   cidr_blocks       = concat(var.https_ips, ["${aws_eip.public.public_ip}/32"])
 }
 
-resource "aws_security_group_rule" "limited_dwkit" {
-  type              = "ingress"
-  from_port         = 7081
-  to_port           = 7081
-  protocol          = "tcp"
-  security_group_id = aws_security_group.alb_https_limited_ips.id
-  cidr_blocks       = concat(var.https_ips, ["${aws_eip.public.public_ip}/32"])
-}
-
 // Create application load balancer for public access
 module "alb" {
   source          = "github.com/silinternational/terraform-modules//aws/alb?ref=7.2.0"
@@ -250,27 +232,6 @@ resource "aws_alb_target_group" "buildengine" {
   }
 }
 
-resource "aws_alb_listener" "dwkit" {
-  default_action {
-    target_group_arn = module.alb.default_tg_arn
-    type             = "forward"
-  }
-
-  load_balancer_arn = module.alb.arn
-  port              = 7081
-  protocol          = "HTTPS"
-  ssl_policy        = "ELBSecurityPolicy-2016-08"
-  certificate_arn   = data.aws_acm_certificate.appbuilder.arn
-}
-
-// Create S3 bucket for storing artifacts
-# data "template_file" "artifacts_bucket_policy" {
-#   template = file("${path.module}/s3-artifact-bucket-policy.json")
-
-#   vars = {
-#     bucket_name = "${var.org_prefix}-${var.app_env}-${var.app_name}-files"
-#   }
-# }
 
 // Artifacts stuff - S3, IAM
 // Use "files" insteads of "artifacts" for user facing bucket name
@@ -1078,48 +1039,35 @@ module "portal_db" {
   publicly_accessible     = "true"
 }
 
+resource "random_id" "auth0_secret" {
+  byte_length = 32
+}
+
 data "template_file" "task_def_portal" {
   template = file("${path.module}/task-def-portal.json")
 
   vars = {
-    api_cpu                                    = var.portal_api_cpu
-    api_memory                                 = var.portal_api_memory
-    api_docker_image                           = "${var.aws_account_id}.dkr.ecr.us-east-1.amazonaws.com/${var.portal_api_docker_image}"
-    api_docker_tag                             = var.portal_api_docker_tag
-    ui_cpu                                     = var.portal_ui_cpu
-    ui_memory                                  = var.portal_ui_memory
-    ui_docker_image                            = "${var.aws_account_id}.dkr.ecr.us-east-1.amazonaws.com/${var.portal_ui_docker_image}"
-    ui_docker_tag                              = var.portal_ui_docker_tag
     ADMIN_EMAIL                                = var.admin_email
     ADMIN_NAME                                 = var.admin_name
-    API_PORT                                   = var.api_port
-    API_URL                                    = var.api_url
     APP_ENV                                    = var.app_env
-    AUTH0_AUDIENCE                             = var.auth0_audience
-    AUTH0_DOMAIN                               = var.auth0_domain
     AUTH0_CLIENT_ID                            = var.auth0_client_id
+    AUTH0_CLIENT_SECRET                        = var.auth0_client_secret
+    AUTH0_CONNECTION                           = var.auth0_connection
+    AUTH0_DOMAIN                               = var.auth0_domain
+    AUTH0_SECRET                               = random_id.auth0_secret.hex
     AWS_EMAIL_ACCESS_KEY_ID                    = aws_iam_access_key.portal.id
     AWS_EMAIL_SECRET_ACCESS_KEY                = aws_iam_access_key.portal.secret
     AWS_REGION                                 = var.aws_region
-    BUGSNAG_APIKEY                             = var.bugsnag_apikey
-    DB_BOOTSTRAP                               = var.db_bootstrap
-    DB_BOOTSTRAP_FILE                          = var.db_bootstrap_file
-    DB_SAMPLEDATA                              = var.db_sampledata
-    DB_SAMPLEDATA_BUILDENGINE_API_ACCESS_TOKEN = var.db_sampledata_buildengine_api_access_token
+    DATABASE_URL                               = "postgres://${var.portal_db_root_user}:${random_id.portal_db_root_pass.hex}@${module.portal_db.address}/${var.portal_db_name}?schema=public"
     DEFAULT_BUILDENGINE_URL                    = "https://${cloudflare_record.buildengine.hostname}:8443"
     DEFAULT_BUILDENGINE_API_ACCESS_TOKEN       = random_id.api_access_token.hex
-    DWKIT_UI_HOST                              = cloudflare_record.dwkit_ui.hostname
-    DWKIT_ADMIN_URL                            = "https://${cloudflare_record.dwkit_ui.hostname}:${aws_security_group_rule.limited_dwkit.from_port}"
-    EXPAND_S3_FILES                            = "${aws_s3_bucket.secrets.bucket}/portal/license.key|/app/"
-    EXPAND_S3_KEY                              = aws_iam_access_key.appbuilder.id
-    EXPAND_S3_SECRET                           = aws_iam_access_key.appbuilder.secret
     MAIL_SENDER                                = var.mail_sender
-    MAIL_SPARKPOST_APIKEY                      = var.mail_sparkpost_apikey
-    POSTGRES_DB                                = var.portal_db_name
-    POSTGRES_HOST                              = module.portal_db.address
-    POSTGRES_PASSWORD                          = random_id.portal_db_root_pass.hex
-    POSTGRES_USER                              = var.portal_db_root_user
-    UI_URL                                     = "https://${var.app_sub_domain}.${var.cloudflare_domain}"
+    ORIGIN                                     = "https://${var.app_sub_domain}.${var.cloudflare_domain}"
+    portal_cpu                                 = var.portal_cpu
+    portal_memory                              = var.portal_memory
+    portal_docker_image                        = "${var.aws_account_id}.dkr.ecr.us-east-1.amazonaws.com/${var.portal_docker_image}"
+    portal_docker_tag                          = var.portal_docker_tag
+    SPARKPOST_API_KEY                          = var.sparkpost_api_key
     USER_MANAGEMENT_TOKEN                      = var.user_management_token
   }
 }
@@ -1138,29 +1086,6 @@ module "ecsservice_portal" {
   ecsServiceRole_arn = module.ecscluster.ecsServiceRole_arn
 }
 
-resource "random_id" "user_management_db_root_pass" {
-  byte_length = 16
-}
-
-#module "user_management_db" {
-#  source                  = "github.com/silinternational/terraform-modules//aws/rds/mariadb?ref=7.2.0"
-#  engine                  = "postgres"
-#  engine_version          = "14.17"
-#  app_name                = "${var.app_name}-user-management"
-#  app_env                 = var.app_env
-#  db_name                 = var.user_management_db_name
-#  db_root_user            = var.user_management_db_root_user
-#  db_root_pass            = random_id.user_management_db_root_pass.hex
-#  subnet_group_name       = module.vpc.db_subnet_group_name
-#  availability_zone       = var.aws_zones[0]
-#  security_groups         = [module.vpc.vpc_default_sg_id, aws_security_group.db_access_limited_ips.id]
-#  allocated_storage       = var.db_storage
-#  backup_retention_period = var.db_backup_retention_period
-#  multi_az                = var.db_multi_az
-#  instance_class          = var.db_instance_class
-#  publicly_accessible     = "true"
-#}
-
 // Create DNS CNAME record on Cloudflare for Agent API
 data "cloudflare_zone" "portal" {
   name = var.cloudflare_domain
@@ -1172,14 +1097,6 @@ resource "cloudflare_record" "app_ui" {
   type    = "CNAME"
   value   = module.alb.dns_name
   proxied = true
-}
-
-resource "cloudflare_record" "dwkit_ui" {
-  zone_id = data.cloudflare_zone.portal.id
-  name    = "${var.app_sub_domain}-admin"
-  type    = "CNAME"
-  value   = module.alb.dns_name
-  proxied = false
 }
 
 resource "cloudflare_record" "buildengine" {
