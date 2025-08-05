@@ -1067,6 +1067,60 @@ module "portal_db" {
   publicly_accessible     = "true"
 }
 
+// Create security group for Valkey access
+resource "aws_security_group" "valkey_access" {
+  name        = "valkey-access-${var.app_env}"
+  description = "Allow Valkey traffic from application"
+  vpc_id      = module.vpc.id
+
+  ingress {
+    from_port       = var.valkey_port
+    to_port         = var.valkey_port
+    protocol        = "tcp"
+    security_groups = [module.vpc.vpc_default_sg_id]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name        = "valkey-access-${var.app_env}"
+    app         = var.tag_app
+    environment = var.tag_environment
+    project     = var.tag_project
+  }
+}
+
+// Create Valkey subnet group
+resource "aws_elasticache_subnet_group" "valkey" {
+  name       = "valkey-subnet-group-${var.app_env}"
+  subnet_ids = module.vpc.public_subnet_ids
+}
+
+// Create Valkey cluster
+resource "aws_elasticache_cluster" "valkey" {
+  cluster_id           = "valkey-${var.app_env}"
+  engine               = "redis"
+  node_type            = var.valkey_node_type
+  num_cache_nodes      = var.valkey_num_cache_nodes
+  parameter_group_name = var.valkey_parameter_group_name
+  port                 = var.valkey_port
+  subnet_group_name    = aws_elasticache_subnet_group.valkey.name
+  security_group_ids   = [aws_security_group.valkey_access.id]
+  engine_version       = var.valkey_engine_version
+
+  tags = {
+    Name        = "valkey-${var.app_env}"
+    app         = var.tag_app
+    environment = var.tag_environment
+    project     = var.tag_project
+  }
+}
+
 resource "random_id" "auth0_secret" {
   byte_length = 32
 }
@@ -1097,6 +1151,7 @@ data "template_file" "task_def_portal" {
     portal_docker_tag                          = var.portal_docker_tag
     SPARKPOST_API_KEY                          = var.sparkpost_api_key
     USER_MANAGEMENT_TOKEN                      = var.user_management_token
+    VALKEY_HOST                                = aws_elasticache_cluster.valkey.cache_nodes[0].address
   }
 }
 

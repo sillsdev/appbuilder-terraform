@@ -73,3 +73,8 @@ output "portal_email_secret" {
   value     = aws_iam_access_key.portal.secret
   sensitive = true
 }
+
+output "valkey_address" {
+  value = aws_elasticache_cluster.valkey.cache_nodes[0].address
+}
+

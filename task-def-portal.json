@@ -89,11 +89,14 @@
         "name": "SPARKPOST_API_KEY",
         "value": "${SPARKPOST_API_KEY}"
       },
-            {
+      {
         "name": "USER_MANAGEMENT_TOKEN",
         "value": "${USER_MANAGEMENT_TOKEN}"
+      },
+      {
+        "name": "VALKEY_HOST",
+        "value": "${VALKEY_HOST}"
       }
-
     ],
     "links": [],
     "workingDirectory": null,
@@ -106,5 +109,4 @@
     "privileged": null,
     "memoryReservation": null
   }
-
 ]
