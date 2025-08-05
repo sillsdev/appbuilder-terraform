@@ -13,46 +13,6 @@ module "ecscluster" {
   app_env  = var.app_env
 }
 
-resource "aws_iam_user_policy" "ecs" {
-  name = "ECS-ECR"
-  user = aws_iam_user.codeship.name
-
-  policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": [
-        "ecs:DeregisterTaskDefinition",
-        "ecs:DescribeServices",
-        "ecs:DescribeTaskDefinition",
-        "ecs:DescribeTasks",
-        "ecs:ListTasks",
-        "ecs:ListTaskDefinitions",
-        "ecs:RegisterTaskDefinition",
-        "ecs:StartTask",
-        "ecs:StopTask",
-        "ecs:UpdateService",
-        "iam:PassRole"
-      ],
-      "Resource": "*"
-    },
-    {
-        "Effect": "Allow",
-        "Action": [
-            "ecr:GetAuthorizationToken"
-        ],
-        "Resource": [
-            "*"
-        ]
-    }
-  ]
-}
-EOF
-
-}
-
 // Create security group that allows 3306 from specific IPs
 resource "aws_security_group" "db_access_limited_ips" {
   name        = "db-limited-ips"
