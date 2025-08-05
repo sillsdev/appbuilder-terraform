@@ -53,17 +53,17 @@ output "portal_db_username" {
   value = var.portal_db_root_user
 }
 
-output "user_management_db_address" {
-  value = module.user_management_db.address
-}
-
-output "user_management_db_root_pass" {
-  value = random_id.user_management_db_root_pass.hex
-}
-
-output "user_management_db_username" {
-  value = var.user_management_db_root_user
-}
+#output "user_management_db_address" {
+#  value = module.user_management_db.address
+#}
+#
+#output "user_management_db_root_pass" {
+#  value = random_id.user_management_db_root_pass.hex
+#}
+#
+#output "user_management_db_username" {
+#  value = var.user_management_db_root_user
+#}
 
 output "portal_email_id" {
   value = aws_iam_access_key.portal.id

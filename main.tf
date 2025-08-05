@@ -1142,24 +1142,24 @@ resource "random_id" "user_management_db_root_pass" {
   byte_length = 16
 }
 
-module "user_management_db" {
-  source                  = "github.com/silinternational/terraform-modules//aws/rds/mariadb?ref=7.2.0"
-  engine                  = "postgres"
-  engine_version          = "14.12"
-  app_name                = "${var.app_name}-user-management"
-  app_env                 = var.app_env
-  db_name                 = var.user_management_db_name
-  db_root_user            = var.user_management_db_root_user
-  db_root_pass            = random_id.user_management_db_root_pass.hex
-  subnet_group_name       = module.vpc.db_subnet_group_name
-  availability_zone       = var.aws_zones[0]
-  security_groups         = [module.vpc.vpc_default_sg_id, aws_security_group.db_access_limited_ips.id]
-  allocated_storage       = var.db_storage
-  backup_retention_period = var.db_backup_retention_period
-  multi_az                = var.db_multi_az
-  instance_class          = var.db_instance_class
-  publicly_accessible     = "true"
-}
+#module "user_management_db" {
+#  source                  = "github.com/silinternational/terraform-modules//aws/rds/mariadb?ref=7.2.0"
+#  engine                  = "postgres"
+#  engine_version          = "14.17"
+#  app_name                = "${var.app_name}-user-management"
+#  app_env                 = var.app_env
+#  db_name                 = var.user_management_db_name
+#  db_root_user            = var.user_management_db_root_user
+#  db_root_pass            = random_id.user_management_db_root_pass.hex
+#  subnet_group_name       = module.vpc.db_subnet_group_name
+#  availability_zone       = var.aws_zones[0]
+#  security_groups         = [module.vpc.vpc_default_sg_id, aws_security_group.db_access_limited_ips.id]
+#  allocated_storage       = var.db_storage
+#  backup_retention_period = var.db_backup_retention_period
+#  multi_az                = var.db_multi_az
+#  instance_class          = var.db_instance_class
+#  publicly_accessible     = "true"
+#}
 
 // Create DNS CNAME record on Cloudflare for Agent API
 data "cloudflare_zone" "portal" {
