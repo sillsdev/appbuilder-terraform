@@ -236,6 +236,30 @@ variable "portal_memory" {
   default = "128"
 }
 
+variable "otel_cpu" {
+  type    = string
+  default = "128"
+}
+
+variable "otel_docker_image" {
+  type    = string
+  default = "otel-collector"
+}
+
+variable "otel_docker_tag" {
+  type    = string
+  default = "production"
+}
+
+variable "otel_memory" {
+  type    = string
+  default = "128"
+}
+
+variable "honeycomb_api_key" {
+  type    = string
+}
+
 variable "sparkpost_api_key" {
   type    = string
   default = ""
