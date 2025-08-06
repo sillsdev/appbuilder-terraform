@@ -1084,6 +1084,7 @@ data "template_file" "task_def_portal" {
     SPARKPOST_API_KEY                          = var.sparkpost_api_key
     USER_MANAGEMENT_TOKEN                      = var.user_management_token
     VALKEY_HOST                                = aws_elasticache_cluster.valkey.cache_nodes[0].address
+    HONEYCOMB_API_KEY                          = var.honeycomb_api_key
   }
 }
 
