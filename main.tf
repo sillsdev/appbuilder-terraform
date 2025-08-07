@@ -1129,8 +1129,8 @@ module "ecsservice_portal" {
   container_def_json = data.template_file.task_def_portal.rendered
   desired_count      = 1
   tg_arn             = module.alb.default_tg_arn
-  lb_container_name  = "ui"
-  lb_container_port  = 80
+  lb_container_name  = "origin"
+  lb_container_port  = 6173
   ecsServiceRole_arn = module.ecscluster.ecsServiceRole_arn
 }
 
