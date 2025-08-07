@@ -1081,6 +1081,10 @@ data "template_file" "task_def_portal" {
     portal_memory                              = var.portal_memory
     portal_docker_image                        = "${var.aws_account_id}.dkr.ecr.us-east-1.amazonaws.com/${var.portal_docker_image}"
     portal_docker_tag                          = var.portal_docker_tag
+    otel_cpu                                   = var.otel_cpu
+    otel_memory                                = var.otel_memory
+    otel_docker_image                          = "${var.aws_account_id}.dkr.ecr.us-east-1.amazonaws.com/${var.otel_docker_image}"
+    otel_docker_tag                            = var.otel_docker_tag
     SPARKPOST_API_KEY                          = var.sparkpost_api_key
     USER_MANAGEMENT_TOKEN                      = var.user_management_token
     VALKEY_HOST                                = aws_elasticache_cluster.valkey.cache_nodes[0].address
