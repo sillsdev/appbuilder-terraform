@@ -1064,7 +1064,7 @@ resource "aws_elasticache_subnet_group" "valkey" {
 // Create Valkey parameter group with noeviction policy
 resource "aws_elasticache_parameter_group" "valkey" {
   name   = "valkey-params-${var.app_env}"
-  family = "redis7.x"
+  family = "valkey7"
 
   parameter {
     name  = "maxmemory-policy"
@@ -1075,7 +1075,7 @@ resource "aws_elasticache_parameter_group" "valkey" {
 // Create Valkey cluster
 resource "aws_elasticache_cluster" "valkey" {
   cluster_id           = "valkey-${var.app_env}"
-  engine               = "redis"
+  engine               = "valkey"
   node_type            = var.valkey_node_type
   num_cache_nodes      = var.valkey_num_cache_nodes
   parameter_group_name = aws_elasticache_parameter_group.valkey.name
