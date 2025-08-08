@@ -91,21 +91,13 @@ resource "aws_security_group_rule" "ssh" {
 }
 
 // Create EC2 host for ECS cluster
-data "template_file" "user_data" {
-  template = file("${path.module}/user-data.sh")
-
-  vars = {
-    ecs_cluster_name = module.ecscluster.ecs_cluster_name
-  }
-}
-
 resource "aws_instance" "ecshost" {
   ami                    = data.aws_ami.ecs_ami.id
   instance_type          = var.aws_instance["instance_type"]
   key_name               = var.ec2_ssh_key_name
   vpc_security_group_ids = [module.vpc.vpc_default_sg_id, aws_security_group.ec2_ssh_limited_ips.id]
   iam_instance_profile   = module.ecscluster.ecs_instance_profile_id
-  user_data              = data.template_file.user_data.rendered
+  user_data              = templatefile("${path.module}/user-data.sh", { ecs_cluster_name = module.ecscluster.ecs_cluster_name })
   subnet_id              = module.vpc.public_subnet_ids[0]
 
   root_block_device {
@@ -779,43 +771,6 @@ resource "random_id" "front_cookie_key" {
   byte_length = 16
 }
 
-
-data "template_file" "task_def_buildengine" {
-  template = file("${path.module}/task-def-buildengine.json")
-
-  vars = {
-    api_cpu                              = var.buildengine_api_cpu
-    api_memory                           = var.buildengine_api_memory
-    cron_cpu                             = var.buildengine_cron_cpu
-    cron_memory                          = var.buildengine_cron_memory
-    buildengine_docker_image             = var.buildengine_docker_image
-    buildengine_docker_tag               = var.buildengine_docker_tag
-    ADMIN_EMAIL                          = var.admin_email
-    API_ACCESS_TOKEN                     = random_id.api_access_token.hex
-    API_BASE_URL                         = var.buildengine_api_base_url
-    APP_ENV                              = var.app_env
-    AWS_ACCESS_KEY_ID                    = aws_iam_access_key.buildengine.id
-    AWS_SECRET_ACCESS_KEY                = aws_iam_access_key.buildengine.secret
-    AWS_USER_ID                          = var.aws_account_id
-    BUILD_ENGINE_ARTIFACTS_BUCKET        = aws_s3_bucket.artifacts.bucket
-    BUILD_ENGINE_ARTIFACTS_BUCKET_REGION = var.aws_region
-    BUILD_ENGINE_PROJECTS_BUCKET         = aws_s3_bucket.projects.bucket
-    BUILD_ENGINE_SECRETS_BUCKET          = aws_s3_bucket.secrets.bucket
-    CODE_BUILD_IMAGE_REPO                = "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/${var.buildagent_code_build_image_repo}-${var.app_env}"
-    CODE_BUILD_IMAGE_TAG                 = var.buildagent_code_build_image_tag
-    FRONT_COOKIE_KEY                     = random_id.front_cookie_key.hex
-    LOGENTRIES_KEY                       = var.logentries_key
-    MAILER_PASSWORD                      = var.mailer_password
-    MAILER_USEFILES                      = var.mailer_usefiles
-    MAILER_USERNAME                      = var.mailer_username
-    MYSQL_DATABASE                       = var.buildengine_db_name
-    MYSQL_HOST                           = module.rds.address
-    MYSQL_PASSWORD                       = random_id.buildengine_db_root_pass.hex
-    MYSQL_USER                           = var.buildengine_db_root_user
-    SCRIPTURE_EARTH_KEY                  = var.scripture_earth_key
-  }
-}
-
 // Create ECR Repo for Build Agent
 resource "aws_ecr_repository" "agent" {
   name = "${var.buildagent_code_build_image_repo}-${var.app_env}"
@@ -953,7 +908,37 @@ module "ecsservice_buildengine" {
   cluster_id         = module.ecscluster.ecs_cluster_id
   service_name       = "buildengine"
   service_env        = var.app_env
-  container_def_json = data.template_file.task_def_buildengine.rendered
+  container_def_json = templatefile("${path.module}/task-def-buildengine.json", {
+    api_cpu                              = var.buildengine_api_cpu
+    api_memory                           = var.buildengine_api_memory
+    cron_cpu                             = var.buildengine_cron_cpu
+    cron_memory                          = var.buildengine_cron_memory
+    buildengine_docker_image             = var.buildengine_docker_image
+    buildengine_docker_tag               = var.buildengine_docker_tag
+    ADMIN_EMAIL                          = var.admin_email
+    API_ACCESS_TOKEN                     = random_id.api_access_token.hex
+    API_BASE_URL                         = var.buildengine_api_base_url
+    APP_ENV                              = var.app_env
+    AWS_ACCESS_KEY_ID                    = aws_iam_access_key.buildengine.id
+    AWS_SECRET_ACCESS_KEY                = aws_iam_access_key.buildengine.secret
+    AWS_USER_ID                          = var.aws_account_id
+    BUILD_ENGINE_ARTIFACTS_BUCKET        = aws_s3_bucket.artifacts.bucket
+    BUILD_ENGINE_ARTIFACTS_BUCKET_REGION = var.aws_region
+    BUILD_ENGINE_PROJECTS_BUCKET         = aws_s3_bucket.projects.bucket
+    BUILD_ENGINE_SECRETS_BUCKET          = aws_s3_bucket.secrets.bucket
+    CODE_BUILD_IMAGE_REPO                = "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/${var.buildagent_code_build_image_repo}-${var.app_env}"
+    CODE_BUILD_IMAGE_TAG                 = var.buildagent_code_build_image_tag
+    FRONT_COOKIE_KEY                     = random_id.front_cookie_key.hex
+    LOGENTRIES_KEY                       = var.logentries_key
+    MAILER_PASSWORD                      = var.mailer_password
+    MAILER_USEFILES                      = var.mailer_usefiles
+    MAILER_USERNAME                      = var.mailer_username
+    MYSQL_DATABASE                       = var.buildengine_db_name
+    MYSQL_HOST                           = module.rds.address
+    MYSQL_PASSWORD                       = random_id.buildengine_db_root_pass.hex
+    MYSQL_USER                           = var.buildengine_db_root_user
+    SCRIPTURE_EARTH_KEY                  = var.scripture_earth_key
+  })
   desired_count      = 1
   tg_arn             = aws_alb_target_group.buildengine.arn
   lb_container_name  = "web"
@@ -1099,10 +1084,13 @@ resource "random_id" "auth0_secret" {
   byte_length = 32
 }
 
-data "template_file" "task_def_portal" {
-  template = file("${path.module}/task-def-portal.json")
-
-  vars = {
+// Uses default target group to route all https/443 traffic to buildengine
+module "ecsservice_portal" {
+  source             = "github.com/silinternational/terraform-modules//aws/ecs/service-only?ref=7.2.0"
+  cluster_id         = module.ecscluster.ecs_cluster_id
+  service_name       = "portal"
+  service_env        = var.app_env
+  container_def_json = templatefile("${path.module}/task-def-portal.json", {
     ADMIN_EMAIL                                = var.admin_email
     ADMIN_NAME                                 = var.admin_name
     APP_ENV                                    = var.app_env
@@ -1131,16 +1119,7 @@ data "template_file" "task_def_portal" {
     USER_MANAGEMENT_TOKEN                      = var.user_management_token
     VALKEY_HOST                                = aws_elasticache_replication_group.valkey.primary_endpoint_address
     HONEYCOMB_API_KEY                          = var.honeycomb_api_key
-  }
-}
-
-// Uses default target group to route all https/443 traffic to buildengine
-module "ecsservice_portal" {
-  source             = "github.com/silinternational/terraform-modules//aws/ecs/service-only?ref=7.2.0"
-  cluster_id         = module.ecscluster.ecs_cluster_id
-  service_name       = "portal"
-  service_env        = var.app_env
-  container_def_json = data.template_file.task_def_portal.rendered
+  })
   desired_count      = 1
   tg_arn             = module.alb.default_tg_arn
   lb_container_name  = "origin"
