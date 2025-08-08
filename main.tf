@@ -1136,7 +1136,7 @@ resource "cloudflare_record" "app_ui" {
   zone_id = data.cloudflare_zone.portal.id
   name    = var.app_sub_domain
   type    = "CNAME"
-  value   = module.alb.dns_name
+  content = module.alb.dns_name
   proxied = true
 }
 
@@ -1144,7 +1144,7 @@ resource "cloudflare_record" "buildengine" {
   zone_id = data.cloudflare_zone.portal.id
   name    = "${var.app_sub_domain}-buildengine"
   type    = "CNAME"
-  value   = module.alb.dns_name
+  content = module.alb.dns_name
   proxied = false
 }
 
