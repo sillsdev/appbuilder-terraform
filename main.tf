@@ -1061,7 +1061,7 @@ resource "aws_elasticache_parameter_group" "valkey" {
 resource "aws_elasticache_replication_group" "valkey" {
   replication_group_id          = "valkey-${var.app_env}"
   description                   = "Valkey (Redis-compatible) cache for ${var.app_env}"
-  engine                        = "valkey"
+  engine                        = "redis"
   engine_version                = var.valkey_engine_version
   node_type                     = var.valkey_node_type
   num_cache_clusters            = var.valkey_num_cache_nodes
