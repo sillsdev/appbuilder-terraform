@@ -1061,13 +1061,24 @@ resource "aws_elasticache_subnet_group" "valkey" {
   subnet_ids = module.vpc.public_subnet_ids
 }
 
+// Create Valkey parameter group with noeviction policy
+resource "aws_elasticache_parameter_group" "valkey" {
+  name   = "valkey-params-${var.app_env}"
+  family = "redis7.x"
+
+  parameter {
+    name  = "maxmemory-policy"
+    value = "noeviction"
+  }
+}
+
 // Create Valkey cluster
 resource "aws_elasticache_cluster" "valkey" {
   cluster_id           = "valkey-${var.app_env}"
   engine               = "redis"
   node_type            = var.valkey_node_type
   num_cache_nodes      = var.valkey_num_cache_nodes
-  parameter_group_name = var.valkey_parameter_group_name
+  parameter_group_name = aws_elasticache_parameter_group.valkey.name
   port                 = var.valkey_port
   subnet_group_name    = aws_elasticache_subnet_group.valkey.name
   security_group_ids   = [aws_security_group.valkey_access.id]

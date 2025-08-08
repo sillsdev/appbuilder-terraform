@@ -359,12 +359,6 @@ variable "valkey_num_cache_nodes" {
   default     = 1
 }
 
-variable "valkey_parameter_group_name" {
-  type        = string
-  description = "Parameter group name for Valkey"
-  default     = "default.redis7"
-}
-
 variable "valkey_engine_version" {
   type        = string
   description = "Engine version for Valkey"
