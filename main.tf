@@ -1072,17 +1072,20 @@ resource "aws_elasticache_parameter_group" "valkey" {
   }
 }
 
-// Create Valkey cluster
-resource "aws_elasticache_cluster" "valkey" {
-  cluster_id           = "valkey-${var.app_env}"
-  engine               = "valkey"
-  node_type            = var.valkey_node_type
-  num_cache_nodes      = var.valkey_num_cache_nodes
-  parameter_group_name = aws_elasticache_parameter_group.valkey.name
-  port                 = var.valkey_port
-  subnet_group_name    = aws_elasticache_subnet_group.valkey.name
-  security_group_ids   = [aws_security_group.valkey_access.id]
-  engine_version       = var.valkey_engine_version
+// Create Valkey replication group (uses Valkey engine in ElastiCache)
+resource "aws_elasticache_replication_group" "valkey" {
+  replication_group_id          = "valkey-${var.app_env}"
+  description                   = "Valkey (Redis-compatible) cache for ${var.app_env}"
+  engine                        = "valkey"
+  engine_version                = var.valkey_engine_version
+  node_type                     = var.valkey_node_type
+  num_cache_clusters            = var.valkey_num_cache_nodes
+  parameter_group_name          = aws_elasticache_parameter_group.valkey.name
+  port                          = var.valkey_port
+  subnet_group_name             = aws_elasticache_subnet_group.valkey.name
+  security_group_ids            = [aws_security_group.valkey_access.id]
+  automatic_failover_enabled    = var.valkey_num_cache_nodes > 1 ? true : false
+  // multi_az_enabled may require specific AZ configs; omit unless needed
 
   tags = {
     Name        = "valkey-${var.app_env}"
@@ -1126,7 +1129,7 @@ data "template_file" "task_def_portal" {
     otel_docker_tag                            = var.otel_docker_tag
     SPARKPOST_API_KEY                          = var.sparkpost_api_key
     USER_MANAGEMENT_TOKEN                      = var.user_management_token
-    VALKEY_HOST                                = aws_elasticache_cluster.valkey.cache_nodes[0].address
+    VALKEY_HOST                                = aws_elasticache_replication_group.valkey.primary_endpoint_address
     HONEYCOMB_API_KEY                          = var.honeycomb_api_key
   }
 }
