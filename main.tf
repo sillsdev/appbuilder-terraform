@@ -1049,7 +1049,7 @@ resource "aws_elasticache_subnet_group" "valkey" {
 // Create Valkey parameter group with noeviction policy
 resource "aws_elasticache_parameter_group" "valkey" {
   name   = "valkey-params-${var.app_env}"
-  family = "valkey7"
+  family = "redis7"
 
   parameter {
     name  = "maxmemory-policy"
