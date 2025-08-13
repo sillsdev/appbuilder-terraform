@@ -156,6 +156,8 @@ module "alb" {
   security_groups = [module.vpc.vpc_default_sg_id, aws_security_group.alb_https_limited_ips.id, module.cloudflare-sg.id]
   subnets         = module.vpc.public_subnet_ids
   certificate_arn = data.aws_acm_certificate.appbuilder.arn
+  port            = "6173"
+  tg_name         = "tg-${var.app_name}-${var.app_env}-portal"
 }
 
 resource "aws_alb_listener" "buildengine" {
