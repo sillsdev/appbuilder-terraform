@@ -110,6 +110,7 @@
         "condition": "START"
       }
     ],
+    "links": ["otel"],
     "cpu": ${portal_cpu},
     "privileged": null,
     "memoryReservation": null
