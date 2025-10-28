@@ -78,7 +78,7 @@ variable "aws_instance" {
 
   default = {
     instance_type  = "t3.small"
-    volume_size    = "8"
+    volume_size    = "30"
     instance_count = "1"
   }
 }

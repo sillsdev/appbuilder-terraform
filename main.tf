@@ -118,7 +118,7 @@ data "aws_ami" "ecs_ami" {
 
   filter {
     name   = "name"
-    values = ["amzn-ami-*-amazon-ecs-optimized"]
+    values = ["al2023-ami-ecs-hvm-*-x86_64"]
   }
 }
 
@@ -557,6 +557,28 @@ EOF
 
 }
 
+resource "aws_iam_policy" "ssm_parameters" {
+  name        = "ssm-parameters-${var.app_env}"
+  description = "Allow access to SSM parameters for ECS instances"
+
+  policy = <<EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ssm:GetParameters",
+                "ssm:GetParameter"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+EOF
+
+}
+
 resource "aws_iam_policy" "project_creation_and_building" {
   name        = "project-creation-and-building-${var.app_env}"
   description = "Create Projects and Roles needed for building"
@@ -766,6 +788,12 @@ resource "aws_iam_role_policy_attachment" "publish-s3-projects" {
 resource "aws_iam_role_policy_attachment" "publish-codebuild-basepolicy" {
   policy_arn = aws_iam_policy.codebuild-basepolicy-publish.arn
   role       = aws_iam_role.codebuild-publish_app-service-role.name
+}
+
+// Attach SSM policy to ECS instance role
+resource "aws_iam_role_policy_attachment" "ecs-instance-ssm" {
+  policy_arn = aws_iam_policy.ssm_parameters.arn
+  role       = module.ecscluster.ecs_instance_role_id
 }
 
 // Create appbuilder IAM user, policy attachments
