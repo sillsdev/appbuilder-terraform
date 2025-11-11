@@ -516,7 +516,7 @@ resource "aws_iam_policy" "project_creation_and_building" {
                 "iam:CreateUser",
                 "iam:GetGroup",
                 "iam:PutGroupPolicy",
-		        "iam:GetRole",
+		            "iam:GetRole",
                 "iam:CreateRole",
                 "iam:AttachRolePolicy",
                 "iam:PassRole",
@@ -524,7 +524,11 @@ resource "aws_iam_policy" "project_creation_and_building" {
                 "codebuild:CreateProject",
                 "codebuild:BatchGetProjects",
                 "codebuild:BatchGetBuilds",
-                "codebuild:StartBuild"
+                "codebuild:StartBuild",
+                "ecr:DescribeImages",
+                "ecr:DescribeRepositories",
+                "ecr:BatchGetImage",
+                "ecr:GetDownloadUrlForLayer"
             ],
             "Resource": "*"
         },
