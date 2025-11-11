@@ -1,7 +1,8 @@
 [
   {
     "volumesFrom": [],
-    "memory": ${api_memory},
+    "memory": ${api_memory
+    },
     "extraHosts": null,
     "dnsServers": null,
     "disableNetworking": null,
@@ -66,6 +67,10 @@
         "value": "${BUILD_ENGINE_SECRETS_BUCKET}"
       },
       {
+        "name": "CODE_BUILD_IMAGE_REPO",
+        "value": "${CODE_BUILD_IMAGE_REPO}"
+      },
+      {
         "name": "CODE_BUILD_IMAGE_TAG",
         "value": "${CODE_BUILD_IMAGE_TAG}"
       },
@@ -105,7 +110,7 @@
         "name": "MYSQL_USER",
         "value": "${MYSQL_USER}"
       }
-  ],
+    ],
     "links": [],
     "workingDirectory": null,
     "readonlyRootFilesystem": null,
@@ -114,13 +119,15 @@
     "user": null,
     "dockerLabels": null,
     "logConfiguration": null,
-    "cpu": ${api_cpu},
+    "cpu": ${api_cpu
+    },
     "privileged": null,
     "memoryReservation": null
   },
   {
     "volumesFrom": [],
-    "memory": ${cron_memory},
+    "memory": ${cron_memory
+    },
     "extraHosts": null,
     "dnsServers": null,
     "disableNetworking": null,
@@ -227,11 +234,14 @@
     "workingDirectory": null,
     "readonlyRootFilesystem": null,
     "image": "${buildengine_docker_image}:${buildengine_docker_tag}",
-    "command": ["/data/run-cron.sh"],
+    "command": [
+      "/data/run-cron.sh"
+    ],
     "user": null,
     "dockerLabels": null,
     "logConfiguration": null,
-    "cpu": ${cron_cpu},
+    "cpu": ${cron_cpu
+    },
     "privileged": null,
     "memoryReservation": null
   }
