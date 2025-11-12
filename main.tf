@@ -919,7 +919,7 @@ module "ecsservice_buildengine" {
     api_memory                           = var.buildengine_api_memory
     cron_cpu                             = var.buildengine_cron_cpu
     cron_memory                          = var.buildengine_cron_memory
-    buildengine_docker_image             = var.buildengine_docker_image
+    buildengine_docker_image             = "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/${var.buildengine_docker_image}"
     buildengine_docker_tag               = var.buildengine_docker_tag
     ADMIN_EMAIL                          = var.admin_email
     API_ACCESS_TOKEN                     = random_id.api_access_token.hex
@@ -1115,11 +1115,11 @@ module "ecsservice_portal" {
     ORIGIN                                     = "https://${var.app_sub_domain}.${var.cloudflare_domain}"
     portal_cpu                                 = var.portal_cpu
     portal_memory                              = var.portal_memory
-    portal_docker_image                        = "${var.aws_account_id}.dkr.ecr.us-east-1.amazonaws.com/${var.portal_docker_image}"
+    portal_docker_image                        = "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/${var.portal_docker_image}"
     portal_docker_tag                          = var.portal_docker_tag
     otel_cpu                                   = var.otel_cpu
     otel_memory                                = var.otel_memory
-    otel_docker_image                          = "${var.aws_account_id}.dkr.ecr.us-east-1.amazonaws.com/${var.otel_docker_image}"
+    otel_docker_image                          = "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/${var.otel_docker_image}"
     otel_docker_tag                            = var.otel_docker_tag
     SPARKPOST_API_KEY                          = var.sparkpost_api_key
     USER_MANAGEMENT_TOKEN                      = var.user_management_token
