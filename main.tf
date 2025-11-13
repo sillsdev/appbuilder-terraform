@@ -115,7 +115,7 @@ resource "aws_instance" "ecshost" {
 }
 
 resource "aws_eip" "public" {
-  vpc      = true
+  domain   = "vpc"
   instance = aws_instance.ecshost.id
 
   tags = {
@@ -955,6 +955,7 @@ module "ecsservice_buildengine" {
 // portal components
 
 resource "aws_iam_policy" "email-notification" {
+  count       = var.deploy_portal ? 1 : 0
   name        = "email-notification-${var.app_name}-${var.app_env}"
   description = "Send email notifications for events in Scriptoria"
 
@@ -983,23 +984,28 @@ EOF
 }
 
 resource "aws_iam_user" "portal" {
-  name = "appbuilder-portal-${var.app_env}"
+  count = var.deploy_portal ? 1 : 0
+  name  = "appbuilder-portal-${var.app_env}"
 }
 
 resource "aws_iam_access_key" "portal" {
-  user = aws_iam_user.portal.name
+  count = var.deploy_portal ? 1 : 0
+  user  = aws_iam_user.portal[0].name
 }
 
 resource "aws_iam_user_policy_attachment" "appbuilder-portal-email" {
-  user       = aws_iam_user.portal.name
-  policy_arn = aws_iam_policy.email-notification.arn
+  count      = var.deploy_portal ? 1 : 0
+  user       = aws_iam_user.portal[0].name
+  policy_arn = aws_iam_policy.email-notification[0].arn
 }
 
 resource "random_id" "portal_db_root_pass" {
+  count       = var.deploy_portal ? 1 : 0
   byte_length = 16
 }
 
 module "portal_db" {
+  count                   = var.deploy_portal ? 1 : 0
   source                  = "github.com/silinternational/terraform-modules//aws/rds/mariadb?ref=7.2.0"
   engine                  = "postgres"
   engine_version          = "14.17"
@@ -1007,7 +1013,7 @@ module "portal_db" {
   app_env                 = var.app_env
   db_name                 = var.portal_db_name
   db_root_user            = var.portal_db_root_user
-  db_root_pass            = random_id.portal_db_root_pass.hex
+  db_root_pass            = random_id.portal_db_root_pass[0].hex
   subnet_group_name       = module.vpc.db_subnet_group_name
   availability_zone       = var.aws_zones[0]
   security_groups         = [module.vpc.vpc_default_sg_id, aws_security_group.db_access_limited_ips.id]
@@ -1020,6 +1026,7 @@ module "portal_db" {
 
 // Create security group for Valkey access
 resource "aws_security_group" "valkey_access" {
+  count       = var.deploy_portal ? 1 : 0
   name        = "valkey-access-${var.app_env}"
   description = "Allow Valkey traffic from application"
   vpc_id      = module.vpc.id
@@ -1048,12 +1055,14 @@ resource "aws_security_group" "valkey_access" {
 
 // Create Valkey subnet group
 resource "aws_elasticache_subnet_group" "valkey" {
+  count      = var.deploy_portal ? 1 : 0
   name       = "valkey-subnet-group-${var.app_env}"
   subnet_ids = module.vpc.public_subnet_ids
 }
 
 // Create Valkey parameter group with noeviction policy
 resource "aws_elasticache_parameter_group" "valkey" {
+  count  = var.deploy_portal ? 1 : 0
   name   = "valkey-params-${var.app_env}"
   family = "redis7"
 
@@ -1065,16 +1074,17 @@ resource "aws_elasticache_parameter_group" "valkey" {
 
 // Create Valkey replication group (uses Valkey engine in ElastiCache)
 resource "aws_elasticache_replication_group" "valkey" {
+  count                         = var.deploy_portal ? 1 : 0
   replication_group_id          = "valkey-${var.app_env}"
   description                   = "Valkey (Redis-compatible) cache for ${var.app_env}"
   engine                        = "redis"
   engine_version                = var.valkey_engine_version
   node_type                     = var.valkey_node_type
   num_cache_clusters            = var.valkey_num_cache_nodes
-  parameter_group_name          = aws_elasticache_parameter_group.valkey.name
+  parameter_group_name          = aws_elasticache_parameter_group.valkey[0].name
   port                          = var.valkey_port
-  subnet_group_name             = aws_elasticache_subnet_group.valkey.name
-  security_group_ids            = [aws_security_group.valkey_access.id]
+  subnet_group_name             = aws_elasticache_subnet_group.valkey[0].name
+  security_group_ids            = [aws_security_group.valkey_access[0].id]
   automatic_failover_enabled    = var.valkey_num_cache_nodes > 1 ? true : false
   // multi_az_enabled may require specific AZ configs; omit unless needed
 
@@ -1087,11 +1097,13 @@ resource "aws_elasticache_replication_group" "valkey" {
 }
 
 resource "random_id" "auth0_secret" {
+  count       = var.deploy_portal ? 1 : 0
   byte_length = 32
 }
 
 // Uses default target group to route all https/443 traffic to buildengine
 module "ecsservice_portal" {
+  count              = var.deploy_portal ? 1 : 0
   source             = "github.com/silinternational/terraform-modules//aws/ecs/service-only?ref=7.2.0"
   cluster_id         = module.ecscluster.ecs_cluster_id
   service_name       = "portal"
@@ -1104,12 +1116,12 @@ module "ecsservice_portal" {
     AUTH0_CLIENT_SECRET                        = var.auth0_client_secret
     AUTH0_CONNECTION                           = var.auth0_connection
     AUTH0_DOMAIN                               = var.auth0_domain
-    AUTH0_SECRET                               = random_id.auth0_secret.hex
-    AWS_EMAIL_ACCESS_KEY_ID                    = aws_iam_access_key.portal.id
-    AWS_EMAIL_SECRET_ACCESS_KEY                = aws_iam_access_key.portal.secret
+    AUTH0_SECRET                               = random_id.auth0_secret[0].hex
+    AWS_EMAIL_ACCESS_KEY_ID                    = aws_iam_access_key.portal[0].id
+    AWS_EMAIL_SECRET_ACCESS_KEY                = aws_iam_access_key.portal[0].secret
     AWS_REGION                                 = var.aws_region
-    DATABASE_URL                               = "postgres://${var.portal_db_root_user}:${random_id.portal_db_root_pass.hex}@${module.portal_db.address}/${var.portal_db_name}?schema=public"
-    DEFAULT_BUILDENGINE_URL                    = "https://${cloudflare_record.buildengine.hostname}:8443"
+    DATABASE_URL                               = "postgres://${var.portal_db_root_user}:${random_id.portal_db_root_pass[0].hex}@${module.portal_db[0].address}/${var.portal_db_name}?schema=public"
+    DEFAULT_BUILDENGINE_URL                    = "https://${cloudflare_record.buildengine[0].hostname}:8443"
     DEFAULT_BUILDENGINE_API_ACCESS_TOKEN       = random_id.api_access_token.hex
     MAIL_SENDER                                = var.mail_sender
     ORIGIN                                     = "https://${var.app_sub_domain}.${var.cloudflare_domain}"
@@ -1123,7 +1135,7 @@ module "ecsservice_portal" {
     otel_docker_tag                            = var.otel_docker_tag
     SPARKPOST_API_KEY                          = var.sparkpost_api_key
     USER_MANAGEMENT_TOKEN                      = var.user_management_token
-    VALKEY_HOST                                = aws_elasticache_replication_group.valkey.primary_endpoint_address
+    VALKEY_HOST                                = aws_elasticache_replication_group.valkey[0].primary_endpoint_address
     HONEYCOMB_API_KEY                          = var.honeycomb_api_key
   })
   desired_count      = 1
@@ -1135,11 +1147,13 @@ module "ecsservice_portal" {
 
 // Create DNS CNAME record on Cloudflare for Agent API
 data "cloudflare_zone" "portal" {
-  name = var.cloudflare_domain
+  count = var.deploy_portal ? 1 : 0
+  name  = var.cloudflare_domain
 }
 
 resource "cloudflare_record" "app_ui" {
-  zone_id = data.cloudflare_zone.portal.id
+  count   = var.deploy_portal ? 1 : 0
+  zone_id = data.cloudflare_zone.portal[0].id
   name    = var.app_sub_domain
   type    = "CNAME"
   content = module.alb.dns_name
@@ -1147,7 +1161,8 @@ resource "cloudflare_record" "app_ui" {
 }
 
 resource "cloudflare_record" "buildengine" {
-  zone_id = data.cloudflare_zone.portal.id
+  count   = var.deploy_portal ? 1 : 0
+  zone_id = data.cloudflare_zone.portal[0].id
   name    = "${var.app_sub_domain}-buildengine"
   type    = "CNAME"
   content = module.alb.dns_name

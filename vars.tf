@@ -24,6 +24,12 @@ variable "app_sub_domain" {
   default = "app"
 }
 
+variable "deploy_portal" {
+  type        = bool
+  default     = true
+  description = "Set to false to deploy only BuildEngine without Portal components"
+}
+
 variable "auth0_client_id" {
   type = string
 }

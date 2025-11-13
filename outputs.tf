@@ -4,7 +4,7 @@ output "alb_dns_name" {
 }
 
 output "app_ui_url" {
-  value = "https://${cloudflare_record.app_ui.hostname}"
+  value = var.deploy_portal ? "https://${cloudflare_record.app_ui[0].hostname}" : "Portal not deployed"
 }
 
 output "appbuilder_access_key_id" {
@@ -42,15 +42,15 @@ output "buildengine_db_username" {
 }
 
 output "portal_db_address" {
-  value = module.portal_db.address
+  value = var.deploy_portal ? module.portal_db[0].address : "Portal not deployed"
 }
 
 output "portal_db_root_pass" {
-  value = random_id.portal_db_root_pass.hex
+  value = var.deploy_portal ? random_id.portal_db_root_pass[0].hex : "Portal not deployed"
 }
 
 output "portal_db_username" {
-  value = var.portal_db_root_user
+  value = var.deploy_portal ? var.portal_db_root_user : "Portal not deployed"
 }
 
 #output "user_management_db_address" {
@@ -66,15 +66,15 @@ output "portal_db_username" {
 #}
 
 output "portal_email_id" {
-  value = aws_iam_access_key.portal.id
+  value = var.deploy_portal ? aws_iam_access_key.portal[0].id : "Portal not deployed"
 }
 
 output "portal_email_secret" {
-  value     = aws_iam_access_key.portal.secret
+  value     = var.deploy_portal ? aws_iam_access_key.portal[0].secret : "Portal not deployed"
   sensitive = true
 }
 
 output "valkey_address" {
-  value = aws_elasticache_replication_group.valkey.primary_endpoint_address
+  value = var.deploy_portal ? aws_elasticache_replication_group.valkey[0].primary_endpoint_address : "Portal not deployed"
 }
 
