@@ -1133,7 +1133,6 @@ module "ecsservice_portal" {
     otel_docker_image                          = "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/${var.otel_docker_image}"
     otel_docker_tag                            = var.otel_docker_tag
     SPARKPOST_API_KEY                          = var.sparkpost_api_key
-    USER_MANAGEMENT_TOKEN                      = var.user_management_token
     VALKEY_HOST                                = aws_elasticache_replication_group.valkey[0].primary_endpoint_address
     HONEYCOMB_API_KEY                          = var.honeycomb_api_key
   })

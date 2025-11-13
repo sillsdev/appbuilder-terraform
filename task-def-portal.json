@@ -1,7 +1,8 @@
 [
   {
     "volumesFrom": [],
-    "memory": ${portal_memory},
+    "memory": ${portal_memory
+    },
     "extraHosts": null,
     "dnsServers": null,
     "disableNetworking": null,
@@ -90,10 +91,6 @@
         "value": "${SPARKPOST_API_KEY}"
       },
       {
-        "name": "USER_MANAGEMENT_TOKEN",
-        "value": "${USER_MANAGEMENT_TOKEN}"
-      },
-      {
         "name": "VALKEY_HOST",
         "value": "${VALKEY_HOST}"
       }
@@ -110,14 +107,18 @@
         "condition": "START"
       }
     ],
-    "links": ["otel"],
-    "cpu": ${portal_cpu},
+    "links": [
+      "otel"
+    ],
+    "cpu": ${portal_cpu
+    },
     "privileged": null,
     "memoryReservation": null
   },
   {
     "volumesFrom": [],
-    "memory": ${otel_memory},
+    "memory": ${otel_memory
+    },
     "extraHosts": null,
     "dnsServers": null,
     "disableNetworking": null,
@@ -142,7 +143,8 @@
     "user": null,
     "dockerLabels": null,
     "logConfiguration": null,
-    "cpu": ${otel_cpu},
+    "cpu": ${otel_cpu
+    },
     "privileged": null,
     "memoryReservation": null
   }
