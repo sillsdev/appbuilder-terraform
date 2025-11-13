@@ -115,7 +115,6 @@ resource "aws_instance" "ecshost" {
 }
 
 resource "aws_eip" "public" {
-  domain   = "vpc"
   instance = aws_instance.ecshost.id
 
   tags = {
