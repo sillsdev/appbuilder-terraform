@@ -273,6 +273,7 @@ variable "sparkpost_api_key" {
 
 variable "scripture_earth_key" {
   type = string
+  default = ""
 }
 
 variable "ssh_ips" {
@@ -319,11 +320,6 @@ variable "tag_scheduler_running" {
   type        = string
   description = "AWS Instance Scheduler running"
   default     = "false"
-}
-
-variable "user_management_token" {
-  type        = string
-  description = "API Token for User Management Authentication"
 }
 
 variable "user_management_db_name" {
