@@ -447,32 +447,6 @@ EOF
 
 }
 
-resource "aws_iam_policy" "codecommit_projects" {
-  name        = "codecommit-projects-${var.app_env}"
-  description = "CodeCommit Repository for project data"
-
-  policy = <<EOF
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": [
-                "codecommit:GetBranch",
-                "codecommit:GitPull",
-                "codecommit:GitPush",
-                "codecommit:ListBranches"
-            ],
-            "Resource": [
-                "arn:aws:codecommit:${var.aws_region}:${var.aws_account_id}:*"
-            ]
-        }
-    ]
-}
-EOF
-
-}
-
 resource "aws_iam_policy" "ssm_parameters" {
   name        = "ssm-parameters-${var.app_env}"
   description = "Allow access to SSM parameters for ECS instances"
@@ -532,18 +506,6 @@ resource "aws_iam_policy" "project_creation_and_building" {
                 "ecr:GetDownloadUrlForLayer"
             ],
             "Resource": "*"
-        },
-        {
-            "Sid": "VisualEditor1",
-            "Effect": "Allow",
-            "Action": [
-                "codecommit:GetRepository",
-                "codecommit:CreateRepository",
-                "codecommit:DeleteRepository",
-                "codecommit:GetBranch",
-                "codecommit:ListBranches"
-            ],
-            "Resource": "arn:aws:codecommit:${var.aws_region}:${var.aws_account_id}:*"
         }
     ]
 }
@@ -660,11 +622,6 @@ resource "aws_iam_role_policy_attachment" "build-s3-projects" {
   role       = aws_iam_role.codebuild-build_app-service-role.name
 }
 
-resource "aws_iam_role_policy_attachment" "build-codecommit-projects" {
-  policy_arn = aws_iam_policy.codecommit_projects.arn
-  role       = aws_iam_role.codebuild-build_app-service-role.name
-}
-
 resource "aws_iam_role_policy_attachment" "build-codebuild-basepolicy" {
   policy_arn = aws_iam_policy.codebuild-basepolicy-build.arn
   role       = aws_iam_role.codebuild-build_app-service-role.name
@@ -728,11 +685,6 @@ resource "aws_iam_access_key" "appbuilder" {
 resource "aws_iam_user_policy_attachment" "appbuilder-artifacts" {
   user       = aws_iam_user.appbuilder.name
   policy_arn = aws_iam_policy.artifacts.arn
-}
-
-resource "aws_iam_user_policy_attachment" "appbuilder-projects" {
-  user       = aws_iam_user.appbuilder.name
-  policy_arn = aws_iam_policy.codecommit_projects.arn
 }
 
 resource "aws_iam_user_policy_attachment" "appbuilder-secrets" {
@@ -867,11 +819,8 @@ resource "aws_codebuild_project" "build" {
   badge_enabled  = false
 
   source {
-    type            = "CODECOMMIT"
-    location        = "https://git.codecommit.${var.aws_region}.amazonaws.com/v2/repos/sample"
-    git_clone_depth = 1
-    buildspec       = "version: 0.2"
-    insecure_ssl    = false
+    type      = "NO_SOURCE"
+    buildspec = "version: 0.2"
   }
 
   artifacts {
@@ -907,10 +856,8 @@ resource "aws_codebuild_project" "publish" {
   badge_enabled  = false
 
   source {
-    type         = "S3"
-    location     = "${aws_s3_bucket.artifacts.bucket}/prd/jobs/build_scriptureappbuilder_1/1/sample.apk"
-    buildspec    = "version: 0.2"
-    insecure_ssl = false
+    type      = "NO_SOURCE"
+    buildspec = "version: 0.2"
   }
 
   artifacts {
