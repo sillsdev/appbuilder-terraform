@@ -1122,7 +1122,7 @@ module "ecsservice_portal" {
     AWS_EMAIL_SECRET_ACCESS_KEY                = aws_iam_access_key.portal[0].secret
     AWS_REGION                                 = var.aws_region
     DATABASE_URL                               = "postgres://${var.portal_db_root_user}:${random_id.portal_db_root_pass[0].hex}@${module.portal_db[0].address}/${var.portal_db_name}?schema=public"
-    DEFAULT_BUILDENGINE_URL                    = "https://${cloudflare_record.buildengine[0].hostname}:8443"
+    DEFAULT_BUILDENGINE_URL                    = "https://${cloudflare_record.buildengine.hostname}:8443"
     DEFAULT_BUILDENGINE_API_ACCESS_TOKEN       = random_id.api_access_token.hex
     MAIL_SENDER                                = var.mail_sender
     ORIGIN                                     = "https://${var.app_sub_domain}.${var.cloudflare_domain}"
@@ -1145,7 +1145,20 @@ module "ecsservice_portal" {
   ecsServiceRole_arn = module.ecscluster.ecsServiceRole_arn
 }
 
-// Create DNS CNAME record on Cloudflare for Agent API
+// Create DNS CNAME record on Cloudflare
+data "cloudflare_zone" "domain" {
+  name = var.cloudflare_domain
+}
+
+resource "cloudflare_record" "buildengine" {
+  zone_id = data.cloudflare_zone.domain.id
+  name    = "${var.app_sub_domain}-buildengine"
+  type    = "CNAME"
+  content = module.alb.dns_name
+  proxied = false
+}
+
+// Portal DNS record
 data "cloudflare_zone" "portal" {
   count = var.deploy_portal ? 1 : 0
   name  = var.cloudflare_domain
@@ -1158,15 +1171,6 @@ resource "cloudflare_record" "app_ui" {
   type    = "CNAME"
   content = module.alb.dns_name
   proxied = true
-}
-
-resource "cloudflare_record" "buildengine" {
-  count   = var.deploy_portal ? 1 : 0
-  zone_id = data.cloudflare_zone.portal[0].id
-  name    = "${var.app_sub_domain}-buildengine"
-  type    = "CNAME"
-  content = module.alb.dns_name
-  proxied = false
 }
 
 // Security group to limit traffic to Cloudflare IPs
