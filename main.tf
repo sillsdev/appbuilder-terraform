@@ -830,6 +830,34 @@ resource "aws_ecr_repository_policy" "agent" {
 EOF
 }
 
+// Create ECR Repo for BuildEngine API
+resource "aws_ecr_repository" "buildengine_api" {
+  name = var.buildengine_docker_image
+}
+
+resource "aws_ecr_lifecycle_policy" "buildengine_api" {
+  repository = aws_ecr_repository.buildengine_api.name
+
+  policy = <<EOF
+{
+  "rules": [
+    {
+      "rulePriority": 1,
+      "description": "Keep 6 Latest",
+      "selection": {
+        "tagStatus": "any",
+        "countType": "imageCountMoreThan",
+        "countNumber": 6
+      },
+      "action": {
+        "type": "expire"
+      }
+    }
+  ]
+}
+EOF
+}
+
 resource "aws_codebuild_project" "build" {
   name           = "build_app-${var.app_env}"
   service_role   = aws_iam_role.codebuild-build_app-service-role.arn
