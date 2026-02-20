@@ -984,7 +984,7 @@ module "portal_db" {
   count                   = var.deploy_portal ? 1 : 0
   source                  = "github.com/silinternational/terraform-modules//aws/rds/mariadb?ref=7.2.0"
   engine                  = "postgres"
-  engine_version          = "14.17"
+  engine_version          = "17.8"
   app_name                = "${var.app_name}-portal"
   app_env                 = var.app_env
   db_name                 = var.portal_db_name
