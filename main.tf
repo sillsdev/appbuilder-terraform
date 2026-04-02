@@ -1117,7 +1117,7 @@ module "ecsservice_portal" {
     AWS_EMAIL_ACCESS_KEY_ID                    = aws_iam_access_key.portal[0].id
     AWS_EMAIL_SECRET_ACCESS_KEY                = aws_iam_access_key.portal[0].secret
     AWS_REGION                                 = var.aws_region
-    DATABASE_URL                               = "postgres://${var.portal_db_root_user}:${random_id.portal_db_root_pass[0].hex}@${aws_db_instance.db_instance.address.address}/${var.portal_db_name}?schema=public"
+    DATABASE_URL                               = "postgres://${var.portal_db_root_user}:${random_id.portal_db_root_pass[0].hex}@${aws_db_instance.db_instance.address}/${var.portal_db_name}?schema=public"
     DEFAULT_BUILDENGINE_URL                    = "https://${cloudflare_record.buildengine.hostname}:8443"
     DEFAULT_BUILDENGINE_API_ACCESS_TOKEN       = random_id.api_access_token.hex
     MAIL_SENDER                                = var.mail_sender

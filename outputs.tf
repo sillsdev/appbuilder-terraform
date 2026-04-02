@@ -30,11 +30,15 @@ output "buildengine_secret_access_key" {
 }
 
 output "buildengine_db_address" {
-  value = module.rds.address
+  value = aws_db_instance.db_instance.address
 }
 
 output "buildengine_db_root_pass" {
   value = random_id.buildengine_db_root_pass.hex
+}
+
+output "db_admin_root_pass" {
+  value = random_id.db_admin_root_pass.hex
 }
 
 output "buildengine_db_username" {
@@ -42,7 +46,7 @@ output "buildengine_db_username" {
 }
 
 output "portal_db_address" {
-  value = var.deploy_portal ? module.portal_db[0].address : "Portal not deployed"
+  value = var.deploy_portal ? aws_db_instance.db_instance.address : "Portal not deployed"
 }
 
 output "portal_db_root_pass" {

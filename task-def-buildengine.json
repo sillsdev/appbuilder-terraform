@@ -1,7 +1,7 @@
 [
   {
     "volumesFrom": [],
-    "memory": ${build_engine_memory},
+    "memory": ${buildengine_memory},
     "extraHosts": null,
     "dnsServers": null,
     "disableNetworking": null,
