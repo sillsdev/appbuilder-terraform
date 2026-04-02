@@ -1,8 +1,7 @@
 [
   {
     "volumesFrom": [],
-    "memory": ${portal_memory
-    },
+    "memory": ${portal_memory},
     "extraHosts": null,
     "dnsServers": null,
     "disableNetworking": null,
