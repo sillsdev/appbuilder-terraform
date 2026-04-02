@@ -30,27 +30,18 @@ output "buildengine_secret_access_key" {
 }
 
 output "buildengine_db_address" {
-  value = module.rds.address
+  value = aws_db_instance.db_instance.address
 }
 
-output "buildengine_db_root_pass" {
-  value = random_id.buildengine_db_root_pass.hex
+output "db_admin_username" {
+  value = var.db_admin_root_user
 }
-
-output "buildengine_db_username" {
-  value = var.buildengine_db_root_user
+output "db_admin_root_pass" {
+  value = random_id.db_admin_root_pass.hex
 }
 
 output "portal_db_address" {
-  value = var.deploy_portal ? module.portal_db[0].address : "Portal not deployed"
-}
-
-output "portal_db_root_pass" {
-  value = var.deploy_portal ? random_id.portal_db_root_pass[0].hex : "Portal not deployed"
-}
-
-output "portal_db_username" {
-  value = var.deploy_portal ? var.portal_db_root_user : "Portal not deployed"
+  value = var.deploy_portal ? aws_db_instance.db_instance.address : "Portal not deployed"
 }
 
 #output "user_management_db_address" {
@@ -72,6 +63,13 @@ output "portal_email_id" {
 output "portal_email_secret" {
   value     = var.deploy_portal ? aws_iam_access_key.portal[0].secret : "Portal not deployed"
   sensitive = true
+}
+
+output "scriptoria_auth0_secret" {
+  value = var.deploy_portal ? random_id.auth0_secret[0].hex : var.scriptoria_auth0_secret
+}
+output "scriptoria_url" {
+  value = var.deploy_portal ? "https://${var.app_sub_domain}.${var.cloudflare_domain}" : var.scriptoria_url
 }
 
 output "valkey_address" {

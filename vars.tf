@@ -92,28 +92,14 @@ variable "buildagent_code_build_image_tag" {
   default     = "latest"
 }
 
-variable "buildengine_api_base_url" {
-  type = string
-}
-
-variable "buildengine_api_cpu" {
+variable "buildengine_cpu" {
   type    = string
   default = "128"
 }
 
-variable "buildengine_api_memory" {
+variable "buildengine_memory" {
   type    = string
-  default = "128"
-}
-
-variable "buildengine_cron_cpu" {
-  type    = string
-  default = "128"
-}
-
-variable "buildengine_cron_memory" {
-  type    = string
-  default = "128"
+  default = "384"
 }
 
 variable "buildengine_db_name" {
@@ -136,11 +122,6 @@ variable "buildengine_docker_tag" {
   default = "production"
 }
 
-variable "buildengine_subdomain" {
-  type    = string
-  default = "buildengine"
-}
-
 variable "cert_domain_name" {
   type        = string
   description = "Full domain name on ACM certificate"
@@ -157,6 +138,12 @@ variable "cloudflare_email" {
 
 variable "cloudflare_token" {
   type = string
+}
+
+variable "db_admin_root_user" {
+  type        = string
+  default     = "appbuilder_admin"
+  description = "Master username for the shared PostgreSQL RDS instance"
 }
 
 variable "db_storage" {
@@ -187,11 +174,6 @@ variable "ec2_ssh_key_name" {
 variable "https_ips" {
   type        = list(string)
   description = "A list of IP address CIDR blocks for allowing https access"
-}
-
-variable "logentries_key" {
-  type    = string
-  default = ""
 }
 
 variable "mailer_password" {
@@ -239,7 +221,7 @@ variable "portal_docker_tag" {
 
 variable "portal_memory" {
   type    = string
-  default = "128"
+  default = "384"
 }
 
 variable "otel_cpu" {
@@ -269,6 +251,18 @@ variable "honeycomb_api_key" {
 variable "sparkpost_api_key" {
   type    = string
   default = ""
+}
+
+variable "scriptoria_auth0_secret" {
+  type = string
+  default = ""
+  description = "Set to scriptoria_auth0_secret output of Scriptoria deployment (for BuildEngine only deployments)"
+}
+
+variable "scriptoria_url" {
+  type = string
+  default = ""
+  description = "Set to scriptoria_url output of Scriptoria deployment (for BuildEngine only deployments)"
 }
 
 variable "scripture_earth_key" {
