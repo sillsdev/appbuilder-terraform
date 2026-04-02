@@ -8,6 +8,9 @@ terraform {
       source  = "cloudflare/cloudflare"
       version = "~> 4.0"
     }
+    postgresql = {
+      source  = "cyrilgdn/postgresql"
+    }
     random = {
       source = "hashicorp/random"
     }
