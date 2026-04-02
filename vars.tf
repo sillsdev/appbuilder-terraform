@@ -92,19 +92,6 @@ variable "buildagent_code_build_image_tag" {
   default     = "latest"
 }
 
-variable "buildengine_auth0_secret" {
-  type = string
-}
-
-variable "buildengine_auth_scriptoria_url" {
-  type = string
-  default = "https://app.scriptoria.io"
-}
-
-variable "buildengine_api_base_url" {
-  type = string
-}
-
 variable "buildengine_cpu" {
   type    = string
   default = "128"
@@ -133,15 +120,6 @@ variable "buildengine_docker_image" {
 variable "buildengine_docker_tag" {
   type    = string
   default = "production"
-}
-
-variable "buildengine_honeycomb_api_key" {
-  type = string
-}
-
-variable "buildengine_subdomain" {
-  type    = string
-  default = "buildengine"
 }
 
 variable "cert_domain_name" {
@@ -195,11 +173,6 @@ variable "ec2_ssh_key_name" {
 variable "https_ips" {
   type        = list(string)
   description = "A list of IP address CIDR blocks for allowing https access"
-}
-
-variable "logentries_key" {
-  type    = string
-  default = ""
 }
 
 variable "mailer_password" {
