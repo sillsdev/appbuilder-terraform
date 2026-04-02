@@ -92,26 +92,25 @@ variable "buildagent_code_build_image_tag" {
   default     = "latest"
 }
 
+variable "buildengine_auth0_secret" {
+  type = string
+}
+
+variable "buildengine_auth_scriptoria_url" {
+  type = string
+  default = "https://app.scriptoria.io"
+}
+
 variable "buildengine_api_base_url" {
   type = string
 }
 
-variable "buildengine_api_cpu" {
+variable "buildengine_cpu" {
   type    = string
   default = "128"
 }
 
-variable "buildengine_api_memory" {
-  type    = string
-  default = "128"
-}
-
-variable "buildengine_cron_cpu" {
-  type    = string
-  default = "128"
-}
-
-variable "buildengine_cron_memory" {
+variable "buildengine_memory" {
   type    = string
   default = "128"
 }
@@ -136,6 +135,10 @@ variable "buildengine_docker_tag" {
   default = "production"
 }
 
+variable "buildengine_honeycomb_api_key" {
+  type = string
+}
+
 variable "buildengine_subdomain" {
   type    = string
   default = "buildengine"
@@ -157,6 +160,11 @@ variable "cloudflare_email" {
 
 variable "cloudflare_token" {
   type = string
+}
+
+variable "db_admin_root_user" {
+  type = string
+  default = "admin"
 }
 
 variable "db_storage" {
@@ -269,6 +277,18 @@ variable "honeycomb_api_key" {
 variable "sparkpost_api_key" {
   type    = string
   default = ""
+}
+
+variable "scriptoria_auth0_secret" {
+  type = string
+  default = ""
+  description = "Set to scriptoria_auth0_secret output of Scriptoria deployment (for BuildEngine only deployments)"
+}
+
+variable "scriptoria_url" {
+  type = string
+  default = ""
+  description = "Set to scriptoria_url output of Scriptoria deployment (for BuildEngine only deployments)"
 }
 
 variable "scripture_earth_key" {

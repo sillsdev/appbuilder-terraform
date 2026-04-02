@@ -74,6 +74,13 @@ output "portal_email_secret" {
   sensitive = true
 }
 
+output "scriptoria_auth0_secret" {
+  value = var.deploy_portal ? random_id.auth0_secret[0].hex : var.scriptoria_auth0_secret
+}
+output "scriptoria_url" {
+  value = var.deploy_portal ? "https://${var.app_sub_domain}.${var.cloudflare_domain}" : var.scriptoria_url
+}
+
 output "valkey_address" {
   value = var.deploy_portal ? aws_elasticache_replication_group.valkey[0].primary_endpoint_address : "Portal not deployed"
 }

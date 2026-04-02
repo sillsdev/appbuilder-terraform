@@ -1,133 +1,7 @@
 [
   {
     "volumesFrom": [],
-    "memory": ${api_memory
-    },
-    "extraHosts": null,
-    "dnsServers": null,
-    "disableNetworking": null,
-    "dnsSearchDomains": null,
-    "portMappings": [
-      {
-        "hostPort": 0,
-        "containerPort": 80,
-        "protocol": "tcp"
-      }
-    ],
-    "hostname": null,
-    "essential": true,
-    "entryPoint": [],
-    "mountPoints": [],
-    "name": "web",
-    "ulimits": null,
-    "dockerSecurityOptions": null,
-    "environment": [
-      {
-        "name": "ADMIN_EMAIL",
-        "value": "${ADMIN_EMAIL}"
-      },
-      {
-        "name": "API_ACCESS_TOKEN",
-        "value": "${API_ACCESS_TOKEN}"
-      },
-      {
-        "name": "API_BASE_URL",
-        "value": "${API_BASE_URL}"
-      },
-      {
-        "name": "APP_ENV",
-        "value": "${APP_ENV}"
-      },
-      {
-        "name": "AWS_ACCESS_KEY_ID",
-        "value": "${AWS_ACCESS_KEY_ID}"
-      },
-      {
-        "name": "AWS_SECRET_ACCESS_KEY",
-        "value": "${AWS_SECRET_ACCESS_KEY}"
-      },
-      {
-        "name": "AWS_USER_ID",
-        "value": "${AWS_USER_ID}"
-      },
-      {
-        "name": "BUILD_ENGINE_ARTIFACTS_BUCKET",
-        "value": "${BUILD_ENGINE_ARTIFACTS_BUCKET}"
-      },
-      {
-        "name": "BUILD_ENGINE_ARTIFACTS_BUCKET_REGION",
-        "value": "${BUILD_ENGINE_ARTIFACTS_BUCKET_REGION}"
-      },
-      {
-        "name": "BUILD_ENGINE_PROJECTS_BUCKET",
-        "value": "${BUILD_ENGINE_PROJECTS_BUCKET}"
-      },
-      {
-        "name": "BUILD_ENGINE_SECRETS_BUCKET",
-        "value": "${BUILD_ENGINE_SECRETS_BUCKET}"
-      },
-      {
-        "name": "CODE_BUILD_IMAGE_REPO",
-        "value": "${CODE_BUILD_IMAGE_REPO}"
-      },
-      {
-        "name": "CODE_BUILD_IMAGE_TAG",
-        "value": "${CODE_BUILD_IMAGE_TAG}"
-      },
-      {
-        "name": "FRONT_COOKIE_KEY",
-        "value": "${FRONT_COOKIE_KEY}"
-      },
-      {
-        "name": "LOGENTRIES_KEY",
-        "value": "${LOGENTRIES_KEY}"
-      },
-      {
-        "name": "MAILER_PASSWORD",
-        "value": "${MAILER_PASSWORD}"
-      },
-      {
-        "name": "MAILER_USEFILES",
-        "value": "${MAILER_USEFILES}"
-      },
-      {
-        "name": "MAILER_USERNAME",
-        "value": "${MAILER_USERNAME}"
-      },
-      {
-        "name": "MYSQL_DATABASE",
-        "value": "${MYSQL_DATABASE}"
-      },
-      {
-        "name": "MYSQL_HOST",
-        "value": "${MYSQL_HOST}"
-      },
-      {
-        "name": "MYSQL_PASSWORD",
-        "value": "${MYSQL_PASSWORD}"
-      },
-      {
-        "name": "MYSQL_USER",
-        "value": "${MYSQL_USER}"
-      }
-    ],
-    "links": [],
-    "workingDirectory": null,
-    "readonlyRootFilesystem": null,
-    "image": "${buildengine_docker_image}:${buildengine_docker_tag}",
-    "command": [],
-    "user": null,
-    "dockerLabels": null,
-    "logConfiguration": null,
-    "cpu": ${api_cpu
-    },
-    "privileged": null,
-    "memoryReservation": null
-  },
-  {
-    "volumesFrom": [],
-    "memory": ${cron_memory
-    },
+    "memory": ${build_engine_memory},
     "extraHosts": null,
     "dnsServers": null,
     "disableNetworking": null,
@@ -137,14 +11,10 @@
     "essential": true,
     "entryPoint": [],
     "mountPoints": [],
-    "name": "cron",
+    "name": "buildengine",
     "ulimits": null,
     "dockerSecurityOptions": null,
     "environment": [
-      {
-        "name": "ADMIN_EMAIL",
-        "value": "${ADMIN_EMAIL}"
-      },
       {
         "name": "API_ACCESS_TOKEN",
         "value": "${API_ACCESS_TOKEN}"
@@ -152,6 +22,10 @@
       {
         "name": "APP_ENV",
         "value": "${APP_ENV}"
+      },
+      {
+        "name": "AUTH0_SECRET",
+        "value": "${AUTH0_SECRET}"
       },
       {
         "name": "AWS_ACCESS_KEY_ID",
@@ -190,58 +64,73 @@
         "value": "${CODE_BUILD_IMAGE_TAG}"
       },
       {
-        "name": "FRONT_COOKIE_KEY",
-        "value": "${FRONT_COOKIE_KEY}"
+        "name": "DATABASE_URL",
+        "value": "${DATABASE_URL}"
       },
       {
-        "name": "LOGENTRIES_KEY",
-        "value": "${LOGENTRIES_KEY}"
+        "name": "ORIGIN",
+        "value": "${ORIGIN}"
       },
       {
-        "name": "MAILER_PASSWORD",
-        "value": "${MAILER_PASSWORD}"
-      },
-      {
-        "name": "MAILER_USEFILES",
-        "value": "${MAILER_USEFILES}"
-      },
-      {
-        "name": "MAILER_USERNAME",
-        "value": "${MAILER_USERNAME}"
-      },
-      {
-        "name": "MYSQL_DATABASE",
-        "value": "${MYSQL_DATABASE}"
-      },
-      {
-        "name": "MYSQL_HOST",
-        "value": "${MYSQL_HOST}"
-      },
-      {
-        "name": "MYSQL_PASSWORD",
-        "value": "${MYSQL_PASSWORD}"
-      },
-      {
-        "name": "MYSQL_USER",
-        "value": "${MYSQL_USER}"
+        "name": "PUBLIC_SCRIPTORIA_URL",
+        "value": "${PUBLIC_SCRIPTORIA_URL}"
       },
       {
         "name": "SCRIPTURE_EARTH_KEY",
         "value": "${SCRIPTURE_EARTH_KEY}"
+      },
+      {
+        "name": "VALKEY_HOST",
+        "value": "${VALKEY_HOST}"
       }
     ],
-    "links": [],
     "workingDirectory": null,
     "readonlyRootFilesystem": null,
     "image": "${buildengine_docker_image}:${buildengine_docker_tag}",
-    "command": [
-      "/data/run-cron.sh"
-    ],
     "user": null,
     "dockerLabels": null,
     "logConfiguration": null,
-    "cpu": ${cron_cpu
-    },
+    "dependsOn": [
+      {
+        "containerName": "otel",
+        "condition": "START"
+      }
+    ],
+    "links": [
+      "otel"
+    ],
+    "cpu": ${buildengine_cpu},
+    "privileged": null,
+    "memoryReservation": null
+  },
+  {
+    "volumesFrom": [],
+    "memory": ${otel_memory},
+    "extraHosts": null,
+    "dnsServers": null,
+    "disableNetworking": null,
+    "dnsSearchDomains": null,
+    "portMappings": [],
+    "hostname": null,
+    "essential": false,
+    "entryPoint": [],
+    "mountPoints": [],
+    "name": "otel",
+    "ulimits": null,
+    "dockerSecurityOptions": null,
+    "environment": [
+      {
+        "name": "HONEYCOMB_API_KEY",
+        "value": "${HONEYCOMB_API_KEY}"
+      }
+    ],
+    "workingDirectory": null,
+    "readonlyRootFilesystem": null,
+    "image": "${otel_docker_image}:${otel_docker_tag}",
+    "user": null,
+    "dockerLabels": null,
+    "logConfiguration": null,
+    "cpu": ${otel_cpu},
     "privileged": null,
     "memoryReservation": null
   }

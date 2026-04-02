@@ -40,26 +40,50 @@ resource "aws_security_group_rule" "postgres" {
   cidr_blocks       = var.db_access_ips
 }
 
-// Create database and root password
+// Create database and root passwords
+resource "random_id" "db_admin_root_pass" {
+  byte_length = 16
+}
+
 resource "random_id" "buildengine_db_root_pass" {
   byte_length = 16
 }
 
-// Create DB
-module "rds" {
-  source                  = "github.com/silinternational/terraform-modules//aws/rds/mariadb?ref=7.2.0"
-  app_name                = var.app_name
-  app_env                 = var.app_env
-  db_name                 = var.buildengine_db_name
-  db_root_user            = var.buildengine_db_root_user
-  db_root_pass            = random_id.buildengine_db_root_pass.hex
-  subnet_group_name       = module.vpc.db_subnet_group_name
-  availability_zone       = var.aws_zones[0]
-  security_groups         = [module.vpc.vpc_default_sg_id, aws_security_group.db_access_limited_ips.id]
-  backup_retention_period = var.db_backup_retention_period
-  multi_az                = var.db_multi_az
-  instance_class          = var.db_instance_class
-  publicly_accessible     = "true"
+// Create shared RDS instance for BuildEngine and Portal (if deployed)
+resource "aws_db_instance" "db_instance" {
+  engine         = "postgres"
+  engine_version = "17.8"
+  port           = 5432
+  instance_class = var.db_instance_class
+  db_name        = var.buildengine_db_name
+  username       = var.db_admin_root_user
+  password       = random_id.db_admin_root_pass.hex
+}
+
+provider "postgresql" {
+  host     = aws_db_instance.db_instance.address
+  port     = aws_db_instance.db_instance.port
+  username = var.buildengine_db_root_user
+  password = random_id.buildengine_db_root_pass.hex
+  database = var.buildengine_db_name
+  sslmode  = "require"
+}
+
+resource "postgresql_database" "buildengine" {
+  name = var.buildengine_db_name
+}
+
+resource "postgresql_role" "buildengine" {
+  name     = var.buildengine_db_root_user
+  login    = true
+  password = random_id.buildengine_db_root_pass.hex
+}
+
+resource "postgresql_grant" "buildengine_connect" {
+  database    = postgresql_database.buildengine.name
+  role        = postgresql_role.buildengine.name
+  object_type = "database"
+  privileges  = ["CONNECT", "TEMPORARY"]
 }
 
 // Determine most recent ECS optimized AMI
@@ -891,16 +915,13 @@ module "ecsservice_buildengine" {
   service_name       = "buildengine"
   service_env        = var.app_env
   container_def_json = templatefile("${path.module}/task-def-buildengine.json", {
-    api_cpu                              = var.buildengine_api_cpu
-    api_memory                           = var.buildengine_api_memory
-    cron_cpu                             = var.buildengine_cron_cpu
-    cron_memory                          = var.buildengine_cron_memory
+    buildengine_cpu                      = var.buildengine_cpu
+    buildengine_memory                   = var.buildengine_memory
     buildengine_docker_image             = "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/${var.buildengine_docker_image}"
     buildengine_docker_tag               = var.buildengine_docker_tag
-    ADMIN_EMAIL                          = var.admin_email
     API_ACCESS_TOKEN                     = random_id.api_access_token.hex
-    API_BASE_URL                         = var.buildengine_api_base_url
     APP_ENV                              = var.app_env
+    AUTH0_SECRET                         = var.deploy_portal ? random_id.auth0_secret[0].hex : var.scriptoria_auth0_secret
     AWS_ACCESS_KEY_ID                    = aws_iam_access_key.buildengine.id
     AWS_SECRET_ACCESS_KEY                = aws_iam_access_key.buildengine.secret
     AWS_USER_ID                          = var.aws_account_id
@@ -910,16 +931,16 @@ module "ecsservice_buildengine" {
     BUILD_ENGINE_SECRETS_BUCKET          = aws_s3_bucket.secrets.bucket
     CODE_BUILD_IMAGE_REPO                = "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/${var.buildagent_code_build_image_repo}-${var.app_env}"
     CODE_BUILD_IMAGE_TAG                 = var.buildagent_code_build_image_tag
-    FRONT_COOKIE_KEY                     = random_id.front_cookie_key.hex
-    LOGENTRIES_KEY                       = var.logentries_key
-    MAILER_PASSWORD                      = var.mailer_password
-    MAILER_USEFILES                      = var.mailer_usefiles
-    MAILER_USERNAME                      = var.mailer_username
-    MYSQL_DATABASE                       = var.buildengine_db_name
-    MYSQL_HOST                           = module.rds.address
-    MYSQL_PASSWORD                       = random_id.buildengine_db_root_pass.hex
-    MYSQL_USER                           = var.buildengine_db_root_user
+    DATABASE_URL                         = "postgres://${var.buildengine_db_root_user}:${random_id.buildengine_db_root_pass.hex}@${aws_db_instance.db_instance.address}/${var.buildengine_db_name}?schema=public"
+    HONEYCOMB_API_KEY                    = var.honeycomb_api_key
+    ORIGIN                               = "https://${var.app_sub_domain}-buildengine.${var.cloudflare_domain}:8443"
+    otel_cpu                             = var.otel_cpu
+    otel_memory                          = var.otel_memory
+    otel_docker_image                    = "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/${var.otel_docker_image}"
+    otel_docker_tag                      = var.otel_docker_tag
+    PUBLIC_SCRIPTORIA_URL                = var.deploy_portal ? "https://${var.app_sub_domain}.${var.cloudflare_domain}" : var.scriptoria_url
     SCRIPTURE_EARTH_KEY                  = var.scripture_earth_key
+    VALKEY_HOST                          = aws_elasticache_replication_group.valkey[0].primary_endpoint_address
   })
   desired_count      = 1
   tg_arn             = aws_alb_target_group.buildengine.arn
@@ -980,29 +1001,29 @@ resource "random_id" "portal_db_root_pass" {
   byte_length = 16
 }
 
-module "portal_db" {
-  count                   = var.deploy_portal ? 1 : 0
-  source                  = "github.com/silinternational/terraform-modules//aws/rds/mariadb?ref=7.2.0"
-  engine                  = "postgres"
-  engine_version          = "17.8"
-  app_name                = "${var.app_name}-portal"
-  app_env                 = var.app_env
-  db_name                 = var.portal_db_name
-  db_root_user            = var.portal_db_root_user
-  db_root_pass            = random_id.portal_db_root_pass[0].hex
-  subnet_group_name       = module.vpc.db_subnet_group_name
-  availability_zone       = var.aws_zones[0]
-  security_groups         = [module.vpc.vpc_default_sg_id, aws_security_group.db_access_limited_ips.id]
-  allocated_storage       = var.db_storage
-  backup_retention_period = var.db_backup_retention_period
-  multi_az                = var.db_multi_az
-  instance_class          = var.db_instance_class
-  publicly_accessible     = "true"
+resource "postgresql_database" "portal" {
+  count = var.deploy_portal ? 1 : 0
+  name  = var.portal_db_name
+}
+
+resource "postgresql_role" "portal" {
+  count    = var.deploy_portal ? 1 : 0
+  name     = var.portal_db_root_user
+  login    = true
+  password = random_id.portal_db_root_pass[0].hex
+}
+
+resource "postgresql_grant" "portal_connect" {
+  count       = var.deploy_portal ? 1 : 0
+  database    = postgresql_database.portal[0].name
+  role        = postgresql_role.portal[0].name
+  object_type = "database"
+  privileges  = ["CONNECT", "TEMPORARY"]
 }
 
 // Create security group for Valkey access
 resource "aws_security_group" "valkey_access" {
-  count       = var.deploy_portal ? 1 : 0
+  count       = 1 // With BE2, it is always needed
   name        = "valkey-access-${var.app_env}"
   description = "Allow Valkey traffic from application"
   vpc_id      = module.vpc.id
@@ -1031,14 +1052,14 @@ resource "aws_security_group" "valkey_access" {
 
 // Create Valkey subnet group
 resource "aws_elasticache_subnet_group" "valkey" {
-  count      = var.deploy_portal ? 1 : 0
+  count      = 1  // With BE2, it is always needed
   name       = "valkey-subnet-group-${var.app_env}"
   subnet_ids = module.vpc.public_subnet_ids
 }
 
 // Create Valkey parameter group with noeviction policy
 resource "aws_elasticache_parameter_group" "valkey" {
-  count  = var.deploy_portal ? 1 : 0
+  count  = 1  // With BE2, it is always needed
   name   = "valkey-params-${var.app_env}"
   family = "redis7"
 
@@ -1050,7 +1071,7 @@ resource "aws_elasticache_parameter_group" "valkey" {
 
 // Create Valkey replication group (uses Valkey engine in ElastiCache)
 resource "aws_elasticache_replication_group" "valkey" {
-  count                         = var.deploy_portal ? 1 : 0
+  count                         = 1  // With BE2, it is always needed
   replication_group_id          = "valkey-${var.app_env}"
   description                   = "Valkey (Redis-compatible) cache for ${var.app_env}"
   engine                        = "redis"
@@ -1096,7 +1117,7 @@ module "ecsservice_portal" {
     AWS_EMAIL_ACCESS_KEY_ID                    = aws_iam_access_key.portal[0].id
     AWS_EMAIL_SECRET_ACCESS_KEY                = aws_iam_access_key.portal[0].secret
     AWS_REGION                                 = var.aws_region
-    DATABASE_URL                               = "postgres://${var.portal_db_root_user}:${random_id.portal_db_root_pass[0].hex}@${module.portal_db[0].address}/${var.portal_db_name}?schema=public"
+    DATABASE_URL                               = "postgres://${var.portal_db_root_user}:${random_id.portal_db_root_pass[0].hex}@${aws_db_instance.db_instance.address.address}/${var.portal_db_name}?schema=public"
     DEFAULT_BUILDENGINE_URL                    = "https://${cloudflare_record.buildengine.hostname}:8443"
     DEFAULT_BUILDENGINE_API_ACCESS_TOKEN       = random_id.api_access_token.hex
     MAIL_SENDER                                = var.mail_sender
