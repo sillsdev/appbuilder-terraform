@@ -896,6 +896,8 @@ module "ecsservice_buildengine" {
     buildengine_memory                   = var.buildengine_memory
     buildengine_docker_image             = "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/${var.buildengine_docker_image}"
     buildengine_docker_tag               = var.buildengine_docker_tag
+    buildengine_otel_docker_image        = "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/${var.buildengine_otel_docker_image}"
+    buildengine_otel_docker_tag          = var.buildengine_otel_docker_tag
     API_ACCESS_TOKEN                     = random_id.api_access_token.hex
     APP_ENV                              = var.app_env
     AUTH0_SECRET                         = var.deploy_portal ? random_id.auth0_secret[0].hex : var.scriptoria_auth0_secret

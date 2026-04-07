@@ -132,7 +132,7 @@
     ],
     "workingDirectory": null,
     "readonlyRootFilesystem": null,
-    "image": "${otel_docker_image}:${otel_docker_tag}",
+    "image": "${buildengine_otel_docker_image}:${buildengine_otel_docker_tag}",
     "user": null,
     "dockerLabels": null,
     "logConfiguration": null,

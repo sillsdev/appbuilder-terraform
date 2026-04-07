@@ -122,6 +122,16 @@ variable "buildengine_docker_tag" {
   default = "production"
 }
 
+variable "buildengine_otel_docker_image" {
+  type = string
+  default = "appbuilder-buildengine-otel"
+}
+
+variable "buildengine_otel_docker_tag" {
+  type    = string
+  default = "production"
+}
+
 variable "cert_domain_name" {
   type        = string
   description = "Full domain name on ACM certificate"
