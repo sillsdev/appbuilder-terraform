@@ -116,8 +116,7 @@
   },
   {
     "volumesFrom": [],
-    "memory": ${otel_memory
-    },
+    "memory": ${otel_memory},
     "extraHosts": null,
     "dnsServers": null,
     "disableNetworking": null,
@@ -142,8 +141,7 @@
     "user": null,
     "dockerLabels": null,
     "logConfiguration": null,
-    "cpu": ${otel_cpu
-    },
+    "cpu": ${otel_cpu},
     "privileged": null,
     "memoryReservation": null
   }
