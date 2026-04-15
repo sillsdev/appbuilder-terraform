@@ -175,7 +175,7 @@ resource "aws_alb_listener" "buildengine" {
 
 // Create BuildEngine Target Group
 resource "aws_alb_target_group" "buildengine" {
-  name                 = replace("tg-buildengine-${var.app_env}", "/(.{0,32})(.*)/", "$1")
+  name_prefix          = substr("be-${var.app_env}-", 0, 6)
   port                 = "8443"
   protocol             = "HTTP"
   vpc_id               = module.vpc.id
@@ -183,6 +183,10 @@ resource "aws_alb_target_group" "buildengine" {
 
   stickiness {
     type = "lb_cookie"
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 }
 
