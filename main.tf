@@ -176,7 +176,7 @@ resource "aws_alb_listener" "buildengine" {
 // Create BuildEngine Target Group
 resource "aws_alb_target_group" "buildengine" {
   name                 = replace("tg-buildengine-${var.app_env}", "/(.{0,32})(.*)/", "$1")
-  port                 = "80"
+  port                 = "8443"
   protocol             = "HTTP"
   vpc_id               = module.vpc.id
   deregistration_delay = "30"
