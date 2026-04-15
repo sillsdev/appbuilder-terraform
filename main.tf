@@ -181,6 +181,16 @@ resource "aws_alb_target_group" "buildengine" {
   vpc_id               = module.vpc.id
   deregistration_delay = "30"
 
+  health_check {
+    path                = "/health"
+    protocol            = "HTTP"
+    port                = "traffic-port"
+    healthy_threshold   = 5
+    unhealthy_threshold = 2
+    timeout             = 5
+    interval            = 30
+  }
+
   stickiness {
     type = "lb_cookie"
   }
