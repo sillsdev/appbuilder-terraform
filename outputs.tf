@@ -76,3 +76,10 @@ output "valkey_address" {
   value = var.deploy_portal ? aws_elasticache_replication_group.valkey[0].primary_endpoint_address : "Portal not deployed"
 }
 
+output "appbuilder_grader_lambda_arn" {
+  value = aws_lambda_function.appbuilder_grader.arn
+}
+
+output "appbuilder_grader_lambda_name" {
+  value = aws_lambda_function.appbuilder_grader.function_name
+}
