@@ -123,7 +123,7 @@ variable "buildengine_docker_tag" {
 }
 
 variable "buildengine_otel_docker_image" {
-  type = string
+  type    = string
   default = "appbuilder-buildengine-otel"
 }
 
@@ -255,7 +255,7 @@ variable "otel_memory" {
 }
 
 variable "honeycomb_api_key" {
-  type    = string
+  type = string
 }
 
 variable "sparkpost_api_key" {
@@ -264,19 +264,19 @@ variable "sparkpost_api_key" {
 }
 
 variable "scriptoria_auth0_secret" {
-  type = string
-  default = ""
+  type        = string
+  default     = ""
   description = "Set to scriptoria_auth0_secret output of Scriptoria deployment (for BuildEngine only deployments)"
 }
 
 variable "scriptoria_url" {
-  type = string
-  default = ""
+  type        = string
+  default     = ""
   description = "Set to scriptoria_url output of Scriptoria deployment (for BuildEngine only deployments)"
 }
 
 variable "scripture_earth_key" {
-  type = string
+  type    = string
   default = ""
 }
 

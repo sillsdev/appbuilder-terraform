@@ -217,7 +217,7 @@ resource "aws_s3_bucket" "artifacts" {
 
 resource "aws_s3_bucket_policy" "artifacts" {
   depends_on = [aws_s3_bucket_public_access_block.artifacts]
-  
+
   bucket = aws_s3_bucket.artifacts.id
   policy = data.aws_iam_policy_document.artifacts.json
 }
@@ -901,10 +901,10 @@ resource "aws_codebuild_project" "publish" {
 
 // Uses default target group to route all https/443 traffic to buildengine
 module "ecsservice_buildengine" {
-  source             = "github.com/silinternational/terraform-modules//aws/ecs/service-only?ref=7.2.0"
-  cluster_id         = module.ecscluster.ecs_cluster_id
-  service_name       = "buildengine"
-  service_env        = var.app_env
+  source       = "github.com/silinternational/terraform-modules//aws/ecs/service-only?ref=7.2.0"
+  cluster_id   = module.ecscluster.ecs_cluster_id
+  service_name = "buildengine"
+  service_env  = var.app_env
   container_def_json = templatefile("${path.module}/task-def-buildengine.json", {
     buildengine_cpu                      = var.buildengine_cpu
     buildengine_memory                   = var.buildengine_memory
@@ -1020,14 +1020,14 @@ resource "aws_security_group" "valkey_access" {
 
 // Create Valkey subnet group
 resource "aws_elasticache_subnet_group" "valkey" {
-  count      = 1  // With BE2, it is always needed
+  count      = 1 // With BE2, it is always needed
   name       = "valkey-subnet-group-${var.app_env}"
   subnet_ids = module.vpc.public_subnet_ids
 }
 
 // Create Valkey parameter group with noeviction policy
 resource "aws_elasticache_parameter_group" "valkey" {
-  count  = 1  // With BE2, it is always needed
+  count  = 1 // With BE2, it is always needed
   name   = "valkey-params-${var.app_env}"
   family = "redis7"
 
@@ -1039,18 +1039,18 @@ resource "aws_elasticache_parameter_group" "valkey" {
 
 // Create Valkey replication group (uses Valkey engine in ElastiCache)
 resource "aws_elasticache_replication_group" "valkey" {
-  count                         = 1  // With BE2, it is always needed
-  replication_group_id          = "valkey-${var.app_env}"
-  description                   = "Valkey (Redis-compatible) cache for ${var.app_env}"
-  engine                        = "redis"
-  engine_version                = var.valkey_engine_version
-  node_type                     = var.valkey_node_type
-  num_cache_clusters            = var.valkey_num_cache_nodes
-  parameter_group_name          = aws_elasticache_parameter_group.valkey[0].name
-  port                          = var.valkey_port
-  subnet_group_name             = aws_elasticache_subnet_group.valkey[0].name
-  security_group_ids            = [aws_security_group.valkey_access[0].id]
-  automatic_failover_enabled    = var.valkey_num_cache_nodes > 1 ? true : false
+  count                      = 1 // With BE2, it is always needed
+  replication_group_id       = "valkey-${var.app_env}"
+  description                = "Valkey (Redis-compatible) cache for ${var.app_env}"
+  engine                     = "redis"
+  engine_version             = var.valkey_engine_version
+  node_type                  = var.valkey_node_type
+  num_cache_clusters         = var.valkey_num_cache_nodes
+  parameter_group_name       = aws_elasticache_parameter_group.valkey[0].name
+  port                       = var.valkey_port
+  subnet_group_name          = aws_elasticache_subnet_group.valkey[0].name
+  security_group_ids         = [aws_security_group.valkey_access[0].id]
+  automatic_failover_enabled = var.valkey_num_cache_nodes > 1 ? true : false
   // multi_az_enabled may require specific AZ configs; omit unless needed
 
   tags = {
@@ -1068,39 +1068,39 @@ resource "random_id" "auth0_secret" {
 
 // Uses default target group to route all https/443 traffic to buildengine
 module "ecsservice_portal" {
-  count              = var.deploy_portal ? 1 : 0
-  source             = "github.com/silinternational/terraform-modules//aws/ecs/service-only?ref=7.2.0"
-  cluster_id         = module.ecscluster.ecs_cluster_id
-  service_name       = "portal"
-  service_env        = var.app_env
+  count        = var.deploy_portal ? 1 : 0
+  source       = "github.com/silinternational/terraform-modules//aws/ecs/service-only?ref=7.2.0"
+  cluster_id   = module.ecscluster.ecs_cluster_id
+  service_name = "portal"
+  service_env  = var.app_env
   container_def_json = templatefile("${path.module}/task-def-portal.json", {
-    ADMIN_EMAIL                                = var.admin_email
-    ADMIN_NAME                                 = var.admin_name
-    APP_ENV                                    = var.app_env
-    AUTH0_CLIENT_ID                            = var.auth0_client_id
-    AUTH0_CLIENT_SECRET                        = var.auth0_client_secret
-    AUTH0_CONNECTION                           = var.auth0_connection
-    AUTH0_DOMAIN                               = var.auth0_domain
-    AUTH0_SECRET                               = random_id.auth0_secret[0].hex
-    AWS_EMAIL_ACCESS_KEY_ID                    = aws_iam_access_key.portal[0].id
-    AWS_EMAIL_SECRET_ACCESS_KEY                = aws_iam_access_key.portal[0].secret
-    AWS_REGION                                 = var.aws_region
-    DATABASE_URL                               = "postgres://${var.db_admin_root_user}:${random_id.db_admin_root_pass.hex}@${aws_db_instance.db_instance.address}/${var.portal_db_name}?schema=public"
-    DEFAULT_BUILDENGINE_URL                    = "https://${cloudflare_record.buildengine.hostname}:8443"
-    DEFAULT_BUILDENGINE_API_ACCESS_TOKEN       = random_id.api_access_token.hex
-    MAIL_SENDER                                = var.mail_sender
-    ORIGIN                                     = "https://${var.app_sub_domain}.${var.cloudflare_domain}"
-    portal_cpu                                 = var.portal_cpu
-    portal_memory                              = var.portal_memory
-    portal_docker_image                        = "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/${var.portal_docker_image}"
-    portal_docker_tag                          = var.portal_docker_tag
-    otel_cpu                                   = var.otel_cpu
-    otel_memory                                = var.otel_memory
-    otel_docker_image                          = "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/${var.otel_docker_image}"
-    otel_docker_tag                            = var.otel_docker_tag
-    SPARKPOST_API_KEY                          = var.sparkpost_api_key
-    VALKEY_HOST                                = aws_elasticache_replication_group.valkey[0].primary_endpoint_address
-    HONEYCOMB_API_KEY                          = var.honeycomb_api_key
+    ADMIN_EMAIL                          = var.admin_email
+    ADMIN_NAME                           = var.admin_name
+    APP_ENV                              = var.app_env
+    AUTH0_CLIENT_ID                      = var.auth0_client_id
+    AUTH0_CLIENT_SECRET                  = var.auth0_client_secret
+    AUTH0_CONNECTION                     = var.auth0_connection
+    AUTH0_DOMAIN                         = var.auth0_domain
+    AUTH0_SECRET                         = random_id.auth0_secret[0].hex
+    AWS_EMAIL_ACCESS_KEY_ID              = aws_iam_access_key.portal[0].id
+    AWS_EMAIL_SECRET_ACCESS_KEY          = aws_iam_access_key.portal[0].secret
+    AWS_REGION                           = var.aws_region
+    DATABASE_URL                         = "postgres://${var.db_admin_root_user}:${random_id.db_admin_root_pass.hex}@${aws_db_instance.db_instance.address}/${var.portal_db_name}?schema=public"
+    DEFAULT_BUILDENGINE_URL              = "https://${cloudflare_record.buildengine.hostname}:8443"
+    DEFAULT_BUILDENGINE_API_ACCESS_TOKEN = random_id.api_access_token.hex
+    MAIL_SENDER                          = var.mail_sender
+    ORIGIN                               = "https://${var.app_sub_domain}.${var.cloudflare_domain}"
+    portal_cpu                           = var.portal_cpu
+    portal_memory                        = var.portal_memory
+    portal_docker_image                  = "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/${var.portal_docker_image}"
+    portal_docker_tag                    = var.portal_docker_tag
+    otel_cpu                             = var.otel_cpu
+    otel_memory                          = var.otel_memory
+    otel_docker_image                    = "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/${var.otel_docker_image}"
+    otel_docker_tag                      = var.otel_docker_tag
+    SPARKPOST_API_KEY                    = var.sparkpost_api_key
+    VALKEY_HOST                          = aws_elasticache_replication_group.valkey[0].primary_endpoint_address
+    HONEYCOMB_API_KEY                    = var.honeycomb_api_key
   })
   desired_count      = 1
   tg_arn             = module.alb.default_tg_arn
@@ -1161,14 +1161,128 @@ resource "aws_iam_role_policy_attachment" "lambda_basic" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
+resource "aws_iam_role_policy_attachment" "lambda_vpc_access" {
+  role       = aws_iam_role.lambda_exec.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
+}
+
+resource "aws_iam_role" "projects_s3files" {
+  name = "${var.app_name}-projects-s3files-${var.app_env}"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Sid    = "AllowS3FilesAssumeRole"
+      Effect = "Allow"
+      Principal = {
+        Service = "elasticfilesystem.amazonaws.com"
+      }
+      Action = "sts:AssumeRole"
+      Condition = {
+        StringEquals = {
+          "aws:SourceAccount" = var.aws_account_id
+        }
+        ArnLike = {
+          "aws:SourceArn" = "arn:aws:s3files:${var.aws_region}:${var.aws_account_id}:file-system/*"
+        }
+      }
+    }]
+  })
+}
+
+resource "aws_iam_role_policy" "projects_s3files" {
+  name = "${var.app_name}-projects-s3files-${var.app_env}"
+  role = aws_iam_role.projects_s3files.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "S3BucketPermissions"
+        Effect = "Allow"
+        Action = [
+          "s3:ListBucket",
+          "s3:ListBucketVersions"
+        ]
+        Resource = aws_s3_bucket.projects.arn
+        Condition = {
+          StringEquals = {
+            "aws:ResourceAccount" = var.aws_account_id
+          }
+        }
+      },
+      {
+        Sid    = "S3ObjectPermissions"
+        Effect = "Allow"
+        Action = [
+          "s3:AbortMultipartUpload",
+          "s3:DeleteObject*",
+          "s3:GetObject*",
+          "s3:List*",
+          "s3:PutObject*"
+        ]
+        Resource = "${aws_s3_bucket.projects.arn}/*"
+        Condition = {
+          StringEquals = {
+            "aws:ResourceAccount" = var.aws_account_id
+          }
+        }
+      },
+    ]
+  })
+}
+
+resource "awscc_s3files_file_system" "projects" {
+  bucket   = aws_s3_bucket.projects.arn
+  role_arn = aws_iam_role.projects_s3files.arn
+}
+
+resource "awscc_s3files_access_point" "projects" {
+  file_system_id = awscc_s3files_file_system.projects.file_system_id
+
+  posix_user = {
+    gid = 1000
+    uid = 1000
+  }
+}
+
+resource "aws_security_group" "grader_lambda_s3files" {
+  name        = "grader-lambda-s3files-${var.app_env}"
+  description = "Allow grader Lambda to access the projects S3 Files mount"
+  vpc_id      = module.vpc.id
+}
+
+resource "aws_security_group" "projects_s3files_mount_targets" {
+  name        = "projects-s3files-mount-targets-${var.app_env}"
+  description = "Allow S3 Files mount targets to receive NFS traffic from the grader Lambda"
+  vpc_id      = module.vpc.id
+}
+
+resource "aws_security_group_rule" "projects_s3files_mount_targets_nfs" {
+  type                     = "ingress"
+  from_port                = 2049
+  to_port                  = 2049
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.projects_s3files_mount_targets.id
+  source_security_group_id = aws_security_group.grader_lambda_s3files.id
+}
+
+resource "awscc_s3files_mount_target" "projects" {
+  count           = length(module.vpc.public_subnet_ids)
+  file_system_id  = awscc_s3files_file_system.projects.file_system_id
+  subnet_id       = module.vpc.public_subnet_ids[count.index]
+  security_groups = [aws_security_group.projects_s3files_mount_targets.id]
+}
+
 // Lambda output goes into artifacts bucket with read-write access?
 // Secrets and projects buckets are read-only
 data "aws_iam_policy_document" "lambda_s3_access" {
   statement {
-    sid     = "S3ReadOnly"
-    effect  = "Allow"
+    sid    = "S3ReadOnly"
+    effect = "Allow"
     actions = [
       "s3:GetObject",
+      "s3:GetObjectVersion",
       "s3:ListBucket"
     ]
     resources = [
@@ -1180,8 +1294,8 @@ data "aws_iam_policy_document" "lambda_s3_access" {
   }
 
   statement {
-    sid     = "S3ReadWrite"
-    effect  = "Allow"
+    sid    = "S3ReadWrite"
+    effect = "Allow"
     actions = [
       "s3:GetObject",
       "s3:PutObject",
@@ -1191,6 +1305,22 @@ data "aws_iam_policy_document" "lambda_s3_access" {
     resources = [
       aws_s3_bucket.artifacts.arn,
       "${aws_s3_bucket.artifacts.arn}/*"
+    ]
+  }
+
+  statement {
+    sid    = "S3FilesClientAccess"
+    effect = "Allow"
+    actions = [
+      "s3files:ClientMount",
+      "s3:GetObject",
+      "s3:GetObjectVersion",
+      "s3:ListBucket",
+      "s3:ListBucketVersions"
+    ]
+    resources = [
+      aws_s3_bucket.projects.arn,
+      "${aws_s3_bucket.projects.arn}/*"
     ]
   }
 }
@@ -1216,10 +1346,25 @@ resource "aws_lambda_function" "appbuilder_grader" {
   function_name = "${var.app_name}-grader-${var.app_env}"
   role          = aws_iam_role.lambda_exec.arn
   handler       = "bootstrap"
-  runtime       = "provided.al2023"
+  runtime       = "provided.al2"
   publish       = true
-  timeout       = vars.grader_timeout
-  memory_size   = vars.grader_memory
+  timeout       = var.grader_timeout
+  memory_size   = var.grader_memory
+
+  vpc_config {
+    subnet_ids         = module.vpc.public_subnet_ids
+    security_group_ids = [aws_security_group.grader_lambda_s3files.id]
+  }
+
+  file_system_config {
+    arn              = awscc_s3files_access_point.projects.access_point_arn
+    local_mount_path = "/mnt/projects"
+  }
+
+  depends_on = [
+    awscc_s3files_mount_target.projects,
+    aws_iam_role_policy_attachment.lambda_vpc_access,
+  ]
 
   environment {
     variables = {
@@ -1231,8 +1376,8 @@ resource "aws_lambda_function" "appbuilder_grader" {
 
 data "aws_iam_policy_document" "ecs_invoke_lambda" {
   statement {
-    effect  = "Allow"
-    actions = ["lambda:InvokeFunction"]
+    effect    = "Allow"
+    actions   = ["lambda:InvokeFunction"]
     resources = [aws_lambda_function.appbuilder_grader.arn]
   }
 }
