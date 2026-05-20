@@ -377,3 +377,12 @@ variable "valkey_port" {
   default     = 6379
 }
 
+variable "grader_memory" {
+  type    = string
+  default = "256"
+}
+
+variable "grader_timeout" {
+  type    = string
+  default = "60"
+}

@@ -1143,3 +1143,106 @@ module "cloudflare-sg" {
   vpc_id = module.vpc.id
 }
 
+resource "aws_iam_role" "lambda_exec" {
+  name = "${var.app_name}-grader-lambda-${var.app_env}-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect    = "Allow"
+      Principal = { Service = "lambda.amazonaws.com" }
+      Action    = "sts:AssumeRole"
+    }]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_basic" {
+  role       = aws_iam_role.lambda_exec.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
+
+// Lambda output goes into artifacts bucket with read-write access?
+// Secrets and projects buckets are read-only
+data "aws_iam_policy_document" "lambda_s3_access" {
+  statement {
+    sid     = "S3ReadOnly"
+    effect  = "Allow"
+    actions = [
+      "s3:GetObject",
+      "s3:ListBucket"
+    ]
+    resources = [
+      aws_s3_bucket.secrets.arn,
+      "${aws_s3_bucket.secrets.arn}/*",
+      aws_s3_bucket.projects.arn,
+      "${aws_s3_bucket.projects.arn}/*"
+    ]
+  }
+
+  statement {
+    sid     = "S3ReadWrite"
+    effect  = "Allow"
+    actions = [
+      "s3:GetObject",
+      "s3:PutObject",
+      "s3:DeleteObject",
+      "s3:ListBucket"
+    ]
+    resources = [
+      aws_s3_bucket.artifacts.arn,
+      "${aws_s3_bucket.artifacts.arn}/*"
+    ]
+  }
+}
+
+resource "aws_iam_role_policy" "lambda_s3_policy" {
+  name   = "lambda-s3-access-${var.app_env}"
+  role   = aws_iam_role.lambda_exec.id
+  policy = data.aws_iam_policy_document.lambda_s3_access.json
+}
+
+data "archive_file" "dummy" {
+  type        = "zip"
+  output_path = "${path.module}/lambda_dummy.zip"
+
+  source {
+    content  = "Dummy file for inital Lambda deployment. Real code comes from appbuilder-grader CD pipeline."
+    filename = "README.txt"
+  }
+}
+
+resource "aws_lambda_function" "appbuilder_grader" {
+  filename      = data.archive_file.dummy.output_path
+  function_name = "${var.app_name}-grader-${var.app_env}"
+  role          = aws_iam_role.lambda_exec.arn
+  handler       = "bootstrap"
+  runtime       = "provided.al2023"
+  publish       = true
+  timeout       = vars.grader_timeout
+  memory_size   = vars.grader_memory
+
+  environment {
+    variables = {
+      SECRETS_BUCKET  = aws_s3_bucket.secrets.bucket
+      PROJECTS_BUCKET = aws_s3_bucket.projects.bucket
+    }
+  }
+}
+
+data "aws_iam_policy_document" "ecs_invoke_lambda" {
+  statement {
+    effect  = "Allow"
+    actions = ["lambda:InvokeFunction"]
+    resources = [aws_lambda_function.appbuilder_grader.arn]
+  }
+}
+
+resource "aws_iam_policy" "ecs_invoke_lambda_policy" {
+  name   = "ecs-invoke-lambda-${var.app_env}"
+  policy = data.aws_iam_policy_document.ecs_invoke_lambda.json
+}
+
+resource "aws_iam_role_policy_attachment" "attach_ecs_invoke_lambda" {
+  role       = module.ecscluster.ecs_instance_role_id
+  policy_arn = aws_iam_policy.ecs_invoke_lambda_policy.arn
+}
