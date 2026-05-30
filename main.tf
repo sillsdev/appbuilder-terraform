@@ -1341,35 +1341,48 @@ data "archive_file" "dummy" {
   }
 }
 
-resource "aws_lambda_function" "appbuilder_grader" {
-  filename      = data.archive_file.dummy.output_path
+resource "aws_s3_object" "lambda_dummy" {
+  bucket = aws_s3_bucket.artifacts.bucket
+  key    = "lambda_dummy.zip"
+  source = data.archive_file.dummy.output_path
+}
+
+resource "awscc_lambda_function" "appbuilder_grader" {
   function_name = "${var.app_name}-grader-${var.app_env}"
   role          = aws_iam_role.lambda_exec.arn
   handler       = "bootstrap"
-  runtime       = "provided.al2"
-  publish       = true
+  runtime       = "provided.al2023"
+  architectures = ["arm64"]
   timeout       = var.grader_timeout
   memory_size   = var.grader_memory
 
-  vpc_config {
+  code = {
+    s3_bucket = aws_s3_bucket.artifacts.bucket
+    s3_key    = aws_s3_object.lambda_dummy.key
+  }
+
+  vpc_config = {
     subnet_ids         = module.vpc.public_subnet_ids
     security_group_ids = [aws_security_group.grader_lambda_s3files.id]
   }
 
-  file_system_config {
-    arn              = awscc_s3files_access_point.projects.access_point_arn
-    local_mount_path = "/mnt/projects"
-  }
+  file_system_configs = [
+    {
+      arn              = awscc_s3files_access_point.projects.access_point_arn
+      local_mount_path = "/mnt/projects"
+    }
+  ]
 
   depends_on = [
     awscc_s3files_mount_target.projects,
     aws_iam_role_policy_attachment.lambda_vpc_access,
   ]
 
-  environment {
+  environment = {
     variables = {
       SECRETS_BUCKET  = aws_s3_bucket.secrets.bucket
       PROJECTS_BUCKET = aws_s3_bucket.projects.bucket
+      ARTIFACTS_BUCKET = aws_s3_bucket.artifacts.bucket
     }
   }
 }
@@ -1378,7 +1391,7 @@ data "aws_iam_policy_document" "ecs_invoke_lambda" {
   statement {
     effect    = "Allow"
     actions   = ["lambda:InvokeFunction"]
-    resources = [aws_lambda_function.appbuilder_grader.arn]
+    resources = [awscc_lambda_function.appbuilder_grader.arn]
   }
 }
 

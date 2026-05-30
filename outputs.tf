@@ -77,9 +77,9 @@ output "valkey_address" {
 }
 
 output "appbuilder_grader_lambda_arn" {
-  value = aws_lambda_function.appbuilder_grader.arn
+  value = awscc_lambda_function.appbuilder_grader.arn
 }
 
 output "appbuilder_grader_lambda_name" {
-  value = aws_lambda_function.appbuilder_grader.function_name
+  value = awscc_lambda_function.appbuilder_grader.function_name
 }
