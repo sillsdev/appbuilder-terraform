@@ -26,7 +26,7 @@ resource "aws_security_group_rule" "mysql" {
   to_port           = 3306
   protocol          = "tcp"
   security_group_id = aws_security_group.db_access_limited_ips.id
-  cidr_blocks       = var.db_access_ips
+  cidr_blocks       = toset(var.db_access_ips)
 }
 
 resource "aws_security_group_rule" "postgres" {
@@ -36,7 +36,7 @@ resource "aws_security_group_rule" "postgres" {
   to_port           = 5432
   protocol          = "tcp"
   security_group_id = aws_security_group.db_access_limited_ips.id
-  cidr_blocks       = var.db_access_ips
+  cidr_blocks       = toset(var.db_access_ips)
 }
 
 // Create database and root passwords
@@ -88,7 +88,7 @@ resource "aws_security_group_rule" "ssh" {
   to_port           = 22
   protocol          = "tcp"
   security_group_id = aws_security_group.ec2_ssh_limited_ips.id
-  cidr_blocks       = var.ssh_ips
+  cidr_blocks       = toset(var.ssh_ips)
 }
 
 // Create EC2 host for ECS cluster
