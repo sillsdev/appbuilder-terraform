@@ -1320,8 +1320,14 @@ data "aws_iam_policy_document" "lambda_s3_access" {
     ]
     resources = [
       aws_s3_bucket.projects.arn,
-      "${aws_s3_bucket.projects.arn}/*"
+      "${aws_s3_bucket.projects.arn}/*",
+      awscc_s3files_access_point.projects.access_point_arn
     ]
+    condition {
+      test     = "StringEquals"
+      variable = "s3files:AccessPointArn"
+      values   = [awscc_s3files_access_point.projects.access_point_arn]
+    }
   }
 }
 
