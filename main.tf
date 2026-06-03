@@ -1246,6 +1246,32 @@ resource "awscc_s3files_access_point" "projects" {
   }
 }
 
+data "aws_iam_policy_document" "projects_s3files_mount" {
+  statement {
+    effect = "Allow"
+
+    principals {
+      type        = "AWS"
+      identifiers = [aws_iam_role.lambda_exec.arn]
+    }
+
+    actions = [
+      "s3files:ClientMount"
+    ]
+
+    condition {
+      test     = "StringEquals"
+      variable = "s3files:AccessPointArn"
+      values   = [awscc_s3files_access_point.projects.access_point_arn]
+    }
+  }
+}
+
+resource "awscc_s3files_file_system_policy" "projects" {
+  file_system_id = awscc_s3files_file_system.projects.file_system_id
+  policy         = data.aws_iam_policy_document.projects_s3files_mount.json
+}
+
 resource "aws_security_group" "grader_lambda_s3files" {
   name        = "grader-lambda-s3files-${var.app_env}"
   description = "Allow grader Lambda to access the projects S3 Files mount"
