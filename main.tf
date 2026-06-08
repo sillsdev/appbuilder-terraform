@@ -1276,6 +1276,13 @@ resource "aws_security_group" "grader_lambda_s3files" {
   name        = "grader-lambda-s3files-${var.app_env}"
   description = "Allow grader Lambda to access the projects S3 Files mount"
   vpc_id      = module.vpc.id
+
+  egress {
+    from_port       = 2049
+    to_port         = 2049
+    protocol        = "tcp"
+    security_groups = [aws_security_group.projects_s3files_mount_targets.id]
+  }
 }
 
 resource "aws_security_group" "projects_s3files_mount_targets" {
@@ -1405,8 +1412,8 @@ resource "awscc_lambda_function" "appbuilder_grader" {
 
   environment = {
     variables = {
-      SECRETS_BUCKET  = aws_s3_bucket.secrets.bucket
-      PROJECTS_BUCKET = aws_s3_bucket.projects.bucket
+      SECRETS_BUCKET   = aws_s3_bucket.secrets.bucket
+      PROJECTS_BUCKET  = aws_s3_bucket.projects.bucket
       ARTIFACTS_BUCKET = aws_s3_bucket.artifacts.bucket
     }
   }
