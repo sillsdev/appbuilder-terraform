@@ -1293,6 +1293,14 @@ resource "aws_security_group" "grader_lambda_s3files" {
   vpc_id      = module.vpc.id
 
   egress {
+    description     = "Allow S3 API calls through the VPC gateway endpoint"
+    from_port       = 443
+    to_port         = 443
+    protocol        = "tcp"
+    prefix_list_ids = [aws_vpc_endpoint.s3.prefix_list_id]
+  }
+
+  egress {
     from_port       = 2049
     to_port         = 2049
     protocol        = "tcp"
