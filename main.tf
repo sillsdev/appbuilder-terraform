@@ -6,6 +6,21 @@ module "vpc" {
   aws_zones = var.aws_zones
 }
 
+data "aws_route_tables" "vpc" {
+  vpc_id = module.vpc.id
+}
+
+resource "aws_vpc_endpoint" "s3" {
+  vpc_id            = module.vpc.id
+  service_name      = "com.amazonaws.${var.aws_region}.s3"
+  vpc_endpoint_type = "Gateway"
+  route_table_ids   = data.aws_route_tables.vpc.ids
+
+  tags = {
+    Name = "${var.app_name}-${var.app_env}-s3-endpoint"
+  }
+}
+
 // Create ecs cluster
 module "ecscluster" {
   source   = "github.com/silinternational/terraform-modules//aws/ecs/cluster?ref=7.2.0"
@@ -1276,13 +1291,6 @@ resource "aws_security_group" "grader_lambda_s3files" {
   name        = "grader-lambda-s3files-${var.app_env}"
   description = "Allow grader Lambda to access the projects S3 Files mount"
   vpc_id      = module.vpc.id
-
-  egress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
 
   egress {
     from_port       = 2049
