@@ -1278,6 +1278,13 @@ resource "aws_security_group" "grader_lambda_s3files" {
   vpc_id      = module.vpc.id
 
   egress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
     from_port       = 2049
     to_port         = 2049
     protocol        = "tcp"
