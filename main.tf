@@ -109,6 +109,7 @@ module "rds" {
   backup_retention_period = var.db_backup_retention_period
   multi_az                = var.db_multi_az
   publicly_accessible     = "true"
+  instance_class          = "db.t3.micro"
 }
 
 // Determine most recent ECS optimized AMI
