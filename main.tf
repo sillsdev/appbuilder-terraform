@@ -916,14 +916,17 @@ module "ecsservice_buildengine" {
 }
 
 // Create DNS CNAME record on Cloudflare for Agent API
-data "cloudflare_zone" "domain" {
-  name = var.cloudflare_domain
+data "cloudflare_zones" "domain" {
+  filter {
+    name = var.cloudflare_domain
+  }
 }
 
 resource "cloudflare_record" "buildengine" {
-  zone_id = data.cloudflare_zone.domain.id
+  zone_id = data.cloudflare_zones.domain.zones[0].id
   name    = "${var.app_sub_domain}-buildengine"
   type    = "CNAME"
-  content = module.alb.dns_name
+  value   = module.alb.dns_name
   proxied = false
 }
+
