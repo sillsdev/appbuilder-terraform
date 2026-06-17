@@ -908,9 +908,9 @@ module "ecsservice_buildengine" {
   container_def_json = templatefile("${path.module}/task-def-buildengine.json", {
     buildengine_cpu                      = var.buildengine_cpu
     buildengine_memory                   = var.buildengine_memory
-    buildengine_docker_image             = "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/${var.buildengine_docker_image}"
+    buildengine_docker_image             = can(regex("/", var.buildengine_docker_image)) ? var.buildengine_docker_image : "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/${var.buildengine_docker_image}"
     buildengine_docker_tag               = var.buildengine_docker_tag
-    buildengine_otel_docker_image        = "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/${var.buildengine_otel_docker_image}"
+    buildengine_otel_docker_image        = can(regex("/", var.buildengine_otel_docker_image)) ? var.buildengine_otel_docker_image : "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/${var.buildengine_otel_docker_image}"
     buildengine_otel_docker_tag          = var.buildengine_otel_docker_tag
     API_ACCESS_TOKEN                     = random_id.api_access_token.hex
     APP_ENV                              = var.app_env
@@ -929,8 +929,6 @@ module "ecsservice_buildengine" {
     ORIGIN                               = "https://${var.app_sub_domain}-buildengine.${var.cloudflare_domain}:8443"
     otel_cpu                             = var.otel_cpu
     otel_memory                          = var.otel_memory
-    otel_docker_image                    = "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/${var.otel_docker_image}"
-    otel_docker_tag                      = var.otel_docker_tag
     PUBLIC_SCRIPTORIA_URL                = var.deploy_portal ? "https://${var.app_sub_domain}.${var.cloudflare_domain}" : var.scriptoria_url
     SCRIPTURE_EARTH_KEY                  = var.scripture_earth_key
     VALKEY_HOST                          = aws_elasticache_replication_group.valkey[0].primary_endpoint_address
