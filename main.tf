@@ -917,7 +917,9 @@ module "ecsservice_buildengine" {
 
 // Create DNS CNAME record on Cloudflare for Agent API
 data "cloudflare_zones" "domain" {
-  name = var.cloudflare_domain
+  filter {
+    name = var.cloudflare_domain
+  }
 }
 
 resource "cloudflare_record" "buildengine" {
