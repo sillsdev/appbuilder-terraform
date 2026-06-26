@@ -30,7 +30,7 @@ module "ecscluster" {
 
 // Create security group that allows 3306 from specific IPs
 resource "aws_security_group" "db_access_limited_ips" {
-  name        = "db-limited-ips"
+  name_prefix = "db-limited-ips"
   description = "Allow database traffic from limited IPs"
   vpc_id      = module.vpc.id
 
