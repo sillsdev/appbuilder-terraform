@@ -33,6 +33,10 @@ resource "aws_security_group" "db_access_limited_ips" {
   name        = "db-limited-ips"
   description = "Allow database traffic from limited IPs"
   vpc_id      = module.vpc.id
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_security_group_rule" "postgres" {
