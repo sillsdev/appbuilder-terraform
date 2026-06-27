@@ -199,7 +199,7 @@ module "alb" {
   app_env         = var.app_env
   internal        = "false"
   vpc_id          = module.vpc.vpc_id
-  security_groups = [module.vpc.default_security_group_id, aws_security_group.alb_https_limited_ips.id, module.cloudflare-sg.id]
+  security_groups = [module.vpc.default_security_group_id, aws_security_group.alb_https_limited_ips.id, aws_security_group.cloudflare.id]
   subnets         = module.vpc.public_subnets
   certificate_arn = data.aws_acm_certificate.appbuilder.arn
   port            = "6173"
@@ -391,6 +391,8 @@ resource "aws_s3_bucket_lifecycle_configuration" "secrets" {
     id     = "delete-old-versions"
     status = "Enabled"
 
+    filter {}
+
     noncurrent_version_expiration {
       noncurrent_days = 30
     }
@@ -469,6 +471,8 @@ resource "aws_s3_bucket_lifecycle_configuration" "projects" {
   rule {
     id     = "delete-really-old-versions"
     status = "Enabled"
+
+    filter {}
 
     noncurrent_version_expiration {
       noncurrent_days = 365
