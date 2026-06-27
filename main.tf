@@ -1,17 +1,49 @@
 // Create VPC
 module "vpc" {
-  source    = "github.com/silinternational/terraform-modules//aws/vpc-public-only?ref=7.2.0"
-  app_name  = var.app_name
-  app_env   = var.app_env
-  aws_zones = var.aws_zones
+  source  = "terraform-aws-modules/vpc/aws"
+  version = "~> 5.21.0"
+
+  name = "vpc-${var.app_name}-${var.app_env}"
+  cidr = "10.0.0.0/16"
+
+  azs                 = var.aws_zones
+  public_subnets      = [for index, zone in var.aws_zones : "10.0.${(index + 1) * 10}.0/24"]
+  public_subnet_names = [for zone in var.aws_zones : "public-${zone}"]
+  public_route_table_tags = {
+    Name = "RT-public-${var.app_name}-${var.app_env}"
+  }
+
+  manage_default_network_acl    = false
+  manage_default_route_table    = false
+  manage_default_security_group = false
+
+  tags = {
+    app_name = var.app_name
+    app_env  = var.app_env
+  }
+
+  igw_tags = {
+    Name = "IGW-${var.app_name}-${var.app_env}"
+  }
+}
+
+resource "aws_db_subnet_group" "vpc_public" {
+  name       = "db-subnet-${var.app_name}-${var.app_env}"
+  subnet_ids = module.vpc.public_subnets
+
+  tags = {
+    Name     = "db-subnet-${var.app_name}-${var.app_env}"
+    app_name = var.app_name
+    app_env  = var.app_env
+  }
 }
 
 data "aws_route_tables" "vpc" {
-  vpc_id = module.vpc.id
+  vpc_id = module.vpc.vpc_id
 }
 
 resource "aws_vpc_endpoint" "s3" {
-  vpc_id            = module.vpc.id
+  vpc_id            = module.vpc.vpc_id
   service_name      = "com.amazonaws.${var.aws_region}.s3"
   vpc_endpoint_type = "Gateway"
   route_table_ids   = data.aws_route_tables.vpc.ids
@@ -23,7 +55,9 @@ resource "aws_vpc_endpoint" "s3" {
 
 // Create ecs cluster
 module "ecscluster" {
-  source   = "github.com/silinternational/terraform-modules//aws/ecs/cluster?ref=7.2.0"
+  source   = "sil-org/ecs-cluster/aws"
+  version  = "~> 0.1.0"
+
   app_name = var.app_name
   app_env  = var.app_env
 }
@@ -32,7 +66,7 @@ module "ecscluster" {
 resource "aws_security_group" "db_access_limited_ips" {
   name_prefix = "db-limited-ips"
   description = "Allow database traffic from limited IPs"
-  vpc_id      = module.vpc.id
+  vpc_id      = module.vpc.vpc_id
 
   lifecycle {
     create_before_destroy = true
@@ -68,8 +102,8 @@ resource "aws_db_instance" "db_instance" {
   db_name                 = var.buildengine_db_name
   username                = var.db_admin_root_user
   password                = random_id.db_admin_root_pass.hex
-  vpc_security_group_ids  = [module.vpc.vpc_default_sg_id, aws_security_group.db_access_limited_ips.id]
-  db_subnet_group_name    = module.vpc.db_subnet_group_name
+  vpc_security_group_ids  = [module.vpc.default_security_group_id, aws_security_group.db_access_limited_ips.id]
+  db_subnet_group_name    = aws_db_subnet_group.vpc_public.name
   availability_zone       = var.aws_zones[0]
 }
 
@@ -88,7 +122,7 @@ data "aws_ami" "ecs_ami" {
 resource "aws_security_group" "ec2_ssh_limited_ips" {
   name        = "ssh-limited-ips"
   description = "Allow SSH traffic from limited IPs"
-  vpc_id      = module.vpc.id
+  vpc_id      = module.vpc.vpc_id
 }
 
 resource "aws_security_group_rule" "ssh" {
@@ -106,10 +140,10 @@ resource "aws_instance" "ecshost" {
   ami                    = data.aws_ami.ecs_ami.id
   instance_type          = var.aws_instance["instance_type"]
   key_name               = var.ec2_ssh_key_name
-  vpc_security_group_ids = [module.vpc.vpc_default_sg_id, aws_security_group.ec2_ssh_limited_ips.id]
+  vpc_security_group_ids = [module.vpc.default_security_group_id, aws_security_group.ec2_ssh_limited_ips.id]
   iam_instance_profile   = module.ecscluster.ecs_instance_profile_id
   user_data              = templatefile("${path.module}/user-data.sh", { ecs_cluster_name = module.ecscluster.ecs_cluster_name })
-  subnet_id              = module.vpc.public_subnet_ids[0]
+  subnet_id              = module.vpc.public_subnets[0]
 
   root_block_device {
     volume_size = var.aws_instance["volume_size"]
@@ -144,7 +178,7 @@ data "aws_acm_certificate" "appbuilder" {
 resource "aws_security_group" "alb_https_limited_ips" {
   name        = "https-limited-ips"
   description = "Allow HTTPS traffic from limited IPs"
-  vpc_id      = module.vpc.id
+  vpc_id      = module.vpc.vpc_id
 }
 
 resource "aws_security_group_rule" "limited_buildengine" {
@@ -158,13 +192,15 @@ resource "aws_security_group_rule" "limited_buildengine" {
 
 // Create application load balancer for public access
 module "alb" {
-  source          = "github.com/silinternational/terraform-modules//aws/alb?ref=7.2.0"
+  source          = "sil-org/alb/aws"
+  version         = "~> 1.1.1"
+
   app_name        = var.app_name
   app_env         = var.app_env
   internal        = "false"
-  vpc_id          = module.vpc.id
-  security_groups = [module.vpc.vpc_default_sg_id, aws_security_group.alb_https_limited_ips.id, module.cloudflare-sg.id]
-  subnets         = module.vpc.public_subnet_ids
+  vpc_id          = module.vpc.vpc_id
+  security_groups = [module.vpc.default_security_group_id, aws_security_group.alb_https_limited_ips.id, module.cloudflare-sg.id]
+  subnets         = module.vpc.public_subnets
   certificate_arn = data.aws_acm_certificate.appbuilder.arn
   port            = "6173"
   tg_name         = "tg-${var.app_name}-${var.app_env}-portal"
@@ -188,7 +224,7 @@ resource "aws_alb_target_group" "buildengine" {
   name_prefix          = substr("be-${var.app_env}-", 0, 6)
   port                 = "8443"
   protocol             = "HTTP"
-  vpc_id               = module.vpc.id
+  vpc_id               = module.vpc.vpc_id
   deregistration_delay = "30"
 
   health_check {
@@ -911,7 +947,9 @@ resource "aws_codebuild_project" "publish" {
 
 // Uses default target group to route all https/443 traffic to buildengine
 module "ecsservice_buildengine" {
-  source       = "github.com/silinternational/terraform-modules//aws/ecs/service-only?ref=7.2.0"
+  source       = "sil-org/ecs-service/aws"
+  version      = "~> 0.3.1"
+
   cluster_id   = module.ecscluster.ecs_cluster_id
   service_name = "buildengine"
   service_env  = var.app_env
@@ -946,9 +984,11 @@ module "ecsservice_buildengine" {
     VALKEY_HOST                          = aws_elasticache_replication_group.valkey[0].primary_endpoint_address
   })
   desired_count      = 1
-  tg_arn             = aws_alb_target_group.buildengine.arn
-  lb_container_name  = "buildengine"
-  lb_container_port  = 8443
+  load_balancer      = [{
+    target_group_arn             = aws_alb_target_group.buildengine.arn
+    container_name  = "buildengine"
+    container_port  = 8443
+  }]
   ecsServiceRole_arn = module.ecscluster.ecsServiceRole_arn
 }
 
@@ -1004,13 +1044,13 @@ resource "aws_security_group" "valkey_access" {
   count       = 1 // With BE2, it is always needed
   name        = "valkey-access-${var.app_env}"
   description = "Allow Valkey traffic from application"
-  vpc_id      = module.vpc.id
+  vpc_id      = module.vpc.vpc_id
 
   ingress {
     from_port       = var.valkey_port
     to_port         = var.valkey_port
     protocol        = "tcp"
-    security_groups = [module.vpc.vpc_default_sg_id]
+    security_groups = [module.vpc.default_security_group_id]
   }
 
   egress {
@@ -1032,7 +1072,7 @@ resource "aws_security_group" "valkey_access" {
 resource "aws_elasticache_subnet_group" "valkey" {
   count      = 1 // With BE2, it is always needed
   name       = "valkey-subnet-group-${var.app_env}"
-  subnet_ids = module.vpc.public_subnet_ids
+  subnet_ids = module.vpc.public_subnets
 }
 
 // Create Valkey parameter group with noeviction policy
@@ -1078,8 +1118,10 @@ resource "random_id" "auth0_secret" {
 
 // Uses default target group to route all https/443 traffic to buildengine
 module "ecsservice_portal" {
+  source       = "sil-org/ecs-service/aws"
+  version      = "~> 0.3.1"
+
   count        = var.deploy_portal ? 1 : 0
-  source       = "github.com/silinternational/terraform-modules//aws/ecs/service-only?ref=7.2.0"
   cluster_id   = module.ecscluster.ecs_cluster_id
   service_name = "portal"
   service_env  = var.app_env
@@ -1113,9 +1155,11 @@ module "ecsservice_portal" {
     HONEYCOMB_API_KEY                    = var.honeycomb_api_key
   })
   desired_count      = 1
-  tg_arn             = module.alb.default_tg_arn
-  lb_container_name  = "origin"
-  lb_container_port  = 6173
+  load_balancer      = [{
+    target_group_arn = module.alb.default_tg_arn
+    container_name  = "origin"
+    container_port  = 6173
+  }]
   ecsServiceRole_arn = module.ecscluster.ecsServiceRole_arn
 }
 
@@ -1148,10 +1192,29 @@ resource "cloudflare_record" "app_ui" {
 }
 
 // Security group to limit traffic to Cloudflare IPs
-module "cloudflare-sg" {
-  source = "github.com/silinternational/terraform-modules//aws/cloudflare-sg?ref=7.2.0"
-  vpc_id = module.vpc.id
+resource "aws_security_group" "cloudflare" {
+  name        = "cloudflare-https-${var.app_env}"
+  description = "Allow HTTPS traffic from Cloudflare"
+  vpc_id      = module.vpc.vpc_id
+  tags = {
+    Name = "${var.app_name}-${var.app_env}-cloudflare"
+  }
 }
+
+resource "aws_security_group_rule" "cloudflare" {
+  type              = "ingress"
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
+  security_group_id = aws_security_group.cloudflare.id
+  cidr_blocks       = split(",", data.external.cloudflare_ips.result.ipv4_cidrs)
+  ipv6_cidr_blocks  = split(",", data.external.cloudflare_ips.result.ipv6_cidrs)
+}
+
+data "external" "cloudflare_ips" {
+  program = ["${path.module}/cloudflare-ips.sh"]
+}
+
 
 resource "aws_iam_role" "lambda_exec" {
   name = "${var.app_name}-grader-lambda-${var.app_env}-role"
@@ -1285,7 +1348,7 @@ resource "awscc_s3files_file_system_policy" "projects" {
 resource "aws_security_group" "grader_lambda_s3files" {
   name        = "grader-lambda-s3files-${var.app_env}"
   description = "Allow grader Lambda to access the projects S3 Files mount"
-  vpc_id      = module.vpc.id
+  vpc_id      = module.vpc.vpc_id
 
   egress {
     description     = "Allow S3 API calls through the VPC gateway endpoint"
@@ -1306,7 +1369,7 @@ resource "aws_security_group" "grader_lambda_s3files" {
 resource "aws_security_group" "projects_s3files_mount_targets" {
   name        = "projects-s3files-mount-targets-${var.app_env}"
   description = "Allow S3 Files mount targets to receive NFS traffic from the grader Lambda"
-  vpc_id      = module.vpc.id
+  vpc_id      = module.vpc.vpc_id
 }
 
 resource "aws_security_group_rule" "projects_s3files_mount_targets_nfs" {
@@ -1319,9 +1382,9 @@ resource "aws_security_group_rule" "projects_s3files_mount_targets_nfs" {
 }
 
 resource "awscc_s3files_mount_target" "projects" {
-  count           = length(module.vpc.public_subnet_ids)
+  count           = length(module.vpc.public_subnets)
   file_system_id  = awscc_s3files_file_system.projects.file_system_id
-  subnet_id       = module.vpc.public_subnet_ids[count.index]
+  subnet_id       = module.vpc.public_subnets[count.index]
   security_groups = [aws_security_group.projects_s3files_mount_targets.id]
 }
 
@@ -1412,7 +1475,7 @@ resource "awscc_lambda_function" "appbuilder_grader" {
   }
 
   vpc_config = {
-    subnet_ids         = module.vpc.public_subnet_ids
+    subnet_ids         = module.vpc.public_subnets
     security_group_ids = [aws_security_group.grader_lambda_s3files.id]
   }
 
