@@ -1197,7 +1197,7 @@ resource "cloudflare_record" "app_ui" {
 
 // Security group to limit traffic to Cloudflare IPs
 resource "aws_security_group" "cloudflare" {
-  name        = "cloudflare-https-${var.app_env}"
+  name        = "cloudflare-https"
   description = "Allow HTTPS traffic from Cloudflare"
   vpc_id      = module.vpc.vpc_id
   tags = {
