@@ -1082,12 +1082,16 @@ resource "aws_elasticache_subnet_group" "valkey" {
 // Create Valkey parameter group with noeviction policy
 resource "aws_elasticache_parameter_group" "valkey" {
   count  = 1 // With BE2, it is always needed
-  name   = "valkey-params-${var.app_env}"
-  family = "redis7"
+  name   = "valkey-param-${var.app_env}"
+  family = "valkey9"
 
   parameter {
     name  = "maxmemory-policy"
     value = "noeviction"
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 }
 
@@ -1096,7 +1100,7 @@ resource "aws_elasticache_replication_group" "valkey" {
   count                      = 1 // With BE2, it is always needed
   replication_group_id       = "valkey-${var.app_env}"
   description                = "Valkey (Redis-compatible) cache for ${var.app_env}"
-  engine                     = "redis"
+  engine                     = "valkey"
   engine_version             = var.valkey_engine_version
   node_type                  = var.valkey_node_type
   num_cache_clusters         = var.valkey_num_cache_nodes
@@ -1105,6 +1109,7 @@ resource "aws_elasticache_replication_group" "valkey" {
   subnet_group_name          = aws_elasticache_subnet_group.valkey[0].name
   security_group_ids         = [aws_security_group.valkey_access[0].id]
   automatic_failover_enabled = var.valkey_num_cache_nodes > 1 ? true : false
+  apply_immediately          = true
   // multi_az_enabled may require specific AZ configs; omit unless needed
 
   tags = {

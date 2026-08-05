@@ -368,7 +368,7 @@ variable "valkey_num_cache_nodes" {
 variable "valkey_engine_version" {
   type        = string
   description = "Engine version for Valkey"
-  default     = "7.0"
+  default     = "9.1"
 }
 
 variable "valkey_port" {
