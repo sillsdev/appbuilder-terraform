@@ -114,7 +114,7 @@ data "aws_ami" "ecs_ami" {
 
   filter {
     name   = "name"
-    values = ["al2023-ami-ecs-hvm-*-x86_64"]
+    values = ["al2023-ami-ecs-hvm-2023.0.20260721-kernel-6.1-x86_64"]
   }
 }
 
@@ -1334,6 +1334,10 @@ data "aws_iam_policy_document" "projects_s3files_mount" {
 
     actions = [
       "s3files:ClientMount"
+    ]
+
+    resources = [
+      awscc_s3files_file_system.projects.file_system_arn
     ]
 
     condition {
