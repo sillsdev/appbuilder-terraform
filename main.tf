@@ -1162,8 +1162,8 @@ module "ecsservice_portal" {
     SPARKPOST_API_KEY                    = var.sparkpost_api_key
     VALKEY_HOST                          = aws_elasticache_replication_group.valkey[0].primary_endpoint_address
     HONEYCOMB_API_KEY                    = var.honeycomb_api_key
-    USER_DATA_TURNSTILE_SITEKEY          = cloudflare_turnstile_widget.user_data.sitekey
-    USER_DATA_TURNSTILE_SECRET_KEY       = cloudflare_turnstile_widget.user_data.secret
+    USER_DATA_TURNSTILE_SITEKEY          = cloudflare_turnstile_widget.user_data[0].sitekey
+    USER_DATA_TURNSTILE_SECRET_KEY       = cloudflare_turnstile_widget.user_data[0].secret
   })
   desired_count      = 1
   load_balancer      = [{
