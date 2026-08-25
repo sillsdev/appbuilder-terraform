@@ -150,6 +150,11 @@ variable "cloudflare_token" {
   type = string
 }
 
+variable "cloudflare_account_id" {
+  description = "Cloudflare Account ID"
+  type = string
+}
+
 variable "db_admin_root_user" {
   type        = string
   default     = "appbuilder_admin"

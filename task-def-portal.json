@@ -90,6 +90,14 @@
         "value": "${SPARKPOST_API_KEY}"
       },
       {
+        "name": "USER_DATA_TURNSTILE_SITEKEY",
+        "value": "${USER_DATA_TURNSTILE_SITEKEY}"
+      },
+      {
+        "name": "USER_DATA_TURNSTILE_SECRET_KEY",
+        "value": "${USER_DATA_TURNSTILE_SECRET_KEY}"
+      },
+      {
         "name": "VALKEY_HOST",
         "value": "${VALKEY_HOST}"
       }
