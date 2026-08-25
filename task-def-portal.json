@@ -109,8 +109,7 @@
     "links": [
       "otel"
     ],
-    "cpu": ${portal_cpu
-    },
+    "cpu": ${portal_cpu},
     "privileged": null,
     "memoryReservation": null
   },
