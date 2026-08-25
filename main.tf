@@ -1162,6 +1162,10 @@ module "ecsservice_portal" {
     SPARKPOST_API_KEY                    = var.sparkpost_api_key
     VALKEY_HOST                          = aws_elasticache_replication_group.valkey[0].primary_endpoint_address
     HONEYCOMB_API_KEY                    = var.honeycomb_api_key
+    PUBLIC_USER_DATA_TURNSTILE_SITEKEY   = cloudflare_turnstile_widget.user_data[0].id // sitekey
+    USER_DATA_TURNSTILE_SECRET_KEY       = cloudflare_turnstile_widget.user_data[0].secret
+    PUBLIC_ORG_REQUEST_TURNSTILE_SITEKEY = cloudflare_turnstile_widget.org_request[0].id // sitekey
+    ORG_REQUEST_TURNSTILE_SECRET_KEY     = cloudflare_turnstile_widget.org_request[0].secret
   })
   desired_count      = 1
   load_balancer      = [{
@@ -1170,6 +1174,22 @@ module "ecsservice_portal" {
     container_port  = 6173
   }]
   ecsServiceRole_arn = module.ecscluster.ecsServiceRole_arn
+}
+
+// Cloudflare Turnstile widgets
+resource "cloudflare_turnstile_widget" "user_data" {
+  count = var.deploy_portal ? 1 : 0
+  account_id = var.cloudflare_account_id
+  name = "${var.app_env}-scriptoria-user-data"
+  domains = [ "${var.app_sub_domain}.${var.cloudflare_domain}" ]
+  mode = "managed"
+}
+resource "cloudflare_turnstile_widget" "org_request" {
+  count = var.deploy_portal ? 1 : 0
+  account_id = var.cloudflare_account_id
+  name = "${var.app_env}-scriptoria-org-request"
+  domains = [ "${var.app_sub_domain}.${var.cloudflare_domain}" ]
+  mode = "managed"
 }
 
 // Create DNS CNAME record on Cloudflare
