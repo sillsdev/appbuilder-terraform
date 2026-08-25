@@ -1072,39 +1072,59 @@ module "ecsservice_portal" {
   service_name       = "portal"
   service_env        = var.app_env
   container_def_json = templatefile("${path.module}/task-def-portal.json", {
-    ADMIN_EMAIL                                = var.admin_email
-    ADMIN_NAME                                 = var.admin_name
-    APP_ENV                                    = var.app_env
-    AUTH0_CLIENT_ID                            = var.auth0_client_id
-    AUTH0_CLIENT_SECRET                        = var.auth0_client_secret
-    AUTH0_CONNECTION                           = var.auth0_connection
-    AUTH0_DOMAIN                               = var.auth0_domain
-    AUTH0_SECRET                               = random_id.auth0_secret[0].hex
-    AWS_EMAIL_ACCESS_KEY_ID                    = aws_iam_access_key.portal[0].id
-    AWS_EMAIL_SECRET_ACCESS_KEY                = aws_iam_access_key.portal[0].secret
-    AWS_REGION                                 = var.aws_region
-    DATABASE_URL                               = "postgres://${var.db_admin_root_user}:${random_id.db_admin_root_pass.hex}@${aws_db_instance.db_instance.address}/${var.portal_db_name}?schema=public"
-    DEFAULT_BUILDENGINE_URL                    = "https://${cloudflare_record.buildengine.hostname}:8443"
-    DEFAULT_BUILDENGINE_API_ACCESS_TOKEN       = random_id.api_access_token.hex
-    MAIL_SENDER                                = var.mail_sender
-    ORIGIN                                     = "https://${var.app_sub_domain}.${var.cloudflare_domain}"
-    portal_cpu                                 = var.portal_cpu
-    portal_memory                              = var.portal_memory
-    portal_docker_image                        = "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/${var.portal_docker_image}"
-    portal_docker_tag                          = var.portal_docker_tag
-    otel_cpu                                   = var.otel_cpu
-    otel_memory                                = var.otel_memory
-    otel_docker_image                          = "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/${var.otel_docker_image}"
-    otel_docker_tag                            = var.otel_docker_tag
-    SPARKPOST_API_KEY                          = var.sparkpost_api_key
-    VALKEY_HOST                                = aws_elasticache_replication_group.valkey[0].primary_endpoint_address
-    HONEYCOMB_API_KEY                          = var.honeycomb_api_key
+    ADMIN_EMAIL                          = var.admin_email
+    ADMIN_NAME                           = var.admin_name
+    APP_ENV                              = var.app_env
+    AUTH0_CLIENT_ID                      = var.auth0_client_id
+    AUTH0_CLIENT_SECRET                  = var.auth0_client_secret
+    AUTH0_CONNECTION                     = var.auth0_connection
+    AUTH0_DOMAIN                         = var.auth0_domain
+    AUTH0_SECRET                         = random_id.auth0_secret[0].hex
+    AWS_EMAIL_ACCESS_KEY_ID              = aws_iam_access_key.portal[0].id
+    AWS_EMAIL_SECRET_ACCESS_KEY          = aws_iam_access_key.portal[0].secret
+    AWS_REGION                           = var.aws_region
+    DATABASE_URL                         = "postgres://${var.db_admin_root_user}:${random_id.db_admin_root_pass.hex}@${aws_db_instance.db_instance.address}/${var.portal_db_name}?schema=public"
+    DEFAULT_BUILDENGINE_URL              = "https://${cloudflare_record.buildengine.hostname}:8443"
+    DEFAULT_BUILDENGINE_API_ACCESS_TOKEN = random_id.api_access_token.hex
+    MAIL_SENDER                          = var.mail_sender
+    ORIGIN                               = "https://${var.app_sub_domain}.${var.cloudflare_domain}"
+    portal_cpu                           = var.portal_cpu
+    portal_memory                        = var.portal_memory
+    portal_docker_image                  = "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/${var.portal_docker_image}"
+    portal_docker_tag                    = var.portal_docker_tag
+    otel_cpu                             = var.otel_cpu
+    otel_memory                          = var.otel_memory
+    otel_docker_image                    = "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/${var.otel_docker_image}"
+    otel_docker_tag                      = var.otel_docker_tag
+    SPARKPOST_API_KEY                    = var.sparkpost_api_key
+    VALKEY_HOST                          = aws_elasticache_replication_group.valkey[0].primary_endpoint_address
+    HONEYCOMB_API_KEY                    = var.honeycomb_api_key
+    PUBLIC_USER_DATA_TURNSTILE_SITEKEY   = cloudflare_turnstile_widget.user_data[0].id // sitekey
+    USER_DATA_TURNSTILE_SECRET_KEY       = cloudflare_turnstile_widget.user_data[0].secret
+    PUBLIC_ORG_REQUEST_TURNSTILE_SITEKEY = cloudflare_turnstile_widget.org_request[0].id // sitekey
+    ORG_REQUEST_TURNSTILE_SECRET_KEY     = cloudflare_turnstile_widget.org_request[0].secret
   })
   desired_count      = 1
   tg_arn             = module.alb.default_tg_arn
   lb_container_name  = "origin"
   lb_container_port  = 6173
   ecsServiceRole_arn = module.ecscluster.ecsServiceRole_arn
+}
+
+// Cloudflare Turnstile widgets
+resource "cloudflare_turnstile_widget" "user_data" {
+  count = var.deploy_portal ? 1 : 0
+  account_id = var.cloudflare_account_id
+  name = "${var.app_env}-scriptoria-user-data"
+  domains = [ "${var.app_sub_domain}.${var.cloudflare_domain}" ]
+  mode = "managed"
+}
+resource "cloudflare_turnstile_widget" "org_request" {
+  count = var.deploy_portal ? 1 : 0
+  account_id = var.cloudflare_account_id
+  name = "${var.app_env}-scriptoria-org-request"
+  domains = [ "${var.app_sub_domain}.${var.cloudflare_domain}" ]
+  mode = "managed"
 }
 
 // Create DNS CNAME record on Cloudflare
