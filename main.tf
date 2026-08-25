@@ -1206,7 +1206,7 @@ resource "cloudflare_record" "app_ui" {
 resource "cloudflare_turnstile_widget" "user_data" {
   count      = var.deploy_portal ? 1 : 0
   account_id = var.cloudflare_account_id
-  name       = "Login Form Widget"
+  name       = "User Data Email Verification Widget"
   domains    = ["${var.app_sub_domain}.${var.cloudflare_domain}"]
   mode       = "managed"
   region     = "world"
