@@ -1125,6 +1125,16 @@ resource "random_id" "auth0_secret" {
   byte_length = 32
 }
 
+// Turnstile Widgets
+resource "cloudflare_turnstile_widget" "user_data" {
+  count      = var.deploy_portal ? 1 : 0
+  account_id = var.cloudflare_account_id
+  name       = "User Data Email Verification Widget"
+  domains    = ["${var.app_sub_domain}.${var.cloudflare_domain}"]
+  mode       = "managed"
+  region     = "world"
+}
+
 // Uses default target group to route all https/443 traffic to buildengine
 module "ecsservice_portal" {
   source       = "sil-org/ecs-service/aws"
@@ -1200,16 +1210,6 @@ resource "cloudflare_record" "app_ui" {
   type    = "CNAME"
   content = module.alb.dns_name
   proxied = true
-}
-
-// Turnstile Widgets
-resource "cloudflare_turnstile_widget" "user_data" {
-  count      = var.deploy_portal ? 1 : 0
-  account_id = var.cloudflare_account_id
-  name       = "User Data Email Verification Widget"
-  domains    = ["${var.app_sub_domain}.${var.cloudflare_domain}"]
-  mode       = "managed"
-  region     = "world"
 }
 
 // Security group to limit traffic to Cloudflare IPs
