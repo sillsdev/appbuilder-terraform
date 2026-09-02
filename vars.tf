@@ -148,6 +148,7 @@ variable "cloudflare_email" {
 
 variable "cloudflare_account_id" {
   description = "Cloudflare Account ID"
+  default     = ""
   type        = string
 }
 variable "cloudflare_token" {
