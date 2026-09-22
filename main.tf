@@ -351,6 +351,7 @@ EOF
 
 }
 
+
 // Secrets stuff - S3, IAM
 resource "aws_s3_bucket" "secrets" {
   bucket        = "${var.org_prefix}-${var.app_env}-${var.app_name}-secrets"
@@ -424,6 +425,87 @@ resource "aws_iam_policy" "secrets" {
             ],
             "Resource": [
                 "${aws_s3_bucket.secrets.arn}/*"
+            ]
+        }
+    ]
+}
+EOF
+
+}
+
+// Support stuff - S3, IAM
+
+resource "aws_s3_bucket" "support" {
+  bucket        = "${var.org_prefix}-${var.app_env}-${var.app_name}-support"
+  force_destroy = true
+
+  tags = {
+    app         = var.tag_app
+    environment = var.tag_environment
+    project     = var.tag_project
+  }
+}
+
+resource "aws_s3_bucket_ownership_controls" "support" {
+  bucket = aws_s3_bucket.support.id
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
+resource "aws_s3_bucket_versioning" "support" {
+  bucket = aws_s3_bucket.support.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_acl" "support" {
+  depends_on = [aws_s3_bucket_ownership_controls.support]
+
+  bucket = aws_s3_bucket.support.id
+  acl    = "private"
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "support" {
+  bucket = aws_s3_bucket.support.id
+
+  rule {
+    id     = "delete-really-old-versions"
+    status = "Enabled"
+
+    filter {}
+
+    noncurrent_version_expiration {
+      noncurrent_days = 365
+    }
+  }
+}
+
+resource "aws_iam_policy" "support" {
+  name        = "s3-appbuilder-support-${var.app_env}"
+  description = "S3 App Builder Support"
+
+  policy = <<EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "*"
+            ],
+            "Resource": [
+                "${aws_s3_bucket.support.arn}"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "*"
+            ],
+            "Resource": [
+                "${aws_s3_bucket.support.arn}/*"
             ]
         }
     ]
