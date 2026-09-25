@@ -64,7 +64,7 @@
       {
         "name": "BUILD_ENGINE_SUPPORT_BUCKET",
         "value": "${BUILD_ENGINE_SUPPORT_BUCKET}"
-      }
+      },
       {
         "name": "CODE_BUILD_IMAGE_REPO",
         "value": "${CODE_BUILD_IMAGE_REPO}"
