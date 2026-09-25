@@ -479,6 +479,31 @@ resource "aws_s3_bucket_lifecycle_configuration" "support" {
     noncurrent_version_expiration {
       noncurrent_days = 365
     }
+
+    abort_incomplete_multipart_upload {
+      days_after_initiation = 7
+    }
+  }
+
+  rule {
+    id     = "expire-support-data"
+    status = "Enabled"
+
+    filter {}
+
+    expiration {
+      days = 90
+    }
+  }
+  rule {
+    id     = "remove-expired-delete-markers"
+    status = "Enabled"
+
+    filter {}
+
+    expiration {
+      expired_object_delete_marker = true
+    }
   }
 }
 
@@ -1056,6 +1081,7 @@ module "ecsservice_buildengine" {
     BUILD_ENGINE_ARTIFACTS_BUCKET_REGION = var.aws_region
     BUILD_ENGINE_PROJECTS_BUCKET         = aws_s3_bucket.projects.bucket
     BUILD_ENGINE_SECRETS_BUCKET          = aws_s3_bucket.secrets.bucket
+    BUILD_ENGINE_SUPPORT_BUCKET          = aws_s3_bucket.support.bucket
     CODE_BUILD_IMAGE_REPO                = "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/${var.buildagent_code_build_image_repo}-${var.app_env}"
     CODE_BUILD_IMAGE_TAG                 = var.buildagent_code_build_image_tag
     DATABASE_URL                         = "postgres://${var.db_admin_root_user}:${random_id.db_admin_root_pass.hex}@${aws_db_instance.db_instance.address}/${var.buildengine_db_name}?schema=public"
